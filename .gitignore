@@ -1,0 +1,137 @@
+# =============================================
+# XGIC Payload CMS + Next.js Static Exporter
+# Optimized for: Docker/devcontainer root + <project>/ app subfolder,
+# pnpm, static SSG/export, GitLab SFTP deploy, on-prem legacy hosting.
+# =============================================
+
+# =============================================
+# pnpm (your package manager — critical addition from screenshot)
+# =============================================
+.pnpm-store/
+**/.pnpm-store/
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# =============================================
+# Dependencies (root + subfolder)
+# =============================================
+node_modules/
+**/node_modules/
+
+# =============================================
+# Build & static export artifacts (Next.js / Payload SSG)
+# =============================================
+.next/
+**/next/
+out/
+**/out/
+dist/
+**/dist/
+build/
+**/build/
+public/robots.txt
+**/public/robots.txt
+public/sitemap*.xml
+**/public/sitemap*.xml
+
+# =============================================
+# Payload CMS media & uploads (never commit binaries)
+# =============================================
+public/media/
+**/public/media/
+media/
+**/media/
+uploads/
+**/uploads/
+
+# =============================================
+# Environment & secrets (root + any subfolder)
+# =============================================
+.env
+.env*.local
+.env.development
+.env.production
+.env.test
+**/.env
+**/.env*.local
+**/.env.development
+**/.env.production
+**/.env.test
+*.pem
+
+# =============================================
+# Dev Container & Docker runtime data
+# =============================================
+.devcontainer/.docker
+.docker/
+.dockerignore
+# Local DB fallbacks (Postgres is external in docker-compose)
+*.db
+*.db-journal
+*payloadtests.db*
+payload.db
+
+# =============================================
+# Logs & debug
+# =============================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.DS_Store
+Thumbs.db
+
+# =============================================
+# Editor & IDE files (keep team-shared configs)
+# =============================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+.idea/
+*.swp
+*.swo
+
+# =============================================
+# TypeScript / Next.js caches
+# =============================================
+*.tsbuildinfo
+next-env.d.ts
+**/next-env.d.ts
+
+# =============================================
+# Test & E2E artifacts
+# =============================================
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+**/coverage/
+.nyc_output/
+
+# =============================================
+# GitLab CI / Docker / temporary artifacts
+# =============================================
+.gitlab-ci-local/
+artifacts/
+cache/
+**/tmp/
+**/tmp-*/
+
+# =============================================
+# Custom Copilot / AI agent files (from /create-agent)
+# =============================================
+AGENTS.local.md
+CLAUDE.local.md
+.claude/
+.worktrees/
+
+# =============================================
+# Miscellaneous (Vercel, coverage, etc.)
+# =============================================
+.vercel
+coverage/

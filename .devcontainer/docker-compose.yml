@@ -1,0 +1,52 @@
+name: xgic-payload-cms-dev-containers
+services:
+  xgic-payload-cms-dev-containers:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      target: dev
+    command: tail -f /dev/null
+    container_name: xgic-payload-cms-dev-containers
+    env_file: .env
+    image: xgic-payload-cms-dev-containers
+    networks:
+      - app-network
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app:delegated # Bind-mount source for live reload
+      - $HOME/.ssh:/home/node/.ssh
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  postgres:
+    container_name: xgic-payload-cms-dev-containers-postgres
+    env_file: .env
+    image: postgres:18.4 # Latest stable as of May 2026
+    networks:
+      - app-network
+    volumes:
+      - postgres-data:/var/lib/postgresql # Persistent volume (best practice)
+
+  pgadmin:
+    container_name: xgic-payload-cms-dev-containers-pgadmin
+    env_file: .env
+    depends_on:
+      - postgres
+    image: dpage/pgadmin4:latest
+    networks:
+      - app-network
+    ports:
+      - "8080:80" # Access pgAdmin at http://server-ip:8080
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  pgadmin-data:
+    name: xgic-payload-cms-dev-containers-pgadmin-data
+  postgres-data:
+    name: xgic-payload-cms-dev-containers-postgres-data
+
+networks:
+  app-network:
+    driver: bridge # Isolated network
+    name: xgic-payload-cms-dev-containers

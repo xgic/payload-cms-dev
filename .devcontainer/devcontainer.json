@@ -1,0 +1,39 @@
+{
+  "name": "XGIC Payload CMS Dev Containers",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "xgic-payload-cms-dev-containers",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached"
+  ],
+  "workspaceFolder": "/app",
+  "remoteUser": "node",
+
+  // === LIFECYCLE HOOKS (Critical for automation) ===
+  "initializeCommand": "bash .devcontainer/init-env.sh",
+  "postCreateCommand": "bash .devcontainer/post-create.sh || true",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "christian-kohler.npm-intellisense",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "gitlab.gitlab-workflow",
+        "GraphQL.vscode-graphql",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.vscode-typescript-next",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg",
+        "streetsidesoftware.code-spell-checker",
+        "usernamehw.errorlens"
+      ]
+    }
+  },
+
+  "forwardPorts": [3000, 8080],
+  "portsAttributes": {
+    "3000": { "label": "Payload Admin" },
+    "8080": { "label": "pgAdmin 4" }
+  }
+}
