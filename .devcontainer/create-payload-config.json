@@ -1,13 +1,10 @@
 {
-  "projectName": "my-payload-cms-app",
+  "projectName": "my-payload-cms",
   "template": "website",
-  "yes": true,
-  "typescript": true,
+  "example": null,
+  "agent": "--no-agent",
   "dbAdapter": "postgres",
   "dbUri": "postgres://payload:payload_password@postgres:5432/payload_db",
-  "adminEmail": "admin@internal.xorengames.com",
-  "adminPassword": "change-this-in-production",
-  "plugins": [],
-  "example": false,
+  "adminEmail": "admin@example.com",
   "telemetry": false
 }

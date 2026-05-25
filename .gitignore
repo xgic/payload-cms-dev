@@ -121,6 +121,7 @@ artifacts/
 cache/
 **/tmp/
 **/tmp-*/
+**/changes-*.patch
 
 # =============================================
 # Custom Copilot / AI agent files (from /create-agent)

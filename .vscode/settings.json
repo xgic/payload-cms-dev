@@ -7,6 +7,7 @@
     "dpage",
     "dpkg",
     "eamodio",
+    "ecommerce",
     "errorlens",
     "esbenp",
     "healthcheck",
@@ -18,8 +19,9 @@
     "nextjs",
     "payloadcms",
     "payloadtests",
-    "pgadmin",
     "pgdg",
+    "PGPASSWORD",
+    "pnpx",
     "psql",
     "sqltools",
     "tracepath",
@@ -39,7 +41,7 @@
       "name": "postgres",
       "database": "payload_db",
       "username": "payload",
-      "password": "payload_password"
+      "password": "1ec4da055bc441255dea145ccc51c013"
     }
   ]
 }

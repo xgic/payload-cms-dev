@@ -3,9 +3,9 @@
   "dockerComposeFile": "./docker-compose.yml",
   "service": "xgic-payload-cms-dev-containers",
   "mounts": [
-    "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
   ],
-  "workspaceFolder": "/app",
+  "workspaceFolder": "/workspace",
   "remoteUser": "node",
 
   // === LIFECYCLE HOOKS (Critical for automation) ===
@@ -31,9 +31,8 @@
     }
   },
 
-  "forwardPorts": [3000, 8080],
+  "forwardPorts": [3000],
   "portsAttributes": {
-    "3000": { "label": "Payload Admin" },
-    "8080": { "label": "pgAdmin 4" }
+    "3000": { "label": "Payload CMS" }
   }
 }

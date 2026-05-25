@@ -14,9 +14,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app:delegated # Bind-mount source for live reload
+      - ..:/workspace:delegated # Bind-mount source for live reload
       - $HOME/.ssh:/home/node/.ssh
       - /var/run/docker.sock:/var/run/docker.sock
+      - vscode-srv-ext:/home/node/.vscode-server/extensions
 
   postgres:
     container_name: xgic-payload-cms-dev-containers-postgres
@@ -27,24 +28,11 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql # Persistent volume (best practice)
 
-  pgadmin:
-    container_name: xgic-payload-cms-dev-containers-pgadmin
-    env_file: .env
-    depends_on:
-      - postgres
-    image: dpage/pgadmin4:latest
-    networks:
-      - app-network
-    ports:
-      - "8080:80" # Access pgAdmin at http://server-ip:8080
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-
 volumes:
-  pgadmin-data:
-    name: xgic-payload-cms-dev-containers-pgadmin-data
   postgres-data:
     name: xgic-payload-cms-dev-containers-postgres-data
+  vscode-srv-ext:
+    name: xgic-payload-cms-dev-containers-vscode-srv-ext
 
 networks:
   app-network:

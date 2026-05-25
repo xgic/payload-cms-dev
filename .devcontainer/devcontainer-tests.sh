@@ -1,25 +1,34 @@
 #!/bin/bash
-#
-# - Test VS Code Dev Container.
-# 
 set -e
 
-readonly SCRIPT_NAME="${0##*/}"
+# Idempotency guard – prevents re-running on every reopen/restart
+if find /workspace -maxdepth 4 -name "payload.config.ts" -o \
+   -name "payload.config.js" | grep -q .; then
+  echo "✅ Payload CMS project already exists (found payload.config.*)" \
+       " – skipping initialization."
+  exit 0
+fi
 
-printf "\nStarting ${SCRIPT_NAME} script...\n"
+printf "\nStarting devcontainer-tests.sh script...\n"
 printf "\n$(date)\n"
 
-printf "\nCheck Node.js version.\n"
+echo "Check Node.js version."
 node --version
 
-printf "\nCheck pnpm version.\n"
+echo "Check pnpm version."
 pnpm --version
 
-printf "\nCheck PostgreSQL Client version.\n"
+echo "Check PostgreSQL Client version."
 psql --version
 
-printf "\nCheck PostgreSQL database access.\n"
-psql -h postgres -U payload -d payload_db -c "\l"
+echo "Check PostgreSQL database access."
+PGPASSWORD=${POSTGRES_PASSWORD} psql -U "${POSTGRES_USER}" \
+  -d payload_db -c "\l" --no-password
 
-printf "\n\nEnding ${SCRIPT_NAME} script...\n"
+echo "Check Docker CLI (best practice test)."
+docker --version
+docker info --format "Docker Engine: {{.ServerVersion}}"
+
+echo ""
+echo "Ending devcontainer-tests.sh script..."
 printf "\n$(date)\n"
