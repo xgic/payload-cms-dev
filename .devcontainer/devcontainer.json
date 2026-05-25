@@ -9,8 +9,8 @@
   "remoteUser": "node",
 
   // === LIFECYCLE HOOKS (Critical for automation) ===
-  "initializeCommand": "bash .devcontainer/init-env.sh",
-  "postCreateCommand": "bash .devcontainer/post-create.sh || true",
+  "initializeCommand": "bash .devcontainer/scripts/init-env.sh",
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh || true",
 
   "customizations": {
     "vscode": {

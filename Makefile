@@ -14,8 +14,8 @@ PROJECT_NAME       ?= xgic-payload-cms-dev-containers
 SERVICE_NAME       ?= xgic-payload-cms-dev-containers
 ENV_FILE           ?= .devcontainer/.env
 
-INIT_ENV_SCRIPT    ?= .devcontainer/init-env.sh
-POST_CREATE_SCRIPT ?= .devcontainer/post-create.sh
+INIT_ENV_SCRIPT    ?= .devcontainer/scripts/init-env.sh
+POST_CREATE_SCRIPT ?= .devcontainer/scripts/post-create.sh
 WORKSPACE_DIR      ?= /workspace
 
 DOCKER_COMPOSE := docker compose -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
