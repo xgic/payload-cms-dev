@@ -18,9 +18,22 @@ FROM core AS dev_tools
 LABEL net.xgic.stage="Development Tools"
 
 # Install system deps + pnpm
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential ca-certificates curl git gnupg iproute2 iputils-ping \
-    iputils-tracepath jq locales lsb-release rsync ssh unzip wget \
+RUN apt-get update --yes && apt-get install -yes --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+    git \
+    gnupg \
+    iproute2 \
+    iputils-ping \
+    iputils-tracepath \
+    jq \
+    locales \
+    lsb-release \
+    rsync \
+    ssh \
+    unzip \
+    wget \
     zlib1g-dev \
     && install -m 0755 -d /etc/apt/keyrings \
     && curl -fsSL https://download.docker.com/linux/debian/gpg -o \
