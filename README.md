@@ -4,13 +4,12 @@
 [![Payload CMS](https://img.shields.io/badge/Payload%20CMS-3.x+-000000?logo=payloadcms&logoColor=white)](https://payloadcms.com)
 [![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
-> **Official XGIC template** — Rapid, reproducible, production-grade Payload CMS development environment using VS Code **Dev Containers** + **Docker Compose** + **PostgreSQL 18** + **pgAdmin**.
+> **Official XGIC template** — Rapid, reproducible, production-grade Payload CMS development environment using VS Code **Dev Containers** + **Docker Compose** + **PostgreSQL 18**.
 
 ## Features
 
 - **Node.js LTS Slim** + **pnpm 10** (pinned for maximum Payload CMS compatibility)
 - **PostgreSQL 18** server + client with persistent data volume
-- **pgAdmin 4** pre-configured (accessible on port 8080)
 - Docker-in-Docker + Buildx + Compose support
 - Non-root `node` user and security-hardened base image
 - Automated environment validation via `devcontainer-tests.sh`
@@ -41,13 +40,13 @@ These extensions ensure a **consistent, high-productivity development environmen
 1. **Clone or use this repository as a GitHub Template**
 2. Open the folder in **VS Code**
 3. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> then select the **Dev Containers: Rebuild Without Cache and Reopen in Container** option.
-4. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL + pgAdmin credentials)
+4. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL credentials)
 5. The `postCreateCommand` will:
    - Run environment validation (`devcontainer-tests.sh`)
    - **Launch the official Payload CMS interactive wizard** (`pnpx create-payload-app@latest`)
 6. When prompted by the wizard, choose your template (website, blank, etc.) and project name
 7. After the wizard completes, run `pnpm dev` in the new Payload subdirectory
-8. Open http://localhost:3000/admin and http://localhost:8080 (pgAdmin)
+8. Open http://localhost:3000/admin
 
 **For non-interactive / CI/CD automation** (e.g., when using this repo as a template):
 - Customize `.devcontainer/create-payload-config.json` with all supported parameters (see [official Payload CMS documentation](https://payloadcms.com/docs/getting-started/installation) for additional information):
@@ -85,7 +84,7 @@ These extensions ensure a **consistent, high-productivity development environmen
 ## Architecture
 
 - Multi-stage **Dockerfile** (core → dev_tools → dev)
-- Docker Compose orchestration for app + postgres + pgadmin services
+- Docker Compose orchestration for app + postgres services
 - Isolated bridge network + named volumes for data persistence
 - Delegated bind mounts for optimal performance
 
