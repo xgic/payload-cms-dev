@@ -79,10 +79,9 @@ LABEL net.xgic.stage="Development"
 ENV APP_ENV=dev
 WORKDIR ${WORKSPACE}
 
-# Install Python + pexpect for programmatic control of interactive
-# Linux console/TUI applications (arrow-key menus, pre-filled inputs,
-# ANSI prompts). Uses an isolated venv to comply with Debian bookworm's
-# PEP 668 EXTERNALLY-MANAGED policy on the system Python in node:lts-slim.
+# Install Python (for potential future scripting and test tooling).
+# Uses an isolated venv to comply with Debian bookworm's PEP 668
+# EXTERNALLY-MANAGED policy on the system Python in node:lts-slim.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-venv \
     && rm -rf /var/lib/apt/lists/*
@@ -90,12 +89,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV PYTHON_VENV=/opt/venv
 RUN python3 -m venv ${PYTHON_VENV} \
     && ${PYTHON_VENV}/bin/pip install --no-cache-dir --upgrade pip setuptools wheel \
-    && ${PYTHON_VENV}/bin/pip install --no-cache-dir pexpect==4.9.* \
-    # Test dependencies for the automation script (available inside the Dev Container)
+    # Test dependencies (available inside the Dev Container)
     && ${PYTHON_VENV}/bin/pip install --no-cache-dir pytest pytest-cov pytest-mock \
     && rm -rf /root/.cache/pip
 
-# Make the venv's Python/pip/pexpect (and test tools) available to subsequent build steps
+# Make the venv's Python/pip (and test tools) available to subsequent build steps
 # and to the final container user (both root during build and node at runtime).
 ENV PATH="${PYTHON_VENV}/bin:${PATH}"
 

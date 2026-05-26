@@ -13,7 +13,7 @@
 - Docker-in-Docker + Buildx + Compose support
 - Non-root `node` user and security-hardened base image
 - Automated environment validation via `devcontainer-tests.sh`
-- Automated Payload CMS project creation via pexpect (supports interactive wizard or config-driven non-interactive mode)
+- Automated/semi-automated Payload CMS project creation during devcontainer startup
 
 ### Pre-configured VS Code Extensions
 
@@ -41,18 +41,17 @@ These extensions ensure a **consistent, high-productivity development environmen
 2. Open the folder in **VS Code**
 3. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> then select the **Dev Containers: Rebuild Without Cache and Reopen in Container** option.
 4. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL credentials)
-5. The `postCreateCommand` will:
-   - Run environment validation (`devcontainer-tests.sh`)
-   - **Automatically create the Payload CMS project** using the pexpect-driven automation in `create-payload-automated.py` (driven by `.devcontainer/create-payload-config.json` or interactive prompts via the official wizard)
+5. The container lifecycle will:
+   - Run `initializeCommand` to generate `.env`
+   - Run `postStartCommand` which executes `setup-payload.sh` (idempotent project creation)
 6. After creation completes, run `pnpm dev` in the new Payload subdirectory
 7. Open http://localhost:3000/admin
 
 **For non-interactive / CI/CD automation** (e.g., when using this repo as a template):
 - Customize `.devcontainer/create-payload-config.json` with supported parameters (projectName, template, dbAdapter, dbUri, etc.).
-- The automation script (`.devcontainer/scripts/create-payload-automated.py`) will use pexpect to drive any remaining interactive prompts or pass flags where supported.
-- Full details are in the script's help (`python .devcontainer/scripts/create-payload-automated.py --help`) and `plan.md`.
+- Project creation is handled by `.devcontainer/scripts/setup-payload.sh` (invoked via `postStartCommand`).
 
-   Happy codding your dream web apps using Payload CMS in our optimized development environment.
+   Happy coding your dream web apps using Payload CMS in our optimized development environment.
 
 ## Repository Structure
 
@@ -65,11 +64,11 @@ These extensions ensure a **consistent, high-productivity development environmen
 │   ├── docker-compose.yml
 │   ├── Dockerfile
 │   └── scripts/
-│       ├── create-payload-automated.py   # Core pexpect automation (CLI + config support)
+│       ├── setup-payload.sh            # Main project creation logic (postStartCommand)
 │       ├── devcontainer-tests.sh
 │       ├── init-env.sh
 │       ├── post-create.sh                # Legacy compatibility shim (deprecated)
-│       └── setup-payload.sh              # Thin entrypoint for postCreateCommand
+│       └── reset-project.py              # Python implementation of make reset-project
 ├── .dockerignore
 ├── .github/
 │   └── CONTRIBUTING.md

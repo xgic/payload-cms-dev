@@ -5,14 +5,11 @@
 # This script is kept for backward compatibility with older Makefile targets
 # and any external automation that still calls "post-create.sh".
 #
-# The authoritative Payload creation automation now lives in:
-#   - .devcontainer/scripts/setup-payload.sh  (thin wrapper)
-#   - .devcontainer/scripts/create-payload-automated.py  (pexpect-based CLI)
+# Payload project creation logic now lives in:
+#   - .devcontainer/scripts/setup-payload.sh
 #
-# The old direct creation logic and inline validation have been removed.
-# See the new Python script for configuration via create-payload-config.json.
-#
-# TODO (future): Move the SQLTools credential patching logic into a dedicated step.
+# Note: The previous pexpect-based automation has been removed.
+# See setup-payload.sh for current approach and limitations.
 #
 
 set -e
@@ -38,8 +35,9 @@ log_warn "post-create" "Delegating to the current automation flow..."
 if [ -x ".devcontainer/scripts/setup-payload.sh" ]; then
     exec bash .devcontainer/scripts/setup-payload.sh
 else
-    log_warn "post-create" "setup-payload.sh not found — falling back to direct Python call"
-    python3 .devcontainer/scripts/create-payload-automated.py --config .devcontainer/create-payload-config.json || true
+    log_warn "post-create" "setup-payload.sh not found — falling back to basic creation attempt"
+    PROJECT_NAME=$(python3 .devcontainer/scripts/get-payload-project-name.py 2>/dev/null || echo "my-payload-cms")
+    pnpx create-payload-app@latest "$PROJECT_NAME" -t website --use-pnpm --yes || true
 fi
 
 echo ""

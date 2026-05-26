@@ -15,8 +15,9 @@ else
   log_debug() { :; }
 fi
 
-# Note: The idempotency guard for Payload creation has been centralized in
-# create-payload-automated.py. Tests can safely run regardless of project state.
+# Note: Tests are intended to be runnable at different points in the devcontainer
+# lifecycle. Some checks may be expected to fail until the full setup (including
+# Payload project creation) has completed.
 
 log_info "tests" "Starting devcontainer-tests.sh script..."
 printf '\n%s\n' "$(date)"
@@ -31,8 +32,22 @@ echo "Check PostgreSQL Client version."
 psql --version
 
 echo "Check PostgreSQL database access."
-PGPASSWORD=${POSTGRES_PASSWORD} psql -U "${POSTGRES_USER}" \
-  -d payload_db -c "\l" --no-password
+
+CONFIG_FILE=".devcontainer/create-payload-config.json"
+DB_NAME="payload_db"
+DB_USER="${POSTGRES_USER:-payload}"
+
+if [ -f "$CONFIG_FILE" ] && command -v jq >/dev/null 2>&1; then
+    CONFIG_DB_NAME=$(jq -r '.dbName // empty' "$CONFIG_FILE" 2>/dev/null || true)
+    CONFIG_DB_USER=$(jq -r '.dbUser // empty' "$CONFIG_FILE" 2>/dev/null || true)
+
+    [ -n "$CONFIG_DB_NAME" ] && DB_NAME="$CONFIG_DB_NAME"
+    [ -n "$CONFIG_DB_USER" ] && DB_USER="$CONFIG_DB_USER"
+fi
+
+PGHOST=${PGHOST:-postgres} \
+PGPASSWORD=${POSTGRES_PASSWORD} psql -U "${DB_USER}" \
+  -d "$DB_NAME" -c "\l" --no-password -h "${PGHOST}"
 
 echo "Check Docker CLI (best practice test)."
 docker --version

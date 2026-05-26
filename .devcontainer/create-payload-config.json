@@ -4,6 +4,8 @@
   "example": null,
   "agent": "--no-agent",
   "dbAdapter": "postgres",
+  "dbName": "payload_db",
+  "dbUser": "payload",
   "dbUri": "postgres://payload:payload_password@postgres:5432/payload_db",
   "adminEmail": "admin@example.com",
   "telemetry": false
