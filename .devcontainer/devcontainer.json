@@ -7,11 +7,9 @@
   ],
   "workspaceFolder": "/workspace",
   "remoteUser": "node",
-
   // === LIFECYCLE HOOKS (Critical for automation) ===
   "initializeCommand": "bash .devcontainer/scripts/init-env.sh",
-  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh || true",
-
+  "postCreateCommand": "bash .devcontainer/scripts/setup-payload.sh",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -30,9 +28,12 @@
       ]
     }
   },
-
-  "forwardPorts": [3000],
+  "forwardPorts": [
+    3000
+  ],
   "portsAttributes": {
-    "3000": { "label": "Payload CMS" }
+    "3000": {
+      "label": "Payload CMS"
+    }
   }
 }

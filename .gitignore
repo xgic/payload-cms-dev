@@ -1,11 +1,12 @@
 # =============================================
-# XGIC Payload CMS + Next.js Static Exporter
-# Optimized for: Docker/devcontainer root + <project>/ app subfolder,
-# pnpm, static SSG/export, GitLab SFTP deploy, on-prem legacy hosting.
+# XGIC Payload CMS Dev Containers
+# Root .gitignore for the Dev Container template itself.
+# Note: Generated Payload apps (in subdirectories) have their own .gitignore
+# created by create-payload-app.
 # =============================================
 
 # =============================================
-# pnpm (your package manager — critical addition from screenshot)
+# pnpm
 # =============================================
 .pnpm-store/
 **/.pnpm-store/
@@ -19,30 +20,15 @@ node_modules/
 **/node_modules/
 
 # =============================================
-# Build & static export artifacts (Next.js / Payload SSG)
+# Generated Payload apps
 # =============================================
+# create-payload-app creates its own .gitignore inside the generated
+# subdirectory (e.g. my-payload-cms/). The patterns below are kept here
+# only for convenience if someone runs commands at the root.
 .next/
-**/next/
 out/
-**/out/
 dist/
-**/dist/
 build/
-**/build/
-public/robots.txt
-**/public/robots.txt
-public/sitemap*.xml
-**/public/sitemap*.xml
-
-# =============================================
-# Payload CMS media & uploads (never commit binaries)
-# =============================================
-public/media/
-**/public/media/
-media/
-**/media/
-uploads/
-**/uploads/
 
 # =============================================
 # Environment & secrets (root + any subfolder)
@@ -63,8 +49,20 @@ uploads/
 # Dev Container & Docker runtime data
 # =============================================
 .devcontainer/.docker
+.devcontainer/.env
+.devcontainer/*.local.*
 .docker/
 .dockerignore
+
+# Python caches generated inside the dev container (e.g. automation scripts)
+.devcontainer/scripts/__pycache__/
+.devcontainer/scripts/*.py[cod]
+
+# Keep our hand-written shared library (the broad Python packaging rules above
+# would otherwise ignore any directory named "lib")
+!.devcontainer/scripts/lib/
+!.devcontainer/scripts/lib/*
+
 # Local DB fallbacks (Postgres is external in docker-compose)
 *.db
 *.db-journal
@@ -82,6 +80,9 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
+# Merge conflict backups
+*.orig
+
 # =============================================
 # Editor & IDE files (keep team-shared configs)
 # =============================================
@@ -97,24 +98,167 @@ Thumbs.db
 *.swo
 
 # =============================================
-# TypeScript / Next.js caches
+# TypeScript caches (mostly relevant inside generated apps)
 # =============================================
 *.tsbuildinfo
 next-env.d.ts
 **/next-env.d.ts
 
 # =============================================
-# Test & E2E artifacts
+# Python (added for .devcontainer/scripts/ automation)
 # =============================================
-test-results/
-playwright-report/
-blob-report/
-playwright/.cache/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Do not ignore our intentional library directory
+!.devcontainer/scripts/lib/
+!.devcontainer/scripts/lib/*
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Scrapy stuff
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Ruff (modern Python linter)
+.ruff_cache/
+
+# =============================================
+# Test & E2E artifacts (mostly relevant inside generated apps)
+# =============================================
 **/coverage/
 .nyc_output/
 
 # =============================================
-# GitLab CI / Docker / temporary artifacts
+# GitLab CI / temporary artifacts
 # =============================================
 .gitlab-ci-local/
 artifacts/
@@ -124,7 +268,7 @@ cache/
 **/changes-*.patch
 
 # =============================================
-# Custom Copilot / AI agent files (from /create-agent)
+# Custom Copilot / AI agent files
 # =============================================
 AGENTS.local.md
 CLAUDE.local.md
@@ -132,7 +276,7 @@ CLAUDE.local.md
 .worktrees/
 
 # =============================================
-# Miscellaneous (Vercel, coverage, etc.)
+# Miscellaneous
 # =============================================
 .vercel
 coverage/

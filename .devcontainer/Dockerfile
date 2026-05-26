@@ -9,8 +9,8 @@ ENV APP_HOME_DIR=/home/${APP_USER}
 ENV APP_BIN_DIR=${APP_HOME_DIR}/.local/bin
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8
+   LANGUAGE=en_US:en \
+   LC_ALL=en_US.UTF-8
 ENV WORKSPACE=/workspace
 ENV XG_AIS_HOST_TYPE=xgic-devcontainer
 
@@ -18,65 +18,86 @@ FROM core AS dev_tools
 LABEL net.xgic.stage="Development Tools"
 
 # Install system deps + pnpm
-RUN apt-get update --yes && apt-get install -yes --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    curl \
-    git \
-    gnupg \
-    iproute2 \
-    iputils-ping \
-    iputils-tracepath \
-    jq \
-    locales \
-    lsb-release \
-    rsync \
-    ssh \
-    unzip \
-    wget \
-    zlib1g-dev \
-    && install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/debian/gpg -o \
-       /etc/apt/keyrings/docker.asc \
-    && chmod a+r /etc/apt/keyrings/docker.asc \
-    && echo "deb [arch=$(dpkg --print-architecture) \
-       signed-by=/etc/apt/keyrings/docker.asc] \
-       https://download.docker.com/linux/debian \
-       $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-       tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update --yes --quiet \
-    && apt-get install --yes --quiet --no-install-recommends \
-       docker-buildx-plugin docker-ce-cli docker-compose-plugin \
-    && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
-       gpg --dearmor -o /usr/share/keyrings/postgresql-archive-keyring.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] \
-       https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
-       | tee /etc/apt/sources.list.d/pgdg.list > /dev/null \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends postgresql-client-18 \
-    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias \
-       en_US.UTF-8 \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get upgrade --yes --quiet \
-    && rm -rf /var/lib/apt/lists/* \
-    && corepack enable \
-    && corepack use pnpm@10
+RUN apt-get update --yes && apt-get install --yes --no-install-recommends \
+   build-essential \
+   ca-certificates \
+   curl \
+   git \
+   gnupg \
+   iproute2 \
+   iputils-ping \
+   iputils-tracepath \
+   jq \
+   locales \
+   lsb-release \
+   rsync \
+   shellcheck \
+   ssh \
+   unzip \
+   wget \
+   zlib1g-dev \
+   && install -m 0755 -d /etc/apt/keyrings \
+   && curl -fsSL https://download.docker.com/linux/debian/gpg -o \
+   /etc/apt/keyrings/docker.asc \
+   && chmod a+r /etc/apt/keyrings/docker.asc \
+   && echo "deb [arch=$(dpkg --print-architecture) \
+   signed-by=/etc/apt/keyrings/docker.asc] \
+   https://download.docker.com/linux/debian \
+   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+   tee /etc/apt/sources.list.d/docker.list > /dev/null \
+   && apt-get update --yes --quiet \
+   && apt-get install --yes --quiet --no-install-recommends \
+   docker-buildx-plugin docker-ce-cli docker-compose-plugin \
+   && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+   gpg --dearmor -o /usr/share/keyrings/postgresql-archive-keyring.gpg \
+   && echo "deb [signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] \
+   https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+   | tee /etc/apt/sources.list.d/pgdg.list > /dev/null \
+   && apt-get update \
+   && apt-get install -y --no-install-recommends postgresql-client-18 \
+   && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias \
+   en_US.UTF-8 \
+   && rm -rf /var/lib/apt/lists/* \
+   && apt-get upgrade --yes --quiet \
+   && rm -rf /var/lib/apt/lists/* \
+   && corepack enable \
+   && corepack use pnpm@10
 
 # Setup app user, groups, and workspace directory with correct ownership
 RUN chsh -s /bin/bash ${APP_USER} \
-    && groupadd -g 994 docker \
-    && usermod -aG docker ${APP_USER} \
-    && groupadd -g 2001 ${APP_USER}-${APP_ENV} \
-    && usermod -aG docker,sudo,${APP_USER}-${APP_ENV} ${APP_USER} \
-    && mkdir -p ${APP_HOME_DIR}/.vscode-server/extensions \
-    && mkdir -p ${WORKSPACE} \
-    && chown -R ${APP_USER}:${APP_USER} ${APP_HOME_DIR}/.vscode-server \
-    && chown -R ${APP_USER}:${APP_USER} ${WORKSPACE}
+   && groupadd -g 994 docker \
+   && usermod -aG docker ${APP_USER} \
+   && groupadd -g 2001 ${APP_USER}-${APP_ENV} \
+   && usermod -aG docker,sudo,${APP_USER}-${APP_ENV} ${APP_USER} \
+   && mkdir -p ${APP_HOME_DIR}/.vscode-server/extensions \
+   && mkdir -p ${WORKSPACE} \
+   && chown -R ${APP_USER}:${APP_USER} ${APP_HOME_DIR}/.vscode-server \
+   && chown -R ${APP_USER}:${APP_USER} ${WORKSPACE}
 
 FROM dev_tools AS dev
 LABEL net.xgic.stage="Development"
 ENV APP_ENV=dev
 WORKDIR ${WORKSPACE}
+
+# Install Python + pexpect for programmatic control of interactive
+# Linux console/TUI applications (arrow-key menus, pre-filled inputs,
+# ANSI prompts). Uses an isolated venv to comply with Debian bookworm's
+# PEP 668 EXTERNALLY-MANAGED policy on the system Python in node:lts-slim.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHON_VENV=/opt/venv
+RUN python3 -m venv ${PYTHON_VENV} \
+    && ${PYTHON_VENV}/bin/pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && ${PYTHON_VENV}/bin/pip install --no-cache-dir pexpect==4.9.* \
+    # Test dependencies for the automation script (available inside the Dev Container)
+    && ${PYTHON_VENV}/bin/pip install --no-cache-dir pytest pytest-cov pytest-mock \
+    && rm -rf /root/.cache/pip
+
+# Make the venv's Python/pip/pexpect (and test tools) available to subsequent build steps
+# and to the final container user (both root during build and node at runtime).
+ENV PATH="${PYTHON_VENV}/bin:${PATH}"
 
 # Copy code
 COPY --chown=${APP_USER}:${APP_USER} . .

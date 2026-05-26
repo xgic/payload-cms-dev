@@ -4,7 +4,7 @@
 [![Payload CMS](https://img.shields.io/badge/Payload%20CMS-3.x+-000000?logo=payloadcms&logoColor=white)](https://payloadcms.com)
 [![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
-> **Official XGIC template** — Rapid, reproducible, production-grade Payload CMS development environment using VS Code **Dev Containers** + **Docker Compose** + **PostgreSQL 18**.
+> **Official XGIC template** — Rapid, reproducible, production-grade Payload CMS development environment using VS Code **Dev Containers** + **Docker Compose** + **PostgreSQL 18** + **automated project creation**.
 
 ## Features
 
@@ -13,7 +13,7 @@
 - Docker-in-Docker + Buildx + Compose support
 - Non-root `node` user and security-hardened base image
 - Automated environment validation via `devcontainer-tests.sh`
-- Ready for `create-payload-app@latest`
+- Automated Payload CMS project creation via pexpect (supports interactive wizard or config-driven non-interactive mode)
 
 ### Pre-configured VS Code Extensions
 
@@ -43,21 +43,14 @@ These extensions ensure a **consistent, high-productivity development environmen
 4. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL credentials)
 5. The `postCreateCommand` will:
    - Run environment validation (`devcontainer-tests.sh`)
-   - **Launch the official Payload CMS interactive wizard** (`pnpx create-payload-app@latest`)
-6. When prompted by the wizard, choose your template (website, blank, etc.) and project name
-7. After the wizard completes, run `pnpm dev` in the new Payload subdirectory
-8. Open http://localhost:3000/admin
+   - **Automatically create the Payload CMS project** using the pexpect-driven automation in `create-payload-automated.py` (driven by `.devcontainer/create-payload-config.json` or interactive prompts via the official wizard)
+6. After creation completes, run `pnpm dev` in the new Payload subdirectory
+7. Open http://localhost:3000/admin
 
 **For non-interactive / CI/CD automation** (e.g., when using this repo as a template):
-- Customize `.devcontainer/create-payload-config.json` with all supported parameters (see [official Payload CMS documentation](https://payloadcms.com/docs/getting-started/installation) for additional information):
-  - projectName → directory name (positional argument)
-  - template → blank | website | ecommerce | custom (official templates)
-  - yes → --yes flag (skip all prompts)
-  - typescript → TypeScript vs JavaScript
-  - dbAdapter / dbUri → Database configuration
-  - adminEmail / adminPassword → Initial admin user
-  - plugins / example → Additional options
-- The wizard will be skipped and the Payload CMS project will be created automatically.
+- Customize `.devcontainer/create-payload-config.json` with supported parameters (projectName, template, dbAdapter, dbUri, etc.).
+- The automation script (`.devcontainer/scripts/create-payload-automated.py`) will use pexpect to drive any remaining interactive prompts or pass flags where supported.
+- Full details are in the script's help (`python .devcontainer/scripts/create-payload-automated.py --help`) and `plan.md`.
 
    Happy codding your dream web apps using Payload CMS in our optimized development environment.
 
@@ -66,17 +59,20 @@ These extensions ensure a **consistent, high-productivity development environmen
 ```
 .
 ├── .devcontainer/
-│   ├── .env                  # Dynamically generated (never commit for security)
+│   ├── .env                      # Dynamically generated (never commit)
 │   ├── create-payload-config.json
-│   ├── devcontainer-tests.sh
 │   ├── devcontainer.json
 │   ├── docker-compose.yml
 │   ├── Dockerfile
-│   ├── init-env.sh
-│   └── post-create.sh
+│   └── scripts/
+│       ├── create-payload-automated.py   # Core pexpect automation (CLI + config support)
+│       ├── devcontainer-tests.sh
+│       ├── init-env.sh
+│       ├── post-create.sh                # Legacy compatibility shim (deprecated)
+│       └── setup-payload.sh              # Thin entrypoint for postCreateCommand
 ├── .dockerignore
-├── .github/              # CI, CODE_OF_CONDUCT, etc.
-│   └──  CONTRIBUTING.md
+├── .github/
+│   └── CONTRIBUTING.md
 ├── LICENSE
 └── README.md
 ```
@@ -88,9 +84,26 @@ These extensions ensure a **consistent, high-productivity development environmen
 - Isolated bridge network + named volumes for data persistence
 - Delegated bind mounts for optimal performance
 
+## Working with AI Assistants (Grok, etc.)
+
+This repository is designed to work well with AI coding assistants. When asking an AI (such as Grok) to run commands:
+
+- **Default behavior**: Ask it to run commands **inside the Dev Container** using `make exec`, `make python`, or `make test-in-container`.
+- Example prompts:
+  - "Run `make validate` inside the container"
+  - "Execute the automation script with `--dry-run` using the container"
+  - "Run pytest on the new tests inside the dev container"
+
+Convenience targets exist in the Makefile:
+- `make exec CMD="..."` — Run any command inside the container as the `node` user.
+- `make python CMD="..."` — Run Python (from the venv) inside the container.
+- `make test-in-container` — Run pytest inside the container.
+
+This keeps the AI's environment consistent with actual development.
+
 ## Next Steps
 
-- Review [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+- Review [CONTRIBUTING.md](.github/CONTRIBUTING.md) (includes development setup and linting instructions)
 - See full documentation in the `docs/` folder (coming soon)
 
 ## License

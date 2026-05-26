@@ -15,12 +15,12 @@ SERVICE_NAME       ?= xgic-payload-cms-dev-containers
 ENV_FILE           ?= .devcontainer/.env
 
 INIT_ENV_SCRIPT    ?= .devcontainer/scripts/init-env.sh
-POST_CREATE_SCRIPT ?= .devcontainer/scripts/post-create.sh
+POST_CREATE_SCRIPT ?= .devcontainer/scripts/setup-payload.sh
 WORKSPACE_DIR      ?= /workspace
 
 DOCKER_COMPOSE := docker compose -f $(COMPOSE_FILE) -p $(PROJECT_NAME)
 
-.PHONY: help up down build rebuild clean reset logs ps shell prune env init-env post-create
+.PHONY: help up down build rebuild clean reset logs ps shell prune env init-env post-create lint-shell validate validate-python test test-cov test-verbose exec python test-in-container exec-shell
 
 # Guard: prevent destructive commands when running inside the Dev Container
 define CONTAINER_GUARD
@@ -78,8 +78,8 @@ init-env: ## Run host-side init-env.sh
 		echo "⚠️  init-env.sh not found – skipping."; \
 	fi
 
-post-create: ## Run container-side post-create.sh (absolute path – matches VS Code)
-	@echo "🚀 Running post-create.sh inside container (workspace: $(WORKSPACE_DIR))..."
+post-create: ## Run the Payload automation inside the container (uses setup-payload.sh + Python pexpect automation)
+	@echo "🚀 Running Payload creation automation inside container (workspace: $(WORKSPACE_DIR))..."
 	$(DOCKER_COMPOSE) exec --user node $(SERVICE_NAME) sh -c \
 		"cd '$(WORKSPACE_DIR)' && bash '$(WORKSPACE_DIR)/$(POST_CREATE_SCRIPT)'"
 
@@ -101,3 +101,59 @@ prune: ## Prune unused Docker objects system-wide (use with caution)
 env: ## Show current environment file status
 	@echo "ENV_FILE = $(ENV_FILE)"
 	@ls -la $(ENV_FILE) 2>/dev/null || echo "No .env file found."
+
+lint-shell: ## Run shellcheck on all shell scripts (requires shellcheck to be installed)
+	@command -v shellcheck > /dev/null 2>&1 || { \
+		echo "❌ shellcheck is not installed. Please install it (e.g. 'apt install shellcheck' or 'brew install shellcheck')."; \
+		exit 1; \
+	}
+	@echo "Running shellcheck..."
+	shellcheck .devcontainer/scripts/*.sh
+	@echo "✅ Shellcheck passed."
+
+validate-python: ## Check Python syntax and basic structure of automation scripts
+	@echo "Validating Python automation script..."
+	@python3 -m py_compile .devcontainer/scripts/create-payload-automated.py
+	@python3 -c "import ast; ast.parse(open('.devcontainer/scripts/create-payload-automated.py').read()); print('  - AST parse: OK')"
+	@echo "✅ Python validation passed."
+
+# =============================================================================
+# Container Execution Helpers (for working with Grok / AI agents)
+# =============================================================================
+
+# Run an arbitrary command inside the running dev container as the node user
+exec: ## Run a command inside the container (usage: make exec CMD="your command here")
+	@$(DOCKER_COMPOSE) exec --user node $(SERVICE_NAME) sh -c "$(CMD)"
+
+# Convenience target to run Python (from the venv) inside the container
+python: ## Run Python inside the container's venv (usage: make python CMD="script.py --arg")
+	@$(DOCKER_COMPOSE) exec --user node $(SERVICE_NAME) sh -c "python3 $(CMD)"
+
+# Run pytest inside the container (uses the venv's pytest)
+test-in-container: ## Run pytest inside the Dev Container
+	@$(DOCKER_COMPOSE) exec --user node $(SERVICE_NAME) sh -c "python3 -m pytest $(ARGS)"
+
+# Open an interactive shell (already exists as 'shell', kept for clarity)
+exec-shell: shell ## Alias for 'shell' (interactive shell inside container)
+
+# =============================================================================
+# Testing (requires pytest + pytest-cov + pytest-mock)
+# These targets prefer the Dev Container's venv when available.
+# =============================================================================
+
+PYTEST := $(shell command -v pytest 2>/dev/null || echo python3 -m pytest)
+
+test: ## Run unit tests
+	$(PYTEST)
+
+test-cov: ## Run tests with coverage report (HTML report in htmlcov/)
+	$(PYTEST) --cov=.devcontainer/scripts --cov-report=term-missing --cov-report=html
+
+test-verbose: ## Run tests with maximum verbosity
+	$(PYTEST) -vv
+
+coverage: test-cov ## Alias for test-cov
+	@echo "Coverage report generated in htmlcov/"
+
+validate: validate-python lint-shell test ## Run all practical host-side validation (lint + tests)
+	@echo "✅ All host-side validation passed."

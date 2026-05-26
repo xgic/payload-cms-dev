@@ -1,16 +1,25 @@
 #!/bin/bash
 set -e
 
-# Idempotency guard – prevents re-running on every reopen/restart
-if find /workspace -maxdepth 4 -name "payload.config.ts" -o \
-   -name "payload.config.js" | grep -q .; then
-  echo "✅ Payload CMS project already exists (found payload.config.*)" \
-       " – skipping initialization."
-  exit 0
+# Source shared logging (with graceful fallback if the lib is missing, e.g. after a hard clean)
+LOGGING_LIB="$(dirname "$0")/lib/logging.sh"
+if [ -f "$LOGGING_LIB" ]; then
+  # shellcheck source=lib/logging.sh
+  source "$LOGGING_LIB"
+else
+  # Minimal fallback so scripts still work
+  log_info()  { echo "[$1] $2"; }
+  log_success() { echo "[$1] $2"; }
+  log_warn()  { echo "[$1] $2" >&2; }
+  log_error() { echo "[$1] $2" >&2; }
+  log_debug() { :; }
 fi
 
-printf "\nStarting devcontainer-tests.sh script...\n"
-printf "\n$(date)\n"
+# Note: The idempotency guard for Payload creation has been centralized in
+# create-payload-automated.py. Tests can safely run regardless of project state.
+
+log_info "tests" "Starting devcontainer-tests.sh script..."
+printf '\n%s\n' "$(date)"
 
 echo "Check Node.js version."
 node --version
@@ -30,5 +39,5 @@ docker --version
 docker info --format "Docker Engine: {{.ServerVersion}}"
 
 echo ""
-echo "Ending devcontainer-tests.sh script..."
-printf "\n$(date)\n"
+log_info "tests" "Ending devcontainer-tests.sh script..."
+printf '\n%s\n' "$(date)"

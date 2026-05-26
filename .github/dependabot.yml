@@ -1,0 +1,25 @@
+# Dependabot configuration for keeping dependencies up to date.
+# This helps with security and maintenance of GitHub Actions.
+# See: https://docs.github.com/en/code-security/dependabot
+
+version: 2
+updates:
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Only create PRs for security updates by default.
+    # Set to "increase" if you want all updates.
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Enable version updates for npm/pnpm if you add any in the future
+  # - package-ecosystem: "npm"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"

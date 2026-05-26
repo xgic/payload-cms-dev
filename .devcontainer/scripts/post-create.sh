@@ -1,64 +1,46 @@
 #!/bin/bash
+#
+# DEPRECATED / LEGACY COMPATIBILITY SHIM
+# --------------------------------------
+# This script is kept for backward compatibility with older Makefile targets
+# and any external automation that still calls "post-create.sh".
+#
+# The authoritative Payload creation automation now lives in:
+#   - .devcontainer/scripts/setup-payload.sh  (thin wrapper)
+#   - .devcontainer/scripts/create-payload-automated.py  (pexpect-based CLI)
+#
+# The old direct creation logic and inline validation have been removed.
+# See the new Python script for configuration via create-payload-config.json.
+#
+# TODO (future): Move the SQLTools credential patching logic into a dedicated step.
+#
+
 set -e
 
-# Idempotency guard – prevents re-running on every reopen/restart
-if find /workspace -maxdepth 4 -name "payload.config.ts" -o \
-   -name "payload.config.js" | grep -q .; then
-  echo "✅ Payload CMS project already exists (found payload.config.*)" \
-       " – skipping initialization."
-  exit 0
-fi
-
-log()   { echo -e "\033[1;36m[post-create]\033[0m $1"; }
-success() { echo -e "\033[1;32m[post-create]\033[0m ✅ $1"; }
-warn()  { echo -e "\033[1;33m[post-create]\033[0m ⚠️  $1"; }
-
-CONFIG_FILE="/workspace/.devcontainer/create-payload-config.json"
-
-# Strict validation against current create-payload-app supported values
-if [ ! -f "$CONFIG_FILE" ]; then
-  warn "create-payload-config.json not found – using defaults."
+# Source shared logging (with graceful fallback if the lib is missing, e.g. after a hard clean)
+LOGGING_LIB="$(dirname "$0")/lib/logging.sh"
+if [ -f "$LOGGING_LIB" ]; then
+  # shellcheck source=lib/logging.sh
+  source "$LOGGING_LIB"
 else
-  log "Validating create-payload-config.json..."
-  if ! grep -q '"projectName"' "$CONFIG_FILE"; then
-    echo "❌ ERROR: create-payload-config.json is invalid (missing projectName)."
-    echo "   Supported options (from pnpx create-payload-app -h):"
-    echo "   -n <name>   -t blank|website|ecommerce|with-cloudflare-d1|plugin"
-    echo "   -a claude|codex|cursor   --no-agent"
-    echo ""
-    echo "Please fix the file and re-run: make post-create"
-    echo "or run make rebuild to start from scratch."
-    exit 1
-  fi
-  success "Configuration validated."
+  # Minimal fallback so scripts still work
+  log_info()  { echo "[$1] $2"; }
+  log_success() { echo "[$1] $2"; }
+  log_warn()  { echo "[$1] $2" >&2; }
+  log_error() { echo "[$1] $2" >&2; }
+  log_debug() { :; }
 fi
 
-# Dynamically update SQLTools with real credentials
-ENV_FILE="/workspace/.devcontainer/.env"
-SETTINGS_FILE="/workspace/.vscode/settings.json"
-if [ -f "$ENV_FILE" ] && [ -f "$SETTINGS_FILE" ]; then
-  PG_USER=$(grep POSTGRES_USER "$ENV_FILE" | cut -d= -f2)
-  PG_PASS=$(grep POSTGRES_PASSWORD "$ENV_FILE" | cut -d= -f2)
-  sed -i "s/\"username\": \".*\"/\"username\": \"$PG_USER\"/" "$SETTINGS_FILE"
-  sed -i "s/\"password\": \".*\"/\"password\": \"$PG_PASS\"/" "$SETTINGS_FILE"
-  success "✅ SQLTools connections updated with secure credentials"
+log_warn "post-create" "This legacy script is deprecated."
+log_warn "post-create" "Delegating to the current automation flow..."
+
+# Delegate to the current thin wrapper (best effort compatibility)
+if [ -x ".devcontainer/scripts/setup-payload.sh" ]; then
+    exec bash .devcontainer/scripts/setup-payload.sh
+else
+    log_warn "post-create" "setup-payload.sh not found — falling back to direct Python call"
+    python3 .devcontainer/scripts/create-payload-automated.py --config .devcontainer/create-payload-config.json || true
 fi
-
-log "Creating Payload app from official package..."
-
-cd /workspace
-# Hardcoded values temporarily, need to retrieve them from create-payload-config.json
-# pnpx create-payload-app -h
-pnpx create-payload-app@latest -n my-payload-cms \
-  -t website \
-  --no-agent \
-  --use-pnpm
-
-success "✅ Payload CMS project created (files in subdirectory)"
-success "✅ Dev Container initialization complete!"
 
 echo ""
-echo "Next steps:"
-echo "  1. Open the new Payload CMS subdirectory in VS Code"
-echo "  2. Run: pnpm dev"
-echo "  3. Visit http://localhost:3000/admin"
+log_info "post-create" "Consider using 'make post-create' or the new setup-payload.sh directly."

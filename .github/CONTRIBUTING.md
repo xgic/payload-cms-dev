@@ -15,43 +15,55 @@ By participating, you agree to abide by our [Code of Conduct](#code-of-conduct) 
 - [Step-by-Step Guide: Initiating a New Feature Branch (GitHub Free Account)](#step-by-step-guide-initiating-a-new-feature-branch-github-free-account)
 - [Commit Message Convention](#commit-message-convention)
 - [Pull Request Guidelines](#pull-request-guidelines)
-- [Coding Standards & Best Practices](#coding-standards--best-practices)
 - [Reporting Bugs & Requesting Features](#reporting-bugs--requesting-features)
 - [Contributor License Agreement](#contributor-license-agreement)
 - [Recognition](#recognition)
+
+### Subsections under Development Environment Setup
+- [Local Development Commands](#local-development-commands)
+- [Debugging & Logging](#debugging--logging)
+- [Contributing to the Automation Logic](#contributing-to-the-automation-logic)
+- [Linting & Quality](#linting--quality)
 
 ## Code of Conduct
 
 We follow the [Contributor Covenant Code of Conduct (v2.1)](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).  
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainers at `conduct@xgic.net`.
 
-## Coding Standards and Best Practices
+## Coding Standards & Best Practices
 
-This document outlines mandatory coding standards and recommended practices for all contributors. Adherence ensures consistency, maintainability, and high code quality across Unreal Engine 5.7.4 projects and associated Payload CMS web applications.
+This section outlines the standards that apply specifically to **this repository** (a Dev Container + Docker Compose + automation tooling project).
 
-### Payload CMS Projects for Web-Based Applications
-- **Core Development Approach**: Build all configurations and custom logic using Payload CMS’s code-first TypeScript methodology as detailed in the [official Payload CMS Documentation](https://payloadcms.com/docs). Define Collections, Globals, and endpoints in modular, separate TypeScript files for clarity and scalability.
-- **Production and Deployment Standards**: Implement deployment following the [Payload CMS Production Deployment Guide](https://payloadcms.com/docs/production/deployment). This includes Next.js build optimization, secure management of environment variables (e.g., `PAYLOAD_SECRET`), Docker multi-stage builds, and hosting considerations for platforms such as Vercel or self-hosted environments.
-- **TypeScript Implementation**: Apply the [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html) for all Payload-related TypeScript code. Combine with [TypeScript ESLint](https://typescript-eslint.io/) rules to enforce type safety, consistent interfaces, and avoidance of `any` types.
+### Repository Focus
+Contributions to this repo typically involve:
+- Dockerfiles and Docker Compose files
+- Shell scripts (Bash)
+- Python automation scripts (especially `create-payload-automated.py`)
+- Makefiles
+- YAML configuration (Dev Container, GitHub Actions, Dependabot)
+- Documentation (README, CONTRIBUTING, etc.)
 
-### Full-Stack Web Development (Next.js, TypeScript, Tailwind CSS, HTML, CSS, JavaScript)
-- **HTML and CSS**: Follow the [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html) for semantic HTML structure, consistent indentation, and maintainable CSS practices.
-- **JavaScript**: Comply with the [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html) for any non-TypeScript JavaScript code, focusing on clarity, modularity, and avoidance of global scope pollution.
-- **TypeScript**: Use the [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html) together with [TypeScript ESLint](https://typescript-eslint.io/) configuration for all application code, ensuring strong typing and modern ES module patterns.
-- **Tailwind CSS**: Style exclusively according to the official [Tailwind CSS Styling with Utility Classes](https://tailwindcss.com/docs/styling-with-utility-classes) documentation. Prioritize utility-first classes for responsive design and minimize custom CSS to maintain consistency.
-- **Next.js Framework**: Develop applications in accordance with the [official Next.js Documentation](https://nextjs.org/docs), with particular attention to App Router architecture, Server Components, static/dynamic rendering strategies, and performance best practices outlined in the “Building Your Application” sections.
+### Required Standards
 
-### Cross-Project and Additional Industry Best Practices
-- **Code Formatting and Linting**: Enforce consistent formatting using Prettier (for web projects) and project-specific linters. Maintain shared `.editorconfig` files and ESLint/Prettier configurations committed to the repository.
-- **Version Control and Collaboration**: Adopt [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages. Use feature-branch workflows with mandatory pull request reviews, clear descriptions, and linked issue references.
-- **Documentation Standards**: Provide thorough inline documentation—Doxygen-style comments for C++ and TSDoc/JSDoc for TypeScript. Keep README files, API references, and architectural decision records up to date.
-- **Testing and Quality Assurance**: Implement comprehensive automated testing. Leverage Unreal Engine’s Automation Test Framework for C++ components and Jest, React Testing Library, or Playwright for web applications. Aim for high test coverage on critical paths.
-- **Security**: Follow the [OWASP Top 10](https://owasp.org/www-project-top-ten/) guidelines for all web-facing code, including input validation, secure authentication, and protection against common vulnerabilities.
-- **Accessibility**: Ensure web interfaces meet [WCAG 2.2](https://www.w3.org/WAI/WCAG21/quickref/) Level AA standards through semantic HTML, proper ARIA attributes, and keyboard navigation support.
-- **Performance and Architecture**: Profile regularly using Unreal Insights (for UE) and Lighthouse/React Profiler (for web). Apply principles of clean architecture, SOLID design, and separation of concerns to all codebases.
-- **Dependency and Tooling Management**: Maintain up-to-date dependencies with lockfiles, conduct regular vulnerability audits (e.g., `npm audit` or equivalent), and document all third-party libraries.
+- **Dev Containers**: All development work should be done inside the provided Dev Container when possible. Changes must be tested inside the container before opening a PR.
+- **Docker**: Follow official [Docker Best Practices](https://docs.docker.com/build/building/best-practices/). Prefer multi-stage builds and minimize image size where reasonable.
+- **Shell Scripts**:
+  - All `.sh` files must pass `shellcheck` (`make lint-shell`).
+  - Prefer POSIX-compliant syntax when practical. Use `set -euo pipefail` (or `set -e`) appropriately.
+  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers where possible. Complex logic belongs in Python (`create-payload-automated.py`).
+- **Python**: Follow PEP 8 with type hints where it improves clarity. Keep the automation script (`create-payload-automated.py`) well-documented and focused on the pexpect-driven workflow.
+- **YAML & GitHub Actions**: Use consistent indentation (2 spaces). Validate workflows with `actionlint` when making changes to `.github/workflows/`.
+- **Documentation**: 
+  - Update `README.md` when user-facing behavior changes.
+  - Update this file (`CONTRIBUTING.md`) when contribution processes or standards change.
+  - Add usage examples for new `make` targets or automation features.
 
-All contributors are expected to review this document before submitting code. Questions regarding interpretation should be raised in the project’s discussion channel or during code review.
+### Recommended Practices
+- Keep the thin bash wrappers (`setup-payload.sh`, etc.) minimal. Move logic into the Python automation script when it grows complex.
+- Prefer configuration via `create-payload-config.json` over hardcoding values in scripts.
+- Test changes using available `make` targets (especially `make lint-shell`, `make post-create`, and `make rebuild`).
+
+All contributors are expected to review this document before submitting code.
 
 ## Development Environment Setup
 
@@ -66,7 +78,68 @@ The project itself is designed to be self-hosting. We strongly recommend using t
    ```
 5. The Payload CMS instance will be available at `http://localhost:3000`.
 
-All scripts, tests, and linting commands are defined in `package.json` and executed inside the container.
+### Local Development Commands
+
+After entering the Dev Container, the following `make` targets are particularly useful:
+
+| Command            | Purpose                                      |
+|--------------------|----------------------------------------------|
+| `make help`        | Show all available targets                   |
+| `make lint-shell`  | Run shellcheck on all scripts                |
+| `make post-create` | Simulate the full Payload creation flow      |
+| `make rebuild`     | Clean + rebuild + test the entire environment|
+| `make env`         | Show status of the generated `.env` file     |
+
+### Debugging & Logging
+
+You can control the verbosity of the setup scripts using the `LOG_LEVEL` environment variable.
+
+Supported values (case-insensitive):
+- `DEBUG` — Most verbose (shows debug messages)
+- `INFO` — Default level
+- `WARN` (or `WARNING`) — Warnings and errors only
+- `ERROR` — Errors only
+
+Examples inside the Dev Container:
+
+```bash
+# Run the full setup with maximum verbosity
+LOG_LEVEL=DEBUG make exec CMD="bash .devcontainer/scripts/setup-payload.sh"
+
+# Run the Python automation with debug logging
+LOG_LEVEL=debug python3 .devcontainer/scripts/create-payload-automated.py --config .devcontainer/create-payload-config.json
+
+# Only show warnings and errors from init-env
+LOG_LEVEL=warn bash .devcontainer/scripts/init-env.sh
+```
+
+The Python automation script (`create-payload-automated.py`) also respects `LOG_LEVEL`.
+
+This is particularly useful when debugging issues with the automated Payload project creation.
+
+### Contributing to the Automation Logic
+
+The core of the automated Payload CMS project creation lives in `.devcontainer/scripts/create-payload-automated.py` (using `pexpect`).
+
+When working in this area:
+- Prefer extending `create-payload-config.json` support over hardcoding behavior.
+- Keep the bash scripts in `.devcontainer/scripts/` as thin, readable wrappers.
+- Test changes locally with `make post-create` or by invoking the Python script directly inside the Dev Container.
+- Update relevant documentation (README, script help text) when user-visible behavior changes.
+
+### Linting & Quality
+
+This repository uses several tools to maintain code quality:
+
+- **Shell scripts**: `shellcheck` (`make lint-shell`). `shellcheck` is pre-installed in the Dev Container.
+- **GitHub Actions workflows**: `actionlint` (run via CI).
+- **Shell formatting**: `shfmt` (enforced in CI).
+
+The full lint suite runs automatically on every pull request (see `.github/workflows/lint.yml`). You can run the main shell linter locally with:
+
+```bash
+make lint-shell
+```
 
 ## GitHub Flow & Branching Strategy
 
@@ -187,16 +260,6 @@ Commit messages are validated automatically by `commitlint` in the CI pipeline.
 
 Maintainers will merge only after at least one approval and successful CI.
 
-## Coding Standards & Best Practices
-
-- **Docker / Docker Compose**: Follow official [Docker Best Practices](https://docs.docker.com/build/building/best-practices/) and multi-stage builds where appropriate.
-- **Dev Containers**: Adhere to the [Dev Container Specification](https://containers.dev/).
-- **Shell scripts**: Use `shellcheck` and POSIX-compliant syntax.
-- **TypeScript / Node.js**: Strict ESLint + Prettier configuration (enforced).
-- **Security**: Never commit secrets; use `.devcontainer/.env.example` to store default values for new environment variables.
-- **Performance**: Optimize layer caching in Dockerfiles.
-- **Documentation**: All new features must include usage examples in README.md.
-
 ## Reporting Bugs & Requesting Features
 
 1. Search existing issues to avoid duplicates.
@@ -223,4 +286,4 @@ Contributors are recognized in:
 **Thank you for helping make Payload CMS development faster, more reliable, and more accessible for the entire community.**
 
 Questions? Open an issue or reach out to the maintainers via Discussions.  
-Last updated: May 21, 2026
+Last updated: June 2026

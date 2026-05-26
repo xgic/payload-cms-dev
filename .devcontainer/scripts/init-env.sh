@@ -1,15 +1,25 @@
 #!/bin/bash
 set -e
 
-# Idempotency guard – prevents re-running on every reopen/restart
-if find /workspace -maxdepth 4 -name "payload.config.ts" -o \
-   -name "payload.config.js" | grep -q .; then
-  echo "✅ Payload CMS project already exists (found payload.config.*)" \
-       " – skipping initialization."
-  exit 0
+# Note: Idempotency for Payload project creation is now handled authoritatively
+# inside .devcontainer/scripts/create-payload-automated.py (the pexpect automation).
+# This script always runs on the host to (re)generate a secure .env if needed.
+
+# Source shared logging (with graceful fallback if the lib is missing, e.g. after a hard clean)
+LOGGING_LIB="$(dirname "$0")/lib/logging.sh"
+if [ -f "$LOGGING_LIB" ]; then
+  # shellcheck source=lib/logging.sh
+  source "$LOGGING_LIB"
+else
+  # Minimal fallback so scripts still work
+  log_info()  { echo "[$1] $2"; }
+  log_success() { echo "[$1] $2"; }
+  log_warn()  { echo "[$1] $2" >&2; }
+  log_error() { echo "[$1] $2" >&2; }
+  log_debug() { :; }
 fi
 
-echo "[init-env] Generating secure environment configuration..."
+log_info "init-env" "Generating secure environment configuration..."
 
 # PostgreSQL (non-interactive via env vars with sensible defaults)
 PG_USER=${PG_USER:-payload}
@@ -25,6 +35,5 @@ PAYLOAD_SECRET=${PAYLOAD_SECRET}
 DATABASE_URI=postgres://${PG_USER}:${PG_PASSWORD}@postgres:5432/payload_db
 EOF
 
-echo "[init-env] ✅ Generated secure .env at $(pwd)/.devcontainer/.env"
-echo "[init-env] Payload project creation will occur inside the container" \
-     "via postCreateCommand."
+log_success "init-env" "Generated secure .env at $(pwd)/.devcontainer/.env"
+log_info "init-env" "Payload project creation will occur inside the container via postCreateCommand."
