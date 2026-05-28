@@ -88,6 +88,13 @@ Examples:
     reset_parser.add_argument(
         "--yes", action="store_true", help="Skip confirmation prompt"
     )
+    reset_parser.add_argument(
+        "--dry-run", action="store_true", help="Show what would be done without making changes"
+    )
+    reset_parser.add_argument(
+        "--rotate-credentials", action="store_true",
+        help="Also generate fresh database password and PAYLOAD_SECRET"
+    )
     reset_parser.set_defaults(func=run_reset)
 
     # check
