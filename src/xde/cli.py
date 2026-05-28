@@ -1,8 +1,18 @@
 """CLI entrypoint for xde.
 
-Uses argparse for the command surface (stdlib, minimal dependencies).
-Rich for beautiful, reliable terminal output with proper runtime emoji/color
-detection.
+This is the main command-line interface for the XGIC Dev Environment.
+
+Design goals (especially important for agentic use):
+- Small, predictable command surface (no aliases, one clear way to do things).
+- Excellent default behavior with clear escape hatches (`--yes`, `--dry-run`).
+- High-quality, actionable output using Rich (panels, colors with graceful fallback).
+- Strong environment awareness via `EnvironmentContext`.
+
+The CLI is deliberately built using only stdlib + Rich + Pydantic to keep
+the dependency footprint minimal and contributor-friendly.
+
+See `AGENTS.md` and `docs/grok-playbooks.md` for how Grok Build is expected
+to interact with this interface.
 """
 
 from __future__ import annotations
@@ -21,6 +31,7 @@ from xde.commands.dev import run_dev
 from xde.commands.lifecycle import run_up, run_down, run_build
 from xde.commands.reset import run_reset
 from xde.commands.diagnostics import run_check
+from xde.commands.env import run_env
 from xde.utils.output import print_error, print_success
 
 console = Console()
@@ -112,7 +123,7 @@ Examples:
     env_parser = subparsers.add_parser(
         "env", help="Inspect and manage the generated environment"
     )
-    env_parser.set_defaults(func=lambda args: print_error("Not yet implemented"))
+    env_parser.set_defaults(func=run_env)
 
     # clean (more destructive, with strong safeguards)
     clean_parser = subparsers.add_parser(
