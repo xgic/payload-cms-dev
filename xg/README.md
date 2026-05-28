@@ -1,1 +1,0 @@
-# XG GitOps Console Application
