@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from xde.core.environment import EnvironmentContext
 from xde.core.docker import DockerComposeController
-from xde.utils.output import print_info, print_warning, print_panel
+from xde.utils.output import print_info, print_success, print_warning, print_panel
 
 
 def run_dev(
