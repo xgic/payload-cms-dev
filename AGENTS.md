@@ -224,7 +224,7 @@ Avoid these recurring traps that have caused issues for agents in the past:
 - **Credential rotation over-eagerness**: Rotating secrets (`--rotate-credentials`) without strong justification can lead to authentication issues between running containers and the `.env` file. Always use strong safeguards.
 - **Project folder confusion**: Forgetting that the generated Payload app lives in a sibling folder (e.g. `website/`) controlled by `create-payload-config.json`, not inside `.devcontainer`.
 - **Weak safety defaults**: Proposing destructive operations without first using `--dry-run` and clearly explaining impact.
-- **Treating reference material as active code**: The `xg/` directory contains excellent advanced console patterns but is **not** part of the current active implementation.
+- **Treating reference material as active code**: The `xg/` reference material (advanced console patterns from the XG AIS project) lives on the `reference/xg-ais` branch and is **not** part of the current active implementation.
 - **Command surface bloat**: Adding too many ways to do the same thing. Small + predictable is better for agents (and humans).
 
 ---
@@ -267,7 +267,7 @@ See `GROK-TASKS.md` for the current prioritized list.
 
 ## Advanced / Reference Material
 
-- The `xg/` directory contains advanced console application patterns (from the XG AIS project). Some ideas (OOP command structure, rich environment detection, Textual TUI for complex debugging) may be inspirational but are **not** part of the active codebase.
+- The `xg/` reference material (advanced console application patterns from the XG AIS project) lives on the `reference/xg-ais` branch. Some ideas (OOP command structure, rich environment detection, Textual TUI for complex debugging) may be inspirational but are **not** part of the active codebase on this branch.
 - The original Makefile contains a lot of hard-won knowledge about quoting, guards, and devcontainer lifecycle quirks. We are deliberately replacing it rather than copying it.
 
 ---

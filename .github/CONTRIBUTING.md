@@ -95,7 +95,7 @@ The 80-character limit applies to:
 
 - Long lines in prose, tables, code blocks inside docs, and URLs are acceptable and often preferable.
 - Wrapping Markdown text with hard line breaks harms readability in web browsers, GitHub rendering, and VS Code Markdown preview.
-- Example files that happen to be Markdown (e.g. `xg/examples/textual/*.md`) are treated as documentation.
+- Example files that happen to be Markdown (e.g. reference material previously in `xg/examples/textual/*.md`, now on the `reference/xg-ais` branch) are treated as documentation.
 
 Other justified exceptions (use sparingly and document why when non-obvious):
 - Long URLs or URIs that cannot reasonably be shortened (especially in `$id` fields, documentation strings, or comments referencing external resources).

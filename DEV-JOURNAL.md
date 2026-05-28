@@ -35,7 +35,7 @@ This approach produces a professional, maintainable project history.
 ### Phase 2: Pivot to Python CLI (`xde`)
 - Early exploration of Makefile improvements and reliability challenges.
 - Requested unbiased opinion on Makefile vs modern alternatives.
-- Deep analysis of user's `xg/` reference console application (XG AIS).
+- Deep analysis of user's `xg/` reference console application (XG AIS) — later moved to the `reference/xg-ais` branch.
   - Strong OOP patterns, Pydantic models, Rich output, argparse subcommands.
   - Textual TUI examples for complex debugging (Ansible playbook debugger).
 - Decision: Build `xde` using **pure Python + Rich + Pydantic + argparse** (avoid Typer and python-on-whales to minimize dependency risk for contributors).
