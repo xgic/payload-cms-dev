@@ -26,7 +26,7 @@ Reasons:
 - Strong emphasis on reliability for dangerous operations (reset logic, credential handling).
 - Excellent separation between configuration (`create-payload-config.json`), environment detection, and execution.
 - The user (you) is highly aligned with making this agent-first.
-- Payload CMS projects have recurring painful setup problems that good scaffolding + reliable orchestration solves extremely well for agents.
+- Payload CMS projects benefit from reliable environment scaffolding and orchestration, which this project aims to provide at a high level.
 
 By investing heavily in **agent ergonomics** (clear commands, rich context, predictable behavior, excellent documentation), this template can realistically become the default recommendation for "I want to build a serious Payload site with Grok."
 
@@ -154,7 +154,7 @@ Current / near-term commands (as of latest):
 
 ## Safety & Destructive Operations
 
-This project has historically had painful issues with environment resets and credential rotation. This is one of the highest-value areas for agents.
+This project places strong emphasis on safe and reliable environment resets and credential handling. This is one of the highest-value areas for agents.
 
 When working with reset or clean functionality:
 
@@ -180,7 +180,7 @@ Avoid these recurring traps that have caused issues for agents in the past:
 
 - **Context blindness**: Assuming you are inside the Dev Container. Always check via `EnvironmentContext.detect()` concepts or by running `xde check` / `xde env`.
 - **Legacy reflex**: Reaching for `make ...` or direct calls to `.devcontainer/scripts/reset-project.py` etc. when `xde` equivalents exist or are the intended path.
-- **Credential rotation over-eagerness**: Rotating secrets (`--rotate-credentials`) without strong justification. This has historically led to painful "password authentication failed" situations between the running container and `.env`.
+- **Credential rotation over-eagerness**: Rotating secrets (`--rotate-credentials`) without strong justification can lead to authentication issues between running containers and the `.env` file. Always use strong safeguards.
 - **Project folder confusion**: Forgetting that the generated Payload app lives in a sibling folder (e.g. `website/`) controlled by `create-payload-config.json`, not inside `.devcontainer`.
 - **Weak safety defaults**: Proposing destructive operations without first using `--dry-run` and clearly explaining impact.
 - **Treating reference material as active code**: The `xg/` directory contains excellent advanced console patterns but is **not** part of the current active implementation.
@@ -205,8 +205,22 @@ As you work, look for opportunities to improve the agent experience:
 
 - Payload projects are generated via `create-payload-app` using the config in `.devcontainer/create-payload-config.json`.
 - The generated project lives in a sibling folder (name controlled by `projectName`).
-- Database connection is the most common source of pain — this is why `reset-project.py` and credential handling are so important.
+- Database connectivity is a critical and common area that requires careful handling — this is why robust reset logic and credential management are important.
 - The `agent` field in the config is currently mostly a placeholder for future agent skill injection.
+
+### Testing & Continuous Delivery Focus (Future Work)
+
+A major long-term priority is dramatically increasing test coverage and automation:
+
+- Unit tests for all core logic in `src/xde/`.
+- Integration tests exercising real Docker Compose lifecycles.
+- End-to-end tests that validate the full environment including the generated Payload CMS application.
+- Automatic staging builds and deployments.
+- Deep integration with the on-premises GitLab instance for CI/CD.
+
+When we reach the GitLab integration stage, the user will provide the necessary SSH key access. All testing and automation efforts should be approached in a positive, constructive spirit focused on reliability and excellent developer/agent experience.
+
+See `GROK-TASKS.md` for the current prioritized list.
 
 ---
 

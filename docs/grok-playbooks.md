@@ -155,7 +155,7 @@ Steps:
 
 - Assuming we're always inside the container (use `EnvironmentContext`).
 - Reaching for the old Makefile or raw Python scripts instead of `xde`.
-- Being too aggressive with credential rotation (this has caused real pain historically).
+- Being too aggressive with credential rotation (this has caused authentication problems in the past).
 - Forgetting that the generated Payload project is a separate folder, not inside `.devcontainer`.
 - Underestimating how valuable good `--dry-run` and clear next-step messages are for both humans and agents.
 - Treating `xg/` as active code (it is reference only).

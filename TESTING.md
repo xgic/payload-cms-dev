@@ -67,7 +67,7 @@ The most complex and historically bug-prone part of the project is the **Makefil
 
 ### Why dedicated Makefile tests exist
 
-Traditional "make test" only exercises Python. After several painful delegation bugs (including the literal `@make` executable-not-found incident), we added first-class tests for the Makefile's *observable behavior*.
+Traditional "make test" only exercises Python. After several delegation bugs during early development, we added first-class tests for the Makefile's observable behavior to prevent regressions.
 
 ### How it works
 

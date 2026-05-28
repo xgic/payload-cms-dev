@@ -24,7 +24,7 @@ This journal tracks the evolution of the project through our collaboration. It s
 **Key Learning**: Makefile `$(shell)` evaluation at parse time is fragile for terminal capability detection.
 
 ### Phase 2: Pivot to Python CLI (`xde`)
-- User expressed frustration with Makefile debugging and reliability issues.
+- Early exploration of Makefile improvements and reliability challenges.
 - Requested unbiased opinion on Makefile vs modern alternatives.
 - Deep analysis of user's `xg/` reference console application (XG AIS).
   - Strong OOP patterns, Pydantic models, Rich output, argparse subcommands.
@@ -99,7 +99,7 @@ This continues the heavy focus on making the project exceptionally productive fo
 | Line Length             | 80 chars max for **code only**. Markdown exempt.         | Terminal readability + browser-friendly docs |
 | Python Version (container) | 3.14                                                     | Future-proof, modern features |
 | Agent Optimization      | First-class priority (AGENTS.md, playbooks, docs)        | Project vision as ideal foundation for agentic development |
-| Destructive Operations  | Strong `--dry-run`, clear warnings, conservative defaults | Historical pain points with resets and credentials |
+| Destructive Operations  | Strong `--dry-run`, clear warnings, conservative defaults | Important lessons learned around safe resets and credential handling |
 
 ---
 

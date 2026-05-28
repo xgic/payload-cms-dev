@@ -6,7 +6,7 @@ What it does (by design):
 - Deletes the generated Payload project folder.
 - Resets only the Postgres data volume.
 - **Deliberately leaves credentials in `.env` alone** (this avoids the classic
-  "stale credentials in running container vs fresh .env on disk" problem).
+  stale credentials between a running container and the `.env` file on disk).
 
 This command exists because full `make clean` / `make rebuild` cycles are
 too heavy for daily development. It provides a fast, safe "nuclear option"
@@ -15,7 +15,7 @@ for the most common form of environment corruption.
 Critical agent guidance:
 - Always use `--dry-run` first.
 - Be extremely conservative with `--rotate-credentials`.
-- See the long history in `DEV-JOURNAL.md` and results.txt around credential pain.
+- See `DEV-JOURNAL.md` for important historical context around credential handling.
 
 See also:
 - `docs/grok-playbooks.md` → Migration and debugging playbooks

@@ -27,7 +27,7 @@ PROJECT_NAME=$(python3 .devcontainer/scripts/get-payload-project-name.py 2>/dev/
 # Non-secret values (template, adapter type, project name, etc.) come from the JSON.
 # Secrets (passwords in connection strings, PAYLOAD_SECRET) are taken from the
 # live environment when available (sourced by the Makefile post-create exec and
-# init-env.sh). This prevents the exact "password authentication failed" error
+# init-env.sh). This prevents authentication issues between the running container and the generated `.env` file.
 # seen in results.txt when the JSON contains a placeholder password.
 CONFIG_FILE=".devcontainer/create-payload-config.json"
 
