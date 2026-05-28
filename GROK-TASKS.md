@@ -15,11 +15,11 @@ This file is the lightweight, informal task list for work that Grok Build should
 ## Next Up (High Priority)
 
 ### xde v1 Completion (Immediate Focus)
-- [ ] Finalize and lock the v1 command surface based on `docs/xde-v1-command-surface-proposal.md`
+- [x] Finalize and lock the v1 command surface based on `docs/xde-v1-command-surface-proposal.md`
 - [ ] Harden and complete highest-value commands:
   - Full `xde dev` with real DB readiness check + auto-start services + clear path to `pnpm dev`
-  - Complete `xde reset` with logic migrated from `reset-project.py`
-  - Improve `xde check` with real DB + service health reporting
+  - Complete `xde reset` with logic migrated from `reset-project.py` (in progress)
+  - Improve `xde check` with real DB + service health reporting (in progress)
 - [x] Create `docs/development-workflow.md` documenting commit discipline, testing requirements, and how to work during the Makefile → xde transition
 
 ### Testing Foundations
