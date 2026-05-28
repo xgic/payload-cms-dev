@@ -50,7 +50,7 @@ Priorities (in rough order):
 
 **Note**: SSH key access to the on-prem GitLab instance will be provided by the user when we reach the integration stage.
 
-All testing and automation work should be done in a positive, forward-looking way focused on reliability and excellent experience for both human developers and AI agents. Past trial-and-error learnings should only be referenced when they help prevent specific classes of mistakes going forward.
+This work must follow the Collaboration Principles in `AGENTS.md`: positive and constructive framing at all times. Past experiences are only referenced when they provide concrete lessons that help avoid repeating specific mistakes.
 
 ## Done / Recently Completed
 
@@ -65,9 +65,16 @@ When the user asks you to track something:
 1. Add it under the appropriate section (usually "Next Up" or "Backlog").
 2. Use clear, actionable language.
 3. Optionally add a short note with context or a link to relevant docs.
-4. When something is completed, move it to "Done" with the date.
+4. When something is completed, move it to "Done" with the date. Note which commit delivered it.
+
+Commit expectations (per AGENTS.md Collaboration Principles):
+- Group work into larger, complete units of functionality.
+- Every commit must include full implementation + pass linting and all tests.
+- Include relevant documentation updates in the same commit when they are part of the change.
 
 Keep this file short and scannable. If something grows into a real feature or needs discussion, suggest creating a proper GitHub issue and reference it here.
+
+When adding items, follow the Collaboration Principles defined in `AGENTS.md` (positive framing, focus on future value, reference past only when it prevents mistakes).
 
 **Example entry:**
 - [ ] Add `--json` flag to `xde check` (see discussion in proposal)

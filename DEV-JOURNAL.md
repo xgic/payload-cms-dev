@@ -5,6 +5,16 @@
 
 This journal tracks the evolution of the project through our collaboration. It serves as institutional memory for both the human developer and future AI sessions.
 
+All entries should follow the Collaboration Principles defined in `AGENTS.md`.
+
+In particular, development work (including this journal) should be committed in larger, complete units that include:
+- Full implementation of the functionality
+- Linting clean
+- All tests passing
+- Relevant documentation updates
+
+This creates a cleaner, more reviewable history.
+
 ---
 
 ## 2026 Collaboration Timeline

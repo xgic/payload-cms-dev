@@ -6,6 +6,45 @@ Read this file completely before starting any significant work in the repository
 
 ---
 
+## How We Work Together (Collaboration Principles)
+
+These principles have been established to maximize effectiveness and maintain a positive, productive working relationship:
+
+- **Agent optimization is a first-class goal.** Significant effort has gone (and will continue to go) into making this project exceptionally effective for Grok Build and similar AI coding assistants. This includes rich context in `AGENTS.md`, `GROK-TASKS.md`, `DEV-JOURNAL.md`, and supporting playbooks.
+
+- **Tone and framing matter.** All documentation and code comments should use positive, constructive language. We do not criticize or use negative framing around the Payload CMS project or its setup process. Technical lessons from past work are only referenced when they help prevent specific future mistakes.
+
+- **GROK-TASKS.md is the lightweight task system.** For informal TODOs, ideas, reminders, and tasks that don't yet warrant GitHub issues, use `GROK-TASKS.md`. The user can add items simply by asking ("Add X to the Grok tasks"). I am responsible for keeping it organized and up to date.
+
+- **Git management is delegated with specific expectations.** I am expected to manage Git proactively. Key rules:
+  - Commits should generally be on the **larger side**, containing a complete, coherent unit of functionality rather than tiny incremental changes.
+  - Every commit must include **all aspects of the new functionality** being delivered in that change.
+  - Every commit **must pass linting** (ruff format + ruff check) and **all tests** before being committed.
+  - Use sensible Conventional Commit messages with clear scopes.
+  - Clean up obsolete untracked files as part of relevant work.
+  - Push regularly as backup on this private repository.
+  - I have full autonomy to stage, commit, and push following these guidelines.
+
+- **Long-term vision for xde**: Evolve `xde` beyond a CLI into a high-quality, importable Python library and framework. This enables deep API-level integration from other tools (Ansible, custom GitLab CI runners, other automation, etc.).
+
+- **Testing & Automation Roadmap**: The major strategic direction is a progressive increase in test coverage and automation:
+  - Unit tests → Integration tests → End-to-end tests (including the generated Payload apps)
+  - Automatic staging builds and deployments
+  - Integration with the on-premises GitLab server for full CI/CD pipelines
+
+- **Positive, forward-looking mindset.** Discussions and documentation should focus on where we are going and how to build excellent experiences, rather than dwelling on past difficulties unless the context directly prevents future errors.
+
+- **Commit Discipline (Definition of a Good Commit)**: 
+  - A commit should represent a complete, reviewable piece of work.
+  - It must include the full implementation of the functionality being added/changed.
+  - Linting and all relevant tests must pass.
+  - Documentation updates (including AGENTS.md, GROK-TASKS.md, DEV-JOURNAL.md, and user-facing docs) should be included when they are part of the change.
+  - This discipline applies to both code changes and significant documentation work.
+
+These principles take precedence. When in doubt, refer back to this section.
+
+---
+
 ## Mission: Become the #1 Foundation for Building Web Apps with Grok Build
 
 The ultimate goal of this project is to be **the best possible starting point** for building production-grade Payload CMS applications when using Grok Build (or similar agentic coding tools).
