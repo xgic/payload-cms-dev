@@ -1,10 +1,29 @@
 """Docker Compose orchestration layer.
 
-Uses subprocess to call `docker compose` directly. This keeps dependencies
-minimal while still providing a clean, testable interface.
+This module provides the single point of contact for all Docker Compose
+operations in the project.
 
-The controller is intentionally simple and will be enhanced as needed
-(docker compose ps parsing, better error handling, streaming output, etc.).
+Design principles:
+- Uses only stdlib `subprocess` (no heavy dependencies like python-on-whales).
+- Designed to be easily testable and mockable.
+- Central place for compose project name, file paths, and command construction.
+
+Current capabilities (being actively expanded):
+- Start/stop/build services
+- Basic service status checks
+- Command execution inside containers
+
+Intended future improvements:
+- Better structured output from `docker compose ps`
+- Streaming log support
+- Health check helpers
+
+This is a critical abstraction for agent productivity — it allows Grok
+to reason about container state without writing raw shell commands.
+
+See also:
+- `AGENTS.md` → Preferred commands section
+- `docs/grok-playbooks.md` → "Debug a broken environment" playbook
 """
 
 from __future__ import annotations
@@ -52,7 +71,11 @@ class DockerComposeController:
         )
 
     def services_running(self) -> bool:
-        """Return True if the main devcontainer service appears to be up."""
+        """Return True if the main devcontainer service appears to be up.
+
+        This is intentionally a lightweight check suitable for quick
+        "are things running?" decisions (e.g. before running `xde dev`).
+        """
         try:
             result = self._run_compose(
                 "ps",
@@ -61,7 +84,7 @@ class DockerComposeController:
                 "status=running",
                 capture_output=True,
             )
-            # Very basic check: if the main service name appears in output
+            # The service name in docker-compose.yml is the compose service name
             return "xgic-payload-cms-dev-containers" in result.stdout
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
