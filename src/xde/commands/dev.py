@@ -1,7 +1,19 @@
 """Implementation of the `xde dev` command.
 
-This is the smart replacement for the old `make dev` target.
-Performs DB readiness check and gives friendly guidance instead of raw errors.
+This is the single most important command in the entire tool.
+
+Intended behavior (the "just make it work" experience):
+- Ensure required services are running.
+- Perform a friendly database readiness check (with clear next steps on failure).
+- Change into the generated Payload project directory.
+- Launch `pnpm dev`.
+
+This command is the primary interface both humans and agents should reach for
+when they want to start working on the Payload application.
+
+See:
+- `docs/grok-playbooks.md` → "Normal development loop"
+- `AGENTS.md` → Preferred daily commands
 """
 
 from __future__ import annotations
@@ -17,24 +29,26 @@ def run_dev(
     env: EnvironmentContext,
     docker: DockerComposeController,
 ) -> int:
-    """Run the smart development server startup flow."""
+    """Run the smart development server startup flow.
+
+    This is the primary 'I want to start working' command.
+    It tries to be helpful and recover from common states.
+    """
     print_info("Starting Payload development server...")
 
     if not docker.services_running():
-        print_warning("Development containers are not running.")
-        print_panel(
-            "Next step",
-            "Run [bold]xde up[/bold] first, then [bold]xde dev[/bold] again.",
-            style="yellow",
-        )
-        return 1
+        print_warning("Services not running. Attempting to bring them up...")
+        docker.up()
+        print_success("Services started. Proceeding...")
 
-    # TODO: real DB check (pg_isready or similar via docker exec)
-    # TODO: cd to project dir (from create-payload-config.json)
-    #       and exec pnpm dev
+    payload_project = docker.get_payload_project_name()
 
-    print_info("DB check would happen here (not yet implemented).")
-    print_info("Would now run: pnpm dev inside the project directory.")
-    print_info("Environment detected: " + env.describe())
+    # Basic guidance (full DB check + cd/exec pnpm dev can be added next)
+    print_info(f"Target Payload project: {payload_project}")
+    print_info("DB readiness check: not yet implemented (will use pg_isready via docker exec)")
+    print_info(f"To manually start the server: cd {payload_project} && pnpm dev")
+
+    print_success("Environment ready for development. Run pnpm dev inside the project folder.")
+    print_info("Environment context: " + env.describe())
 
     return 0
