@@ -51,6 +51,20 @@ When these things exist and are maintained, I can work dramatically faster, make
 
 ---
 
+## Session Startup Checklist (Run These Commands Early)
+
+At the beginning of almost every session, gather this context:
+
+1. `xde --help` — See current capabilities and command surface.
+2. `xde check` — Get a diagnostic view of the environment health.
+3. `xde env` — Understand the current secrets and generated configuration.
+4. Review the relevant sections of `docs/grok-playbooks.md` for the task at hand.
+5. Check `create-payload-config.json` if the task involves project generation or configuration.
+
+Output a short summary of the environment state to the human before proposing actions. This dramatically reduces context errors.
+
+---
+
 ## Core Mental Model
 
 This project has two layers:
@@ -154,6 +168,20 @@ When working with reset or clean functionality:
 
 ---
 
+## Common Pitfalls Specific to This Project
+
+Avoid these recurring traps that have caused issues for agents in the past:
+
+- **Context blindness**: Assuming you are inside the Dev Container. Always check via `EnvironmentContext.detect()` concepts or by running `xde check` / `xde env`.
+- **Legacy reflex**: Reaching for `make ...` or direct calls to `.devcontainer/scripts/reset-project.py` etc. when `xde` equivalents exist or are the intended path.
+- **Credential rotation over-eagerness**: Rotating secrets (`--rotate-credentials`) without strong justification. This has historically led to painful "password authentication failed" situations between the running container and `.env`.
+- **Project folder confusion**: Forgetting that the generated Payload app lives in a sibling folder (e.g. `website/`) controlled by `create-payload-config.json`, not inside `.devcontainer`.
+- **Weak safety defaults**: Proposing destructive operations without first using `--dry-run` and clearly explaining impact.
+- **Treating reference material as active code**: The `xg/` directory contains excellent advanced console patterns but is **not** part of the current active implementation.
+- **Command surface bloat**: Adding too many ways to do the same thing. Small + predictable is better for agents (and humans).
+
+---
+
 ## Making This Project More Agent-Friendly (Meta)
 
 As you work, look for opportunities to improve the agent experience:
@@ -210,10 +238,28 @@ xde dev
 - Update this `AGENTS.md` if the mental model or preferred workflow changed
 - Consider whether the change makes life better or worse for the *next* agent that works here
 
-**Additional high-value reading:**
-- `docs/architecture.md`
-- `docs/xde-reference.md`
-- `.github/CONTRIBUTING.md` (Coding Standards section)
+**Additional high-value reading (in recommended order for maximum productivity):**
+1. `docs/grok-playbooks.md` — **Start here for specific tasks**.
+2. `GROK-TASKS.md` — Your lightweight task list and memory for informal TODOs.
+3. `docs/xde-v1-command-surface-proposal.md` — Current proposal for the final minimal `xde` command surface (very important for alignment).
+4. `DEV-JOURNAL.md` — Living history of our collaboration.
+5. `docs/architecture.md`
+6. `docs/xde-reference.md`
+7. `.github/CONTRIBUTING.md` (especially Coding Standards and the AI section).
+
+**Pro tip for Grok**: The docstrings in `src/xde/` (especially `core/environment.py`, `core/docker.py`, `commands/dev.py`, and `commands/reset.py`) have been written with you in mind. They contain important historical context and guidance.
+
+### Tracking Informal Tasks & Reminders
+
+Use the file **[GROK-TASKS.md](GROK-TASKS.md)** for any TODOs, ideas, or reminders the user wants to track without creating GitHub issues.
+
+When the user says things like:
+- "Add 'Wire real logic for xde env' to the Grok tasks"
+- "Mark the command surface proposal as done in the tasks"
+
+You should immediately edit `GROK-TASKS.md` using the appropriate tool.
+
+This file is the canonical lightweight memory for work that isn't ready for formal tracking yet. Keep it up to date.
 
 ---
 

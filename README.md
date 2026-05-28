@@ -96,11 +96,15 @@ Happy coding your dream web apps using Payload CMS in our optimized development 
 
 **AI coding assistants** (Grok Build, Claude, Cursor, etc.): 
 
-**Start here**: Read [AGENTS.md](AGENTS.md) completely. It is the primary context document written specifically to maximize agent effectiveness in this project.
+**Start here** (in this order for maximum effectiveness):
+1. [AGENTS.md](AGENTS.md) — Primary behavioral and philosophical guidance.
+2. [docs/grok-playbooks.md](docs/grok-playbooks.md) — Concrete step-by-step workflows and playbooks.
+3. [GROK-TASKS.md](GROK-TASKS.md) — Lightweight task tracking for informal TODOs and reminders.
+4. [DEV-JOURNAL.md](DEV-JOURNAL.md) — History of our collaboration and major decisions.
+5. [docs/architecture.md](docs/architecture.md) — Mental model.
+6. [docs/xde-reference.md](docs/xde-reference.md) — Command surface details.
 
-Additional useful reading:
-- [docs/architecture.md](docs/architecture.md)
-- [docs/xde-reference.md](docs/xde-reference.md)
+These documents are deliberately written to make Grok Build (and similar agents) dramatically more productive when working on Payload CMS projects with this template.
 
 All commands are designed to feel natural when working inside the Dev Container (the default context is development). The only explicit non-development environment is `stage` (for testing code that mirrors production).
 

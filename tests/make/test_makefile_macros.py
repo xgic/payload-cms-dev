@@ -23,7 +23,9 @@ from tests.make.conftest import run_make
 class TestHostOnlyGuard:
     """Tests for the HOST_ONLY_GUARD macro."""
 
-    def test_allows_execution_on_plain_host(self, minimal_makefile_with_macros: Path):
+    def test_allows_execution_on_plain_host(
+        self, minimal_makefile_with_macros: Path
+    ):
         """When no container env vars are set, host-only target should succeed."""
         result = run_make(minimal_makefile_with_macros.parent, "host-only-target")
         assert result.returncode == 0

@@ -1,8 +1,20 @@
 """Environment detection and context.
 
-OOP class for understanding where we are running (host, inside container,
-Dev Container, etc.). Inspired by patterns in the XG AIS console app but
-implemented cleanly for this project.
+This module provides robust detection of the execution environment
+(host machine, VS Code Dev Container, generic container, etc.).
+
+It is one of the core abstractions in the project and replaces the
+fragile HOST_ONLY_GUARD / RUN_IN_CONTAINER Makefile macros with
+something properly testable and debuggable.
+
+Key benefits for agents:
+- Clear, reliable signals instead of brittle environment variable checks.
+- Frozen dataclass for safe sharing across the CLI.
+- Human-friendly `.describe()` method for logging and UI.
+
+See also:
+- `AGENTS.md` → Session startup checklist
+- `docs/architecture.md` → Core abstractions section
 """
 
 from __future__ import annotations

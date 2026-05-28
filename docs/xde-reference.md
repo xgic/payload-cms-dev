@@ -2,7 +2,7 @@
 
 This document is intended to be a living, detailed reference for the `xde` command surface.
 
-**Status**: This is aspirational/forward-looking. Many commands are still being implemented.
+**Status**: This document is being aligned with the current design proposal in `docs/xde-v1-command-surface-proposal.md`. Many commands are still being implemented.
 
 ## Design Principles
 
@@ -132,6 +132,8 @@ xde reset --dry-run
 ```
 
 Always prefer `xde` commands over reaching for `make` or raw `docker compose` unless you're explicitly doing migration work.
+
+**Grok Tip**: When a command is not yet fully implemented, still document what the *ideal* behavior should be in this file. This helps future sessions stay aligned on the vision.
 
 ---
 

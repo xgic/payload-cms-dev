@@ -53,7 +53,13 @@ As of 0.1.0 we achieve 59% overall coverage with the current focused test suite.
 - Prefer testing pure functions over side-effect heavy code
 - Integration behavior is covered by `devcontainer-tests.sh` + `make rebuild`
 
-**AI assistants**: See [AGENTS.md](AGENTS.md), [docs/architecture.md](docs/architecture.md), and [docs/xde-reference.md](docs/xde-reference.md) for testing priorities, architecture, and recommended commands.
+**AI assistants**: See (in priority order):
+1. [AGENTS.md](AGENTS.md)
+2. [docs/grok-playbooks.md](docs/grok-playbooks.md)
+3. [docs/architecture.md](docs/architecture.md)
+4. [docs/xde-reference.md](docs/xde-reference.md)
+
+These contain testing priorities, workflows, architecture, and recommended commands.
 
 ## Makefile Behavior Testing (New in 0.1.x)
 
