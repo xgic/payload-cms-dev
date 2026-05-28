@@ -28,7 +28,7 @@ from xde import __version__
 from xde.core.environment import EnvironmentContext
 from xde.core.docker import DockerComposeController
 from xde.commands.dev import run_dev
-from xde.commands.lifecycle import run_up, run_down, run_build
+from xde.commands.lifecycle import run_up, run_down, run_build, run_logs, run_shell
 from xde.commands.reset import run_reset
 from xde.commands.diagnostics import run_check
 from xde.commands.env import run_env
@@ -111,13 +111,13 @@ Examples:
     logs_parser = subparsers.add_parser(
         "logs", help="Follow logs for all services"
     )
-    logs_parser.set_defaults(func=lambda args: print_error("Not yet implemented"))
+    logs_parser.set_defaults(func=run_logs)
 
     # shell
     shell_parser = subparsers.add_parser(
         "shell", help="Open interactive shell in the primary service"
     )
-    shell_parser.set_defaults(func=lambda args: print_error("Not yet implemented"))
+    shell_parser.set_defaults(func=run_shell)
 
     # env (lightweight environment inspection / management)
     env_parser = subparsers.add_parser(

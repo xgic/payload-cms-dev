@@ -42,3 +42,32 @@ def run_build(
     docker.build(no_cache=no_cache)
     print_success("Build complete")
     return 0
+
+
+def run_logs(
+    args: object,
+    *,
+    env: EnvironmentContext,
+    docker: DockerComposeController,
+) -> int:
+    """Follow logs for all services (blocks until interrupted)."""
+    print_info("Following logs (press Ctrl+C to exit)...")
+    docker.logs(follow=True)
+    return 0
+
+
+def run_shell(
+    args: object,
+    *,
+    env: EnvironmentContext,
+    docker: DockerComposeController,
+) -> int:
+    """Open an interactive shell in the primary service."""
+    print_info("Opening shell in primary service (type 'exit' to leave)...")
+    # Use 'node' as the main service user, matching the devcontainer setup
+    try:
+        docker.exec("xgic-payload-cms-dev-containers", "bash")
+    except Exception:
+        # Fallback if exec fails in this context
+        print_info("Shell session ended or failed to attach.")
+    return 0
