@@ -100,7 +100,7 @@ Destructive operations in particular (`reset-project`) are being given much more
 - Never assume you're inside the container unless `EnvironmentContext` says so.
 - Prefer `xde` commands over direct `docker compose` or shell scripts.
 - Treat `create-payload-config.json` as the source of truth for project generation parameters.
-- Be extremely careful with anything that touches the generated Payload project folder or the Postgres volume.
+- Be extremely careful with anything that touches the generated Payload project folder or the PostgreSQL data volume.
 
 **Agent Tip**: At the start of any non-trivial task, explicitly state which layer you believe you are operating in and which abstraction (`EnvironmentContext`, `DockerComposeController`, config, etc.) you will use. This reduces errors.
 
