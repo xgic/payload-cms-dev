@@ -4,11 +4,13 @@ This document contains concrete, step-by-step workflows optimized for Grok Build
 
 **Always start every session by following the "Session Startup Playbook".**
 
+All work documented here must follow the Collaboration Principles defined in `AGENTS.md` (positive tone, constructive framing, reference past only to prevent future mistakes).
+
 ---
 
 ## Session Startup Playbook (Run This First)
 
-**Goal**: Quickly build accurate context and reduce hallucination risk.
+**Goal**: Quickly build accurate shared context with the human developer and reduce the risk of operating on outdated assumptions.
 
 1. **Read the core agent docs** (if not already in context):
    - `AGENTS.md`

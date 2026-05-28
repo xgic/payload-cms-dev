@@ -24,9 +24,9 @@ These guidelines apply to both human contributors and AI-assisted development (G
 
 ### Local vs Published History
 
-- During active local development, you may make frequent, granular commits (even for breaking changes).
-- Before pushing or opening a pull request to the primary branch (especially in preparation for any public release or history reset), clean the history using interactive rebase (`git rebase -i`) or squash merges so that the published history tells a clear, professional story.
-- This follows common GitHub and open source best practices.
+- During active local development, frequent granular commits are acceptable (even for breaking changes).
+- Before pushing or opening a pull request to the primary branch (especially in preparation for any public release or history reset), the commit history should be cleaned using interactive rebase (`git rebase -i`) or squash merges so that the published history presents a clear, professional narrative.
+- This approach follows common GitHub and open source best practices.
 
 ### Conventional Commits
 
@@ -88,15 +88,19 @@ with minimal impact.
 
 ## Commands to Run Before Committing
 
+Before committing code changes:
+
 ```bash
-# Recommended (once fully wired up)
+# Recommended
 make validate
 
-# Minimum
+# Minimum (when make validate is not yet fully available)
 ruff format .
 ruff check .
-# Run relevant tests
+pytest -q   # or the relevant test subset for the change
 ```
+
+All linting and tests must pass cleanly.
 
 ---
 

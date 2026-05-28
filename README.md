@@ -45,12 +45,12 @@ These extensions ensure a **consistent, high-productivity development environmen
    This makes `xde dev`, `xde reset`, `xde check`, etc. available immediately on the host.
 3. Open the folder in **VS Code**
 4. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> then select the **Dev Containers: Rebuild Without Cache and Reopen in Container** option.
-4. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL credentials)
-5. The container lifecycle will:
+5. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL credentials)
+6. The container lifecycle will:
    - Run `initializeCommand` to generate `.env`
    - Run `postStartCommand` which executes `setup-payload.sh` (idempotent project creation)
-6. After creation completes, run `pnpm dev` in the new Payload subdirectory
-7. Open http://localhost:3000/admin
+7. After creation completes, run `pnpm dev` in the new Payload subdirectory
+8. Open http://localhost:3000/admin
 
 **Payload Creation Flow**
 
@@ -126,31 +126,15 @@ All commands are designed to feel natural when working inside the Dev Container 
 | `xde logs`               | Follow logs for all services.                                               |
 | `xde shell`              | Open an interactive shell in the main service container.                    |
 
-### Staging-Mirror Testing (`stage`)
+### Planned Extensions (Post v1)
 
-Use the `stage` namespace when you need to test code exactly as it will behave in a production-like environment:
+The following capabilities are under consideration for future releases:
 
-```bash
-xde stage up
-xde stage reset
-xde stage check
-```
+- **Staging-Mirror Testing**: A `stage` namespace for testing against production-like environments (e.g., `xde stage up`).
+- **Maintenance & Quality commands**: `xde validate`, `xde lint`, `xde schema`.
+- **Interactive Experience**: A Textual-based TUI (`xde tui`) for dashboards, logs, and wizards.
 
-This is the recommended workflow for final integration and pre-release validation.
-
-### Maintenance & Quality
-
-```bash
-xde validate
-xde lint
-xde schema          # Regenerate or validate create-payload-config schema
-```
-
-### Rich Interactive Experience (future)
-
-```bash
-xde tui             # Launch a Textual-based dashboard (environment status, live logs, interactive wizards, etc.)
-```
+These features are not part of the initial v1 command surface.
 
 ### Usage Examples
 
@@ -171,9 +155,9 @@ xde stage up
 xde stage dev
 ```
 
-### Installation (during development)
+### Development Note
 
-While the CLI is under active development, run it directly from the source tree or via `python -m xde` once the package is set up. A proper console-script entry point (`xde`) will be provided in the final package.
+During active development of the `xde` CLI, the recommended way to use it on the host is via an editable install (see the Quick Start section above). A proper console script entry point is provided by the `pyproject.toml`.
 
 ## Working with AI Assistants (Grok, etc.)
 
