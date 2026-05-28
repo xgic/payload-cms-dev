@@ -22,6 +22,9 @@ This file is the lightweight, informal task list for work that Grok Build should
 - [x] Wire logs, shell, and basic clean
 - [x] Implement core `xde reset` with --dry-run / --yes / --rotate-credentials
 - [x] Improve `xde dev` to auto-start services and give better guidance
+- [x] Add real DB readiness checks (pg_isready) to check/dev
+- [x] Add --json support to diagnostic commands (check, env)
+- [x] Install xde on host via pipx and document installation for initial use after clone
 
 ## Backlog / Ideas
 
