@@ -4,52 +4,44 @@ This module is one of the core abstractions in xde. It provides a clean,
 high-level Python interface for controlling Docker and Docker Compose.
 
 ================================================================================
-DESIGN DECISION (2026)
+CURRENT STRATEGY & FUTURE CONSIDERATION (2026)
 ================================================================================
 
-**Short-to-Medium Term (v1 and initial production use):**
-We are moving toward a hybrid approach:
-- Use the official Docker Python SDK (`docker` package) for low-level
-  Docker Engine operations (containers, exec, volumes, image management,
-  health checks, etc.).
-- Use `python-on-whales` (a mature, actively maintained wrapper around
-  the official Docker CLI) for Compose operations, OR continue with a
-  well-abstracted subprocess layer if we want to stay extremely light on
-  dependencies.
+**Current Approach:**
+We are deliberately using a simple subprocess-based implementation
+(calling the `docker` and `docker compose` CLI commands directly).
 
-The public API of this module must remain high-level and stable so that
-it can later be backed by different implementations.
+Rationale for staying with the current approach for now:
+- The Docker and Docker Compose operations we currently perform are
+  relatively straightforward.
+- The current implementation has low complexity and no additional
+  runtime dependencies.
+- It has been reliable for our needs so far.
 
-**Long Term (when xde becomes a serious importable library/framework):**
-We should seriously evaluate a "controlled Go helper" pattern:
-- A small, well-maintained Go binary that uses Docker's official Go
-  Compose SDK (`github.com/docker/compose/v5/pkg/api`).
-- The Go binary is shipped alongside the Python package (or installed
-  on-demand) and is called via a clean, stable interface (JSON over
-  stdio, local gRPC, or Unix socket).
-- This gives us native, robust Compose semantics without the limitations
-  of the Python ecosystem.
+**Future Consideration:**
+We will periodically re-evaluate the Docker/Docker Compose interface.
+We may rewrite this module in the future to use a more advanced or
+robust API (for example: `python-on-whales`, the official Docker Python
+SDK, a hybrid approach, or a small Go helper binary using Docker's
+official Go Compose SDK) once our requirements grow more complex or
+we encounter limitations with the current approach.
 
-This pattern is successfully used by several mature projects (HashiCorp
-tools, Temporal, various CNCF components) when they need capabilities
-that are only first-class in Go.
+This decision will be revisited when:
+- We start hitting robustness, maintainability, or feature limitations, or
+- We are ready to invest in a more sophisticated backend as part of
+  evolving `xde` into a high-quality importable library/framework.
 
-**Why not pure official SDK today?**
-The official `docker` Python SDK has excellent Engine support but weak/
-incomplete support for full `docker compose` project semantics.
+The public API of this module should be kept high-level and stable
+so that the underlying implementation can evolve with minimal
+breaking changes for callers.
 
-**Guiding Principle:**
-The interface exposed by `DockerComposeController` (and any future
-`DockerEngineClient`) must be designed for library consumers first,
-CLI second. Implementation details should be hidden.
-
-See `docs/architecture.md` and `GROK-TASKS.md` for related long-term goals.
+See `GROK-TASKS.md` (section on Docker/Compose Interface Strategy)
+for the current long-term tracking of this item.
 ================================================================================
 
 Current implementation note:
-As of mid-2026 we are still using subprocess for Compose while the
-hybrid strategy is being evaluated. The public methods should be
-treated as the stable contract.
+As of mid-2026 we are using a straightforward subprocess approach.
+The public methods should be treated as the stable contract.
 
 Intended capabilities:
 - Full lifecycle control (up, down, build, restart, etc.)

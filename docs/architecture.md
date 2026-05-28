@@ -39,17 +39,28 @@ This replaces the old fragile Makefile `HOST_ONLY_GUARD` / `RUN_IN_CONTAINER` ma
 
 ### DockerComposeController (`src/xde/core/docker.py`)
 
-The single place that talks to Docker Compose.
+The single place that talks to Docker and Docker Compose.
+
+**Current strategy (as of 2026):**
+We are deliberately using a simple subprocess-based implementation
+(calling the `docker` and `docker compose` CLI). The operations we
+perform today are relatively straightforward, so we do not need
+additional complexity at this stage.
+
+**Future consideration:**
+We will periodically re-evaluate this module and may rewrite it in the
+future to use a more advanced interface (e.g. `python-on-whales`, the
+official Docker Python SDK, or a small Go helper binary using Docker's
+official Go Compose SDK) once our requirements grow more complex.
 
 Current responsibilities:
 - Start/stop/build services
 - Query service status
 - Execute commands inside containers
+- Basic health checks and volume management
 
-Future responsibilities:
-- Better status parsing
-- Streaming logs
-- Health checks
+See the "CURRENT STRATEGY & FUTURE CONSIDERATION" section in
+`src/xde/core/docker.py` and the corresponding item in `GROK-TASKS.md`.
 
 ### Configuration System
 

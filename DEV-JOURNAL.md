@@ -93,6 +93,9 @@ This approach produces a professional, maintainable project history.
 - Improved several module docstrings in `src/xde/` for better agent comprehension.
 - Small terminology fix in the proposal (changed "nuke" language for the `clean` command per user feedback).
 
+**Docker/Compose Strategy Decision**:
+We have decided to keep the current simple subprocess-based implementation in `src/xde/core/docker.py` for now. The operations we perform are relatively straightforward, so we do not need additional complexity at this stage. We will periodically re-evaluate more advanced Docker/Compose interfaces in the future (see the "CURRENT STRATEGY & FUTURE CONSIDERATION" section in `docker.py` and the corresponding item in `GROK-TASKS.md`).
+
 This continues the heavy focus on making the project exceptionally productive for Grok Build.
 
 ---

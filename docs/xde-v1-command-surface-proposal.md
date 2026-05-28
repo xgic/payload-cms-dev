@@ -169,4 +169,4 @@ This proposal is intentionally written to be easy to discuss and iterate on.
 
 All future work on xde must follow the Collaboration Principles in `AGENTS.md`.
 
-**Important:** The Docker/Compose interface strategy is documented in `src/xde/core/docker.py` (Design Decision section) and `GROK-TASKS.md`. The public API must be designed to support future backend changes (including a potential Go helper binary) without breaking library users.
+**Important:** The Docker/Compose interface strategy is documented in `src/xde/core/docker.py` (section "CURRENT STRATEGY & FUTURE CONSIDERATION"). As of 2026 we are deliberately using a simple subprocess-based approach. We will periodically re-evaluate more advanced options in the future when our needs become more complex. The public API should be kept stable to allow future backend changes.

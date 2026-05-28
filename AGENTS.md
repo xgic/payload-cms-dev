@@ -27,7 +27,7 @@ These principles have been established to maximize effectiveness and maintain a 
   - I have full autonomy to stage, commit, and push following these guidelines.
 
 - **Long-term vision for xde**: Evolve `xde` beyond a CLI into a high-quality, importable Python library and framework. This enables deep API-level integration from other tools (Ansible, custom GitLab CI runners, other automation, etc.).
-  - The Docker and Docker Compose interface is a key architectural area. See the Design Decision in `src/xde/core/docker.py` and the corresponding entry in `GROK-TASKS.md`. We are targeting a hybrid approach (official SDK + mature Compose wrapper) in the medium term, with evaluation of a small Go helper binary (using Docker's official Go Compose SDK) for the library era.
+  - Docker/Docker Compose interface: As of 2026 we are intentionally using a simple subprocess-based approach in `src/xde/core/docker.py`. We will keep this as long as it remains sufficient. We will periodically re-evaluate more advanced options (e.g. `python-on-whales`, the official Docker SDK, or a small Go helper binary) in the future. See the "CURRENT STRATEGY & FUTURE CONSIDERATION" section in `docker.py` and the corresponding item in `GROK-TASKS.md`.
 
 - **Testing & Automation Roadmap**: The major strategic direction is a progressive increase in test coverage and automation:
   - Unit tests → Integration tests → End-to-end tests (including the generated Payload apps)

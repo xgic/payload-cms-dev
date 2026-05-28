@@ -47,10 +47,12 @@ This file is the lightweight, informal task list for work that Grok Build should
 - Explore a lightweight "context dumper" helper for agents (e.g. `xde context` or a script)
 - **Long-term vision**: Turn xde into a world-class Python library + framework (not just a CLI). Make core functionality importable so other Python projects (Ansible modules, GitLab CI runners, custom automation tools, etc.) can use xde's logic directly via API instead of shelling out. This enables much deeper integration and future-proofing.
 
-- **Docker/Compose Interface Strategy (Important Architectural Decision)**
-  - Short/medium term: Hybrid approach using official `docker` Python SDK for Engine operations + `python-on-whales` (or well-abstracted subprocess) for Compose.
-  - Long term: Evaluate shipping a small, controlled Go helper binary using Docker's official Go Compose SDK, exposed through a clean Python facade (following patterns used by HashiCorp tools, Temporal, etc.).
-  - The public API in `DockerComposeController` must be designed to allow swapping the backend implementation with minimal (or zero) breaking changes for library consumers.
+- **Docker/Compose Interface Strategy (Future Consideration)**
+  - Current approach (as of 2026): We are deliberately using a simple subprocess-based implementation to call the `docker` and `docker compose` CLI. The operations we perform today are relatively straightforward, so we do not need additional complexity at this stage.
+  - We will keep the current implementation as long as it remains reliable.
+  - We will periodically re-evaluate whether to rewrite `src/xde/core/docker.py` to use a more advanced interface (e.g. `python-on-whales`, the official Docker Python SDK, or a small Go helper binary using Docker's official Go Compose SDK).
+  - This decision will be revisited when we encounter limitations or when we are ready to invest in a more sophisticated backend as part of the long-term goal of making `xde` a high-quality importable library/framework.
+  - The public API should be kept stable to allow future backend changes with minimal impact.
 
 ### Testing & Automation Roadmap (High Priority Future Work)
 
