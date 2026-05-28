@@ -17,6 +17,8 @@ This file is the lightweight, informal task list for work that Grok Build should
 - [ ] Finalize and agree on the v1 command surface from `docs/xde-v1-command-surface-proposal.md`
 - [ ] Strengthen `DockerComposeController` with better real implementations
 - [ ] Implement proper `xde reset` (migrate key logic from `reset-project.py`)
+- [x] Implement basic functional `xde check`
+- [x] Implement basic functional `xde env`
 
 ## Backlog / Ideas
 
