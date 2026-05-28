@@ -134,7 +134,7 @@ This is the short, scannable version of the rules that matter most when contribu
 - **Python**: Ruff is the single source of truth for formatting and linting.
 - **Shell scripts**: Prefer POSIX-compliant syntax. All `.sh` files must pass ShellCheck.
 - **TypeScript config**: Follow existing patterns in `.devcontainer/config/types.ts` and `generate_schema.py`.
-- **Commits & PRs**: Follow Conventional Commits. For agent-driven work, commits are generally larger and contain complete units of functionality (including linting and passing tests). See the Collaboration Principles in `AGENTS.md`.
+- **Commits & PRs**: Follow Conventional Commits. Commits should represent logical, atomic units of change. Smaller commits (including single-file changes) are acceptable when they improve reviewability. See the Collaboration Principles in `AGENTS.md` for agent-driven work.
 - **Documentation**: Clarity for human readers (in browsers and previews) takes precedence over strict line wrapping.
 
 #### Commands to Run Before Committing
@@ -328,7 +328,7 @@ Branch names must be lowercase, use hyphens, and be descriptive.
 - Work exclusively inside the Dev Container (recommended).
 - Follow the [Coding Standards](#coding-standards--best-practices) below.
 - For human contributors: Keep changes reasonably scoped.
-- For agent-driven work: Group into larger, complete commits that deliver full functionality + pass linting and tests (see AGENTS.md Collaboration Principles).
+- For agent-driven work: Commits should represent logical, atomic units of change (smaller commits, including single-file changes, are acceptable when they improve clarity). All commits must pass linting and relevant tests. See the Collaboration Principles in `AGENTS.md`. Local development commits may be granular; history should be cleaned before pushing or merging to the primary branch.
 
 ### Step 7: Stage, Commit, and Push
 Use **Conventional Commits** (see section below):

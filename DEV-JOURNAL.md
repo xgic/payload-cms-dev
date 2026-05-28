@@ -7,13 +7,12 @@ This journal tracks the evolution of the project through our collaboration. It s
 
 All entries should follow the Collaboration Principles defined in `AGENTS.md`.
 
-In particular, development work (including this journal) should be committed in larger, complete units that include:
-- Full implementation of the functionality
-- Linting clean
-- All tests passing
-- Relevant documentation updates
+In particular, development work (including this journal) should follow standard GitHub and open source commit best practices:
+- Commits should be logical and atomic. Smaller, focused commits (including single-file changes) are acceptable and often preferred for reviewability.
+- Every commit must include the complete change and pass linting and relevant tests.
+- During local development, granular commits are fine (even for breaking changes). Before pushing or merging to the primary branch (especially ahead of any public release), history should be cleaned using interactive rebase or squash merges.
 
-This creates a cleaner, more reviewable history.
+This approach produces a professional, maintainable project history.
 
 ---
 

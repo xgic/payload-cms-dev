@@ -68,9 +68,10 @@ When the user asks you to track something:
 4. When something is completed, move it to "Done" with the date. Note which commit delivered it.
 
 Commit expectations (per AGENTS.md Collaboration Principles):
-- Group work into larger, complete units of functionality.
-- Every commit must include full implementation + pass linting and all tests.
-- Include relevant documentation updates in the same commit when they are part of the change.
+- Commits should represent logical, atomic units of change. Smaller commits (including single-file changes) are acceptable when they improve clarity.
+- Every commit must deliver the complete change being made and pass linting and all relevant tests.
+- Include relevant documentation updates in the same commit when they form part of the work.
+- Local development commits may be granular. History should be cleaned (via rebase or squashing) before pushing or merging to the primary branch, following standard GitHub and open source practices.
 
 Keep this file short and scannable. If something grows into a real feature or needs discussion, suggest creating a proper GitHub issue and reference it here.
 

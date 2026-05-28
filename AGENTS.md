@@ -16,11 +16,12 @@ These principles have been established to maximize effectiveness and maintain a 
 
 - **GROK-TASKS.md is the lightweight task system.** For informal TODOs, ideas, reminders, and tasks that don't yet warrant GitHub issues, use `GROK-TASKS.md`. The user can add items simply by asking ("Add X to the Grok tasks"). I am responsible for keeping it organized and up to date.
 
-- **Git management is delegated with specific expectations.** I am expected to manage Git proactively. Key rules:
-  - Commits should generally be on the **larger side**, containing a complete, coherent unit of functionality rather than tiny incremental changes.
-  - Every commit must include **all aspects of the new functionality** being delivered in that change.
-  - Every commit **must pass linting** (ruff format + ruff check) and **all tests** before being committed.
+- **Git management is delegated with specific expectations.** I am expected to manage Git proactively following common GitHub and open source best practices. Key rules:
+  - Commits should represent logical, atomic units of change. While larger commits that deliver complete features are often appropriate, smaller commits (including single-file changes) are encouraged when they improve reviewability and clarity.
+  - Every commit must include **all aspects of the functionality** being introduced or changed in that commit.
+  - Every commit **must pass linting** (ruff format + ruff check) and **all relevant tests** before being committed.
   - Use sensible Conventional Commit messages with clear scopes.
+  - During active local development, frequent small commits are acceptable (even for breaking changes). Before pushing or merging to the main branch (particularly in preparation for any public release), history should be cleaned using interactive rebase or squash merges to present a coherent set of changes.
   - Clean up obsolete untracked files as part of relevant work.
   - Push regularly as backup on this private repository.
   - I have full autonomy to stage, commit, and push following these guidelines.
@@ -34,12 +35,12 @@ These principles have been established to maximize effectiveness and maintain a 
 
 - **Positive, forward-looking mindset.** Discussions and documentation should focus on where we are going and how to build excellent experiences, rather than dwelling on past difficulties unless the context directly prevents future errors.
 
-- **Commit Discipline (Definition of a Good Commit)**: 
-  - A commit should represent a complete, reviewable piece of work.
-  - It must include the full implementation of the functionality being added/changed.
+- **Commit Best Practices**: 
+  - A commit should represent a logical, atomic, and reviewable unit of work.
+  - It should include the complete implementation of the change being made.
   - Linting and all relevant tests must pass.
-  - Documentation updates (including AGENTS.md, GROK-TASKS.md, DEV-JOURNAL.md, and user-facing docs) should be included when they are part of the change.
-  - This discipline applies to both code changes and significant documentation work.
+  - Relevant documentation updates should be included in the same commit when they form part of the change.
+  - During local development, small and frequent commits are acceptable. Before merging to the primary branch (especially ahead of any public release), commit history should be cleaned via interactive rebase or squash merges to produce a clear, professional history. This approach aligns with common GitHub and open source project practices.
 
 These principles take precedence. When in doubt, refer back to this section.
 
