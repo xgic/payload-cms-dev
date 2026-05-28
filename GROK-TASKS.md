@@ -47,6 +47,11 @@ This file is the lightweight, informal task list for work that Grok Build should
 - Explore a lightweight "context dumper" helper for agents (e.g. `xde context` or a script)
 - **Long-term vision**: Turn xde into a world-class Python library + framework (not just a CLI). Make core functionality importable so other Python projects (Ansible modules, GitLab CI runners, custom automation tools, etc.) can use xde's logic directly via API instead of shelling out. This enables much deeper integration and future-proofing.
 
+- **Docker/Compose Interface Strategy (Important Architectural Decision)**
+  - Short/medium term: Hybrid approach using official `docker` Python SDK for Engine operations + `python-on-whales` (or well-abstracted subprocess) for Compose.
+  - Long term: Evaluate shipping a small, controlled Go helper binary using Docker's official Go Compose SDK, exposed through a clean Python facade (following patterns used by HashiCorp tools, Temporal, etc.).
+  - The public API in `DockerComposeController` must be designed to allow swapping the backend implementation with minimal (or zero) breaking changes for library consumers.
+
 ### Testing & Automation Roadmap (High Priority Future Work)
 
 **Goal**: Build world-class reliability and automation for this dev container template and the Payload CMS projects it generates.

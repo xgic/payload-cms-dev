@@ -1,8 +1,10 @@
 # xde v1 Command Surface Proposal
 
 **Date**: June 2026  
-**Status**: Proposal for discussion and agreement  
+**Status**: Accepted / Locked for v1 implementation  
 **Goal**: Define the minimal, final command surface for `xde` v1 that is simple, powerful, and sufficient to eventually retire the Makefile.
+
+**Decision**: This surface has been accepted as the target for the initial production-ready version of `xde`. Implementation work is proceeding against this proposal (see `docs/development-workflow.md`).
 
 ---
 
@@ -164,3 +166,7 @@ Once agreed, we can move quickly into implementation.
 - Proceed with implementation (starting with strengthening `DockerComposeController` and wiring real behavior to the agreed commands).
 
 This proposal is intentionally written to be easy to discuss and iterate on.
+
+All future work on xde must follow the Collaboration Principles in `AGENTS.md`.
+
+**Important:** The Docker/Compose interface strategy is documented in `src/xde/core/docker.py` (Design Decision section) and `GROK-TASKS.md`. The public API must be designed to support future backend changes (including a potential Go helper binary) without breaking library users.

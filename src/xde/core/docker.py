@@ -1,29 +1,63 @@
 """Docker Compose orchestration layer.
 
-This module provides the single point of contact for all Docker Compose
-operations in the project.
+This module is one of the core abstractions in xde. It provides a clean,
+high-level Python interface for controlling Docker and Docker Compose.
 
-Design principles:
-- Uses only stdlib `subprocess` (no heavy dependencies like python-on-whales).
-- Designed to be easily testable and mockable.
-- Central place for compose project name, file paths, and command construction.
+================================================================================
+DESIGN DECISION (2026)
+================================================================================
 
-Current capabilities (being actively expanded):
-- Start/stop/build services
-- Basic service status checks
-- Command execution inside containers
+**Short-to-Medium Term (v1 and initial production use):**
+We are moving toward a hybrid approach:
+- Use the official Docker Python SDK (`docker` package) for low-level
+  Docker Engine operations (containers, exec, volumes, image management,
+  health checks, etc.).
+- Use `python-on-whales` (a mature, actively maintained wrapper around
+  the official Docker CLI) for Compose operations, OR continue with a
+  well-abstracted subprocess layer if we want to stay extremely light on
+  dependencies.
 
-Intended future improvements:
-- Better structured output from `docker compose ps`
-- Streaming log support
-- Health check helpers
+The public API of this module must remain high-level and stable so that
+it can later be backed by different implementations.
 
-This is a critical abstraction for agent productivity — it allows Grok
-to reason about container state without writing raw shell commands.
+**Long Term (when xde becomes a serious importable library/framework):**
+We should seriously evaluate a "controlled Go helper" pattern:
+- A small, well-maintained Go binary that uses Docker's official Go
+  Compose SDK (`github.com/docker/compose/v5/pkg/api`).
+- The Go binary is shipped alongside the Python package (or installed
+  on-demand) and is called via a clean, stable interface (JSON over
+  stdio, local gRPC, or Unix socket).
+- This gives us native, robust Compose semantics without the limitations
+  of the Python ecosystem.
 
-See also:
-- `AGENTS.md` → Preferred commands section
-- `docs/grok-playbooks.md` → "Debug a broken environment" playbook
+This pattern is successfully used by several mature projects (HashiCorp
+tools, Temporal, various CNCF components) when they need capabilities
+that are only first-class in Go.
+
+**Why not pure official SDK today?**
+The official `docker` Python SDK has excellent Engine support but weak/
+incomplete support for full `docker compose` project semantics.
+
+**Guiding Principle:**
+The interface exposed by `DockerComposeController` (and any future
+`DockerEngineClient`) must be designed for library consumers first,
+CLI second. Implementation details should be hidden.
+
+See `docs/architecture.md` and `GROK-TASKS.md` for related long-term goals.
+================================================================================
+
+Current implementation note:
+As of mid-2026 we are still using subprocess for Compose while the
+hybrid strategy is being evaluated. The public methods should be
+treated as the stable contract.
+
+Intended capabilities:
+- Full lifecycle control (up, down, build, restart, etc.)
+- Good support for dry-run, streaming logs, and structured status
+- Health checks and volume management
+- Clean error handling and progress reporting
+
+This abstraction is critical for both human DX and agent productivity.
 """
 
 from __future__ import annotations
