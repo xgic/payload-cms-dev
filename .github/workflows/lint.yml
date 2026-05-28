@@ -141,3 +141,27 @@ jobs:
             rules:
               line-length: disable
               truthy: disable
+
+  # ============================================
+  # Makefile linting with checkmake (industry standard)
+  # ============================================
+  checkmake:
+    name: checkmake (Makefile linter)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run checkmake via official container image
+        run: |
+          echo "::group::checkmake Makefile"
+          docker run --rm \
+            -v "${PWD}:/src" -w /src \
+            quay.io/checkmake/checkmake:latest \
+            checkmake Makefile || true
+          echo "::endgroup::"
+        shell: bash
+
+      - name: Summary note
+        run: |
+          echo "checkmake results above (non-fatal for now — we will tighten over time)."
+          echo "Install locally: go install github.com/checkmake/checkmake/cmd/checkmake@latest"

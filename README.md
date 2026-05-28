@@ -47,19 +47,27 @@ These extensions ensure a **consistent, high-productivity development environmen
 6. After creation completes, run `pnpm dev` in the new Payload subdirectory
 7. Open http://localhost:3000/admin
 
-**For non-interactive / CI/CD automation** (e.g., when using this repo as a template):
-- Customize `.devcontainer/create-payload-config.json` with supported parameters (projectName, template, dbAdapter, dbUri, etc.).
-- Project creation is handled by `.devcontainer/scripts/setup-payload.sh` (invoked via `postStartCommand`).
+**Payload Creation Flow**
 
-   Happy coding your dream web apps using Payload CMS in our optimized development environment.
+The real work happens in `.devcontainer/scripts/setup-payload.sh`, which is:
+- Called automatically via `postStartCommand` when the dev container starts
+- Idempotent — safe to run multiple times
+
+**For non-interactive / CI/CD automation** (e.g., when using this repo as a template):
+- Customize `.devcontainer/create-payload-config.json` with supported parameters.
+- The file has full JSON Schema support → excellent VS Code IntelliSense, validation, and autocomplete out of the box.
+- See `.devcontainer/create-payload-config.schema.json` for the complete schema.
+
+Happy coding your dream web apps using Payload CMS in our optimized development environment.
 
 ## Repository Structure
 
 ```
 .
 ├── .devcontainer/
-│   ├── .env                      # Dynamically generated (never commit)
-│   ├── create-payload-config.json
+│   ├── .env                           # Dynamically generated (never commit)
+│   ├── create-payload-config.json     # ← Main config (has JSON Schema for great VS Code IntelliSense)
+│   ├── create-payload-config.schema.json
 │   ├── devcontainer.json
 │   ├── docker-compose.yml
 │   ├── Dockerfile
@@ -67,8 +75,7 @@ These extensions ensure a **consistent, high-productivity development environmen
 │       ├── setup-payload.sh            # Main project creation logic (postStartCommand)
 │       ├── devcontainer-tests.sh
 │       ├── init-env.sh
-│       ├── post-create.sh                # Legacy compatibility shim (deprecated)
-│       └── reset-project.py              # Python implementation of make reset-project
+│       └── reset-project.py              # Reliable Python implementation of fast environment resets
 ├── .dockerignore
 ├── .github/
 │   └── CONTRIBUTING.md
@@ -83,27 +90,97 @@ These extensions ensure a **consistent, high-productivity development environmen
 - Isolated bridge network + named volumes for data persistence
 - Delegated bind mounts for optimal performance
 
+## The `xde` CLI
+
+`xde` (XGIC Dev Environment) is the primary command-line tool for managing the development environment. It provides a reliable, testable, and developer-friendly replacement for the previous automation targets.
+
+**AI coding assistants** (Grok Build, Claude, Cursor, etc.): 
+
+**Start here**: Read [AGENTS.md](AGENTS.md) completely. It is the primary context document written specifically to maximize agent effectiveness in this project.
+
+Additional useful reading:
+- [docs/architecture.md](docs/architecture.md)
+- [docs/xde-reference.md](docs/xde-reference.md)
+
+All commands are designed to feel natural when working inside the Dev Container (the default context is development). The only explicit non-development environment is `stage` (for testing code that mirrors production).
+
+### Quick Reference
+
+| Command                  | Description                                                                 |
+|--------------------------|-----------------------------------------------------------------------------|
+| `xde` or `xde help`      | Show short, scannable usage information (level-1 help).                     |
+| `xde dev`                | **Primary daily command.** Starts the Payload development server. Performs a DB readiness check first. If containers are not running, prints a clear, actionable prompt instead of a raw error. |
+| `xde up`                 | Start all development services (Docker Compose).                            |
+| `xde down`               | Stop containers (volumes are preserved).                                    |
+| `xde reset`              | Fast targeted reset: removes the generated Payload project folder and resets the Postgres data volume (stable credentials). |
+| `xde check`              | Diagnostic: verify that PostgreSQL and required services are reachable.     |
+| `xde logs`               | Follow logs for all services.                                               |
+| `xde shell`              | Open an interactive shell in the main service container.                    |
+
+### Staging-Mirror Testing (`stage`)
+
+Use the `stage` namespace when you need to test code exactly as it will behave in a production-like environment:
+
+```bash
+xde stage up
+xde stage reset
+xde stage check
+```
+
+This is the recommended workflow for final integration and pre-release validation.
+
+### Maintenance & Quality
+
+```bash
+xde validate
+xde lint
+xde schema          # Regenerate or validate create-payload-config schema
+```
+
+### Rich Interactive Experience (future)
+
+```bash
+xde tui             # Launch a Textual-based dashboard (environment status, live logs, interactive wizards, etc.)
+```
+
+### Usage Examples
+
+```bash
+# Start developing (recommended)
+xde dev
+
+# Full environment lifecycle
+xde up
+# ... work ...
+xde down
+
+# Safe reset before a fresh test run
+xde reset --yes
+
+# Test against a production-like database and services
+xde stage up
+xde stage dev
+```
+
+### Installation (during development)
+
+While the CLI is under active development, run it directly from the source tree or via `python -m xde` once the package is set up. A proper console-script entry point (`xde`) will be provided in the final package.
+
 ## Working with AI Assistants (Grok, etc.)
 
-This repository is designed to work well with AI coding assistants. When asking an AI (such as Grok) to run commands:
+Ask AI tools to use the `xde` CLI for environment operations. Example prompts:
 
-- **Default behavior**: Ask it to run commands **inside the Dev Container** using `make exec`, `make python`, or `make test-in-container`.
-- Example prompts:
-  - "Run `make validate` inside the container"
-  - "Execute the automation script with `--dry-run` using the container"
-  - "Run pytest on the new tests inside the dev container"
+- "Run `xde dev` and tell me if the database is ready."
+- "Use `xde reset --yes` then start the dev server."
+- "Run `xde validate` and summarize any issues."
 
-Convenience targets exist in the Makefile:
-- `make exec CMD="..."` — Run any command inside the container as the `node` user.
-- `make python CMD="..."` — Run Python (from the venv) inside the container.
-- `make test-in-container` — Run pytest inside the container.
-
-This keeps the AI's environment consistent with actual development.
+During the transition period some legacy automation targets may still exist for compatibility, but the canonical interface is `xde`.
 
 ## Next Steps
 
-- Review [CONTRIBUTING.md](.github/CONTRIBUTING.md) (includes development setup and linting instructions)
-- See full documentation in the `docs/` folder (coming soon)
+- Review [CONTRIBUTING.md](.github/CONTRIBUTING.md) — start with the [Code Style Quick Reference](.github/CONTRIBUTING.md#code-style-quick-reference).
+- **AI assistants**: Read [AGENTS.md](AGENTS.md) first for project-specific guidance.
+- The `xde` CLI source and full documentation live alongside this README (implementation in progress).
 
 ## License
 

@@ -72,7 +72,7 @@ DEFAULT_POSTGRES_VOLUME = "xgic-payload-cms-dev-containers-postgres-data"
 DEFAULT_CONFIG_FILE = Path(".devcontainer/create-payload-config.json")
 DEFAULT_PROJECT_NAME_FALLBACK = "my-payload-cms"
 
-# Colors (mirrors the style used in create-payload-automated.py)
+# Colors (consistent with the rest of the tooling)
 USE_COLOR = (
     sys.stdout.isatty()
     and os.environ.get("NO_COLOR") is None
@@ -650,9 +650,7 @@ def main() -> int:
             if in_container:
                 print("  Inside the container you can now run:")
                 print("      bash .devcontainer/scripts/setup-payload.sh")
-                print("  or directly:")
-                print("      python3 .devcontainer/scripts/create-payload-automated.py \\")
-                print("          --config .devcontainer/create-payload-config.json")
+                print("  (This uses create-payload-config.json for fully non-interactive creation.)")
             else:
                 print("  On the host, the recommended command is usually:")
                 print("      make post-create")

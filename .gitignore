@@ -52,7 +52,6 @@ build/
 .devcontainer/.env
 .devcontainer/*.local.*
 .docker/
-.dockerignore
 
 # Python caches generated inside the dev container (e.g. automation scripts)
 .devcontainer/scripts/__pycache__/

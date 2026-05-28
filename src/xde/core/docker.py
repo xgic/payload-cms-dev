@@ -1,0 +1,96 @@
+"""Docker Compose orchestration layer.
+
+Uses subprocess to call `docker compose` directly. This keeps dependencies
+minimal while still providing a clean, testable interface.
+
+The controller is intentionally simple and will be enhanced as needed
+(docker compose ps parsing, better error handling, streaming output, etc.).
+"""
+
+from __future__ import annotations
+
+import subprocess
+from dataclasses import dataclass
+from pathlib import Path
+
+from xde.core.environment import EnvironmentContext
+
+
+COMPOSE_FILE = ".devcontainer/docker-compose.yml"
+DEFAULT_COMPOSE_PROJECT = "xgic-payload-cms-dev-containers"
+
+
+@dataclass
+class DockerComposeController:
+    """Controls Docker Compose services for the dev environment."""
+
+    env: EnvironmentContext
+    compose_file: str = COMPOSE_FILE
+    project_name: str = DEFAULT_COMPOSE_PROJECT
+
+    def _run_compose(
+        self,
+        *args: str,
+        check: bool = True,
+        capture_output: bool = False,
+    ) -> subprocess.CompletedProcess[str]:
+        """Run a docker compose command with consistent flags."""
+        cmd = [
+            "docker",
+            "compose",
+            "-f",
+            self.compose_file,
+            "-p",
+            self.project_name,
+            *args,
+        ]
+        return subprocess.run(
+            cmd,
+            check=check,
+            capture_output=capture_output,
+            text=True,
+        )
+
+    def services_running(self) -> bool:
+        """Return True if the main devcontainer service appears to be up."""
+        try:
+            result = self._run_compose(
+                "ps",
+                "--services",
+                "--filter",
+                "status=running",
+                capture_output=True,
+            )
+            # Very basic check: if the main service name appears in output
+            return "xgic-payload-cms-dev-containers" in result.stdout
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
+
+    def up(self, *, build: bool = False) -> None:
+        """Start all services in detached mode."""
+        args = ["up", "-d"]
+        if build:
+            args.append("--build")
+        self._run_compose(*args)
+
+    def down(self) -> None:
+        """Stop services (volumes are preserved)."""
+        self._run_compose("down")
+
+    def build(self, *, no_cache: bool = False) -> None:
+        """Build images."""
+        args = ["build"]
+        if no_cache:
+            args.append("--no-cache")
+        self._run_compose(*args)
+
+    def logs(self, follow: bool = True) -> None:
+        """Follow logs (this blocks)."""
+        args = ["logs"]
+        if follow:
+            args.append("-f")
+        self._run_compose(*args, check=False)  # logs can be interrupted
+
+    def exec(self, service: str, *cmd: str) -> subprocess.CompletedProcess[str]:
+        """Run a command inside a service container."""
+        return self._run_compose("exec", service, *cmd)

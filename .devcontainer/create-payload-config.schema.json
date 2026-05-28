@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "Agent": {
+      "enum": [
+        "claude",
+        "codex",
+        "cursor",
+        "none"
+      ],
+      "title": "Agent",
+      "type": "string"
+    },
+    "DbAdapter": {
+      "enum": [
+        "postgres",
+        "mongodb",
+        "sqlite",
+        "d1-sqlite",
+        "vercel-postgres"
+      ],
+      "title": "DbAdapter",
+      "type": "string"
+    },
+    "Template": {
+      "enum": [
+        "blank",
+        "website",
+        "ecommerce",
+        "plugin",
+        "payload-demo",
+        "payload-website"
+      ],
+      "title": "Template",
+      "type": "string"
+    }
+  },
+  "description": "Configuration for the XGIC Payload CMS Dev Container. Controls project name, template, database settings, and optional agent integration. This file has rich JSON Schema support for excellent VS Code IntelliSense.",
+  "properties": {
+    "projectName": {
+      "description": "The folder name for the generated Payload project (lowercase, numbers, and hyphens only)",
+      "examples": [
+        "website",
+        "my-payload-cms"
+      ],
+      "pattern": "^[a-z0-9-]+$",
+      "title": "Projectname",
+      "type": "string"
+    },
+    "template": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Template"
+        }
+      ],
+      "default": "website",
+      "description": "Which official Payload starter template to scaffold"
+    },
+    "example": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional: Use a specific Payload example instead of a template",
+      "title": "Example"
+    },
+    "agent": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Agent"
+        }
+      ],
+      "default": "none",
+      "description": "Coding agent skill to install inside the generated project. Use 'none' (recommended) when running inside a dev container or CI to avoid installing Claude Code / Cursor / Codex skills."
+    },
+    "dbAdapter": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/DbAdapter"
+        }
+      ],
+      "default": "postgres",
+      "description": "Database adapter to configure for the generated project"
+    },
+    "dbName": {
+      "default": "payload_db",
+      "description": "Logical database name (used when creating the DB in Postgres/Mongo)",
+      "title": "Dbname",
+      "type": "string"
+    },
+    "dbUser": {
+      "default": "payload",
+      "description": "Database user name",
+      "title": "Dbuser",
+      "type": "string"
+    },
+    "dbUri": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Full database connection string. In normal devcontainer usage this is overridden at runtime from the live .devcontainer/.env (which contains freshly generated credentials). You may leave a placeholder value here.",
+      "examples": [
+        "postgres://payload:<PASSWORD>@postgres:5432/payload_db"
+      ],
+      "title": "Dburi"
+    },
+    "adminEmail": {
+      "default": "admin@example.com",
+      "description": "Email address for the initial admin user in the Payload admin panel",
+      "format": "email",
+      "title": "Adminemail",
+      "type": "string"
+    },
+    "telemetry": {
+      "default": false,
+      "description": "Whether to enable Payload's anonymous telemetry",
+      "title": "Telemetry",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "projectName"
+  ],
+  "title": "XGIC Create Payload Config",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/XGIC/payload-cms-dev-containers/main/.devcontainer/create-payload-config.schema.json"
+}

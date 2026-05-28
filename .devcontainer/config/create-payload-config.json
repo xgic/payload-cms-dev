@@ -1,0 +1,13 @@
+{
+  "$schema": "../create-payload-config.schema.json",
+  "projectName": "website",
+  "template": "website",
+  "example": null,
+  "agent": "none",
+  "dbAdapter": "postgres",
+  "dbName": "payload_db",
+  "dbUser": "payload",
+  "dbUri": "postgres://payload:<PASSWORD>@postgres:5432/payload_db",
+  "adminEmail": "admin@example.com",
+  "telemetry": false
+}

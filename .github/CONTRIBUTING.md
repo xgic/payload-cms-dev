@@ -10,6 +10,7 @@ By participating, you agree to abide by our [Code of Conduct](#code-of-conduct) 
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
+- [Coding Standards & Best Practices](#coding-standards--best-practices)
 - [Development Environment Setup](#development-environment-setup)
 - [GitHub Flow & Branching Strategy](#github-flow--branching-strategy)
 - [Step-by-Step Guide: Initiating a New Feature Branch (GitHub Free Account)](#step-by-step-guide-initiating-a-new-feature-branch-github-free-account)
@@ -18,6 +19,7 @@ By participating, you agree to abide by our [Code of Conduct](#code-of-conduct) 
 - [Reporting Bugs & Requesting Features](#reporting-bugs--requesting-features)
 - [Contributor License Agreement](#contributor-license-agreement)
 - [Recognition](#recognition)
+- [For AI Coding Assistants](#for-ai-coding-assistants)
 
 ### Subsections under Development Environment Setup
 - [Local Development Commands](#local-development-commands)
@@ -34,11 +36,15 @@ Instances of abusive, harassing, or otherwise unacceptable behavior may be repor
 
 This section outlines the standards that apply specifically to **this repository** (a Dev Container + Docker Compose + automation tooling project).
 
+**Start here**: See the [Code Style Quick Reference](#code-style-quick-reference) for the most important rules at a glance. The most important formatting rule is the [80-character line length limit for code files](#line-length-80-characters).
+
+**AI assistants**: Read [AGENTS.md](../../AGENTS.md) **first**. It is the primary context document for Grok Build and other agents. Also see `docs/architecture.md` and `docs/xde-reference.md`.
+
 ### Repository Focus
 Contributions to this repo typically involve:
 - Dockerfiles and Docker Compose files
 - Shell scripts (Bash)
-- Python automation scripts (especially `create-payload-automated.py`)
+- Python automation scripts (reset-project.py, get-payload-project-name.py, regenerate-env.py, etc.)
 - Makefiles
 - YAML configuration (Dev Container, GitHub Actions, Dependabot)
 - Documentation (README, CONTRIBUTING, etc.)
@@ -50,8 +56,8 @@ Contributions to this repo typically involve:
 - **Shell Scripts**:
   - All `.sh` files must pass `shellcheck` (`make lint-shell`).
   - Prefer POSIX-compliant syntax when practical. Use `set -euo pipefail` (or `set -e`) appropriately.
-  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers where possible. Complex logic belongs in Python (`create-payload-automated.py`).
-- **Python**: Follow PEP 8 with type hints where it improves clarity. Keep the automation script (`create-payload-automated.py`) well-documented and focused on the pexpect-driven workflow.
+  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers where possible. Complex logic belongs in Python.
+- **Python**: Follow PEP 8 with type hints where it improves clarity. The automation scripts (especially reset-project.py) should remain well-documented and robust.
 - **YAML & GitHub Actions**: Use consistent indentation (2 spaces). Validate workflows with `actionlint` when making changes to `.github/workflows/`.
 - **Documentation**: 
   - Update `README.md` when user-facing behavior changes.
@@ -60,10 +66,121 @@ Contributions to this repo typically involve:
 
 ### Recommended Practices
 - Keep the thin bash wrappers (`setup-payload.sh`, etc.) minimal. Move logic into the Python automation script when it grows complex.
-- Prefer configuration via `create-payload-config.json` over hardcoding values in scripts.
-- Test changes using available `make` targets (especially `make lint-shell`, `make post-create`, and `make rebuild`).
+- Prefer configuration via `create-payload-config.json` (which has rich JSON Schema support for VS Code IntelliSense) over hardcoding values in scripts.
+- Test changes using available `make` targets (especially `make lint-shell`, `make create-payload`, `make test`, and `make validate`).
 
 All contributors are expected to review this document before submitting code.
+
+### Line Length (80 characters)
+
+**This rule applies only to code files.**
+
+The maximum line length in this project is **80 characters** for all code. This limit improves readability in terminals, side-by-side diff views, git blame output, code review tools, and accessibility (screen readers, narrow windows).
+
+#### What counts as a "code file"
+
+The 80-character limit applies to:
+- Python (`.py`)
+- Shell scripts (`.sh`, `.bash`)
+- TypeScript and JavaScript (`.ts`, `.js`, `.tsx`) — especially in `.devcontainer/config/`
+- Makefiles (`Makefile`, `*.mk`)
+- Dockerfiles (`Dockerfile*`)
+- YAML workflow and configuration files (`.yml`, `.yaml`) — where reasonable (see exceptions)
+- TOML configuration (`pyproject.toml`, etc.)
+- Any other human-maintained source files that contain logic or configuration
+
+#### What does **not** follow the 80-character rule
+
+**Markdown documentation files (`.md`, `.markdown`)** are explicitly **exempt**.
+
+- Long lines in prose, tables, code blocks inside docs, and URLs are acceptable and often preferable.
+- Wrapping Markdown text with hard line breaks harms readability in web browsers, GitHub rendering, and VS Code Markdown preview.
+- Example files that happen to be Markdown (e.g. `xg/examples/textual/*.md`) are treated as documentation.
+
+Other justified exceptions (use sparingly and document why when non-obvious):
+- Long URLs or URIs that cannot reasonably be shortened (especially in `$id` fields, documentation strings, or comments referencing external resources).
+- Certain JSON Schema `description` values (these are user-facing documentation rendered by editors).
+- Long string literals in tests that represent real-world data (e.g. large JSON fixtures, certificate material, or exact error output).
+- Base64-encoded values, cryptographic hashes, or other opaque binary data represented as strings.
+- Decorative ASCII art or rule lines in Makefiles and comments when they serve a clear visual purpose.
+
+#### Enforcement and Tooling
+
+- **Python**: Ruff is configured with `line-length = 80` in `pyproject.toml`. The `E501` rule is active (not ignored globally). Use `# noqa: E501` only for the rare justified exceptions listed above, and prefer a comment explaining why.
+- **Shell**: `shfmt` and ShellCheck runs do not currently enforce hard line length, but contributors should still respect the 80-character guideline manually for readability.
+- **Other languages**: Follow the rule manually. When a linter supports it (e.g. yamllint), it may be left disabled for practicality (see `.github/workflows/lint.yml` for current yamllint settings).
+- **Markdown**: No automated wrapping. Write naturally for human readers in browsers and preview panes.
+
+#### Practical guidance for developers
+
+When a line of code approaches 80 characters:
+1. Use the language's standard line continuation (Python parentheses, backslashes in shell, etc.).
+2. Extract a variable or constant.
+3. Break long strings with implicit concatenation or `textwrap.dedent`.
+4. Only use a noqa / exception comment when none of the above produce clearer code.
+
+If you are unsure whether a long line is justified, ask in the pull request or open a discussion. Maintainers will happily help find a clean solution.
+
+### Code Style Quick Reference
+
+This is the short, scannable version of the rules that matter most when contributing. For full explanations, rationale, and edge cases, see the detailed sections above and below.
+
+**Core principle**: Match the style of surrounding code. When in doubt, run the project's linters and formatters.
+
+#### At a Glance
+
+- **Line length**: **80 characters maximum for all code files** (Python, Shell, TypeScript in `.devcontainer/config/`, Makefiles, Dockerfiles, etc.).
+  - **Markdown files are explicitly exempt**. Write documentation naturally for web browsers, GitHub rendering, and VS Code Markdown preview. Do not add hard line breaks to prose.
+- **Python**: Ruff is the single source of truth for formatting and linting.
+- **Shell scripts**: Prefer POSIX-compliant syntax. All `.sh` files must pass ShellCheck.
+- **TypeScript config**: Follow existing patterns in `.devcontainer/config/types.ts` and `generate_schema.py`.
+- **Commits & PRs**: Follow Conventional Commits. Keep changes small and focused.
+- **Documentation**: Clarity for human readers (in browsers and previews) takes precedence over strict line wrapping.
+
+#### Commands to Run Before Committing
+
+These are included in `make validate`:
+
+```bash
+# Format and lint Python (enforces 80-char limit for code)
+ruff format .
+ruff check . --fix
+
+# Lint all shell scripts
+make lint-shell
+```
+
+#### Good vs. Bad Examples
+
+**Python — line length (must wrap at 80 chars)**
+
+Good:
+```python
+def create_environment_context(
+    cwd: Path | None = None,
+) -> EnvironmentContext:
+    ...
+```
+
+Bad:
+```python
+def create_environment_context(cwd: Path | None = None) -> EnvironmentContext:  # exceeds 80 characters
+    ...
+```
+
+**Markdown documentation — long lines are preferred**
+
+Good (natural reading flow in browsers and previews):
+> This is a production-grade toolkit that enables the rapid creation of optimized Payload CMS development environments using Dev Containers + Docker Compose.
+
+Bad (unnecessary hard wraps hurt readability):
+> This is a production-grade toolkit that enables the rapid creation  
+> of optimized Payload CMS development environments using Dev Containers  
+> + Docker Compose.
+
+#### When Rules Conflict
+
+Prefer readability and consistency with nearby code over dogmatic adherence. If a rule produces clearly worse code, add a short comment explaining the exception and open a discussion if it happens often.
 
 ## Development Environment Setup
 
@@ -86,7 +203,7 @@ After entering the Dev Container, the following `make` targets are particularly 
 |--------------------|----------------------------------------------|
 | `make help`        | Show all available targets                   |
 | `make lint-shell`  | Run shellcheck on all scripts                |
-| `make post-create` | Simulate the full Payload creation flow      |
+| `make create-payload` | Run Payload project creation inside the container |
 | `make rebuild`     | Clean + rebuild + test the entire environment|
 | `make env`         | Show status of the generated `.env` file     |
 
@@ -107,25 +224,30 @@ Examples inside the Dev Container:
 LOG_LEVEL=DEBUG make exec CMD="bash .devcontainer/scripts/setup-payload.sh"
 
 # Run the Python automation with debug logging
-LOG_LEVEL=debug python3 .devcontainer/scripts/create-payload-automated.py --config .devcontainer/create-payload-config.json
+LOG_LEVEL=debug make exec CMD="bash .devcontainer/scripts/setup-payload.sh"
 
 # Only show warnings and errors from init-env
 LOG_LEVEL=warn bash .devcontainer/scripts/init-env.sh
 ```
 
-The Python automation script (`create-payload-automated.py`) also respects `LOG_LEVEL`.
+The Python scripts (reset-project.py, etc.) also respect `LOG_LEVEL` via the shared logging patterns.
 
 This is particularly useful when debugging issues with the automated Payload project creation.
 
 ### Contributing to the Automation Logic
 
-The core of the automated Payload CMS project creation lives in `.devcontainer/scripts/create-payload-automated.py` (using `pexpect`).
+Payload project creation is intentionally a thin orchestration layer:
+
+- `setup-payload.sh` (invoked by `postStartCommand`) drives the official `create-payload-app` CLI using real non-interactive flags derived from `create-payload-config.json`.
+- `reset-project.py` is the robust Python implementation of fast resets (preferred over the older shell fragments).
 
 When working in this area:
-- Prefer extending `create-payload-config.json` support over hardcoding behavior.
+- Prefer extending `create-payload-config.json` support (and its JSON Schema in `create-payload-config.schema.json`) over hardcoding behavior.
+- The canonical model lives in `.devcontainer/config/types.ts`. Run `make generate-config-schema` after changing it.
 - Keep the bash scripts in `.devcontainer/scripts/` as thin, readable wrappers.
-- Test changes locally with `make post-create` or by invoking the Python script directly inside the Dev Container.
-- Update relevant documentation (README, script help text) when user-visible behavior changes.
+- Complex logic belongs in Python (following the pattern of `reset-project.py`).
+- Test changes locally with `make create-payload`, `make reset-project`, or `make rebuild`.
+- Update relevant documentation (README, script help text, this file) when user-visible behavior changes.
 
 ### Linting & Quality
 
@@ -134,11 +256,13 @@ This repository uses several tools to maintain code quality:
 - **Shell scripts**: `shellcheck` (`make lint-shell`). `shellcheck` is pre-installed in the Dev Container.
 - **GitHub Actions workflows**: `actionlint` (run via CI).
 - **Shell formatting**: `shfmt` (enforced in CI).
+- **Python formatting & linting**: Ruff (80-character line length enforced for code files — see the [Line Length rule](#line-length-80-characters) above).
+- **Python tests**: `pytest` + coverage (run via `make test` / `make validate`). Test dependencies are installed on first use from `.devcontainer/requirements-dev.txt`.
 
-The full lint suite runs automatically on every pull request (see `.github/workflows/lint.yml`). You can run the main shell linter locally with:
+The full lint + test suite runs automatically on every pull request. You can run everything locally with:
 
 ```bash
-make lint-shell
+make validate
 ```
 
 ## GitHub Flow & Branching Strategy
@@ -281,9 +405,27 @@ Contributors are recognized in:
 - Release notes.
 - The XGIC open-source hall of fame.
 
+## For AI Coding Assistants
+
+If you are an AI coding assistant (Grok Build, Claude, Cursor, etc.), please read the following in order **before** making changes:
+
+1. [AGENTS.md](../../AGENTS.md) — Primary context document (most important)
+2. [docs/grok-playbooks.md](../../docs/grok-playbooks.md) — Concrete workflows and playbooks
+3. [docs/architecture.md](../../docs/architecture.md)
+4. [docs/xde-reference.md](../../docs/xde-reference.md) (as it evolves)
+
+`AGENTS.md` contains:
+- Project philosophy and migration direction
+- How to think and operate effectively as an agent here
+- Recommended workflows and command usage
+- Safety guidance
+- How to help evolve the project to be even more agent-friendly
+
+This project is explicitly designed to become one of the best possible foundations for agentic (Grok Build, etc.) development of Payload CMS applications.
+
 ---
 
 **Thank you for helping make Payload CMS development faster, more reliable, and more accessible for the entire community.**
 
 Questions? Open an issue or reach out to the maintainers via Discussions.  
-Last updated: June 2026
+Last updated: June 2026 (added AGENTS.md for AI assistants)
