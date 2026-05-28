@@ -53,6 +53,12 @@ When these things exist and are maintained, I can work dramatically faster, make
 
 ## Session Startup Checklist (Run These Commands Early)
 
+**Important**: After cloning, first install `xde` on the host (see README.md "Quick Start") so you can run powerful commands before entering the container:
+
+```bash
+pipx install -e .
+```
+
 At the beginning of almost every session, gather this context:
 
 1. `xde --help` — See current capabilities and command surface.

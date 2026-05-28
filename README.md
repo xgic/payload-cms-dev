@@ -38,8 +38,13 @@ These extensions ensure a **consistent, high-productivity development environmen
 ## Quick Start
 
 1. **Clone or use this repository as a GitHub Template**
-2. Open the folder in **VS Code**
-3. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> then select the **Dev Containers: Rebuild Without Cache and Reopen in Container** option.
+2. **(Recommended) Install `xde` on your host** for powerful host-side commands before opening the container:
+   ```bash
+   pipx install -e .   # or: pip install -e . --user
+   ```
+   This makes `xde dev`, `xde reset`, `xde check`, etc. available immediately on the host.
+3. Open the folder in **VS Code**
+4. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> then select the **Dev Containers: Rebuild Without Cache and Reopen in Container** option.
 4. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL credentials)
 5. The container lifecycle will:
    - Run `initializeCommand` to generate `.env`
