@@ -75,11 +75,10 @@ def run_reset(
         print_info(f"Project directory {project_path} did not exist.")
 
     # Remove the postgres volume via docker
-    try:
-        docker._run_compose("volume", "rm", "-f", postgres_volume)  # type: ignore[attr-defined]
+    if docker.remove_volume(postgres_volume):
         print_success(f"Removed volume: {postgres_volume}")
-    except Exception as e:
-        print_warning(f"Could not remove volume {postgres_volume}: {e}")
+    else:
+        print_warning(f"Could not remove volume {postgres_volume} (may not exist or in use)")
 
     if rotate:
         print_warning("Credential rotation requested but not yet implemented in this build.")

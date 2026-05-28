@@ -158,3 +158,14 @@ class DockerComposeController:
             return result.returncode == 0
         except Exception:
             return False
+
+    def remove_volume(self, volume_name: str) -> bool:
+        """Attempt to remove a Docker volume.
+
+        Returns True if removal succeeded or volume did not exist.
+        """
+        try:
+            self._run_compose("volume", "rm", "-f", volume_name)
+            return True
+        except Exception:
+            return False
