@@ -28,15 +28,18 @@ See also:
 
 from __future__ import annotations
 
+import json
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from xde.core.environment import EnvironmentContext
 
 
 COMPOSE_FILE = ".devcontainer/docker-compose.yml"
 DEFAULT_COMPOSE_PROJECT = "xgic-payload-cms-dev-containers"
+DEFAULT_CONFIG_FILE = Path(".devcontainer/create-payload-config.json")
 
 
 @dataclass
@@ -117,3 +120,20 @@ class DockerComposeController:
     def exec(self, service: str, *cmd: str) -> subprocess.CompletedProcess[str]:
         """Run a command inside a service container."""
         return self._run_compose("exec", service, *cmd)
+
+    def get_payload_project_name(self) -> str:
+        """Return the name of the generated Payload project folder.
+
+        Reads from create-payload-config.json when available, with sensible
+        fallback. This is useful for commands that need to operate inside
+        the generated project (e.g. `dev`, certain reset behaviors).
+        """
+        if DEFAULT_CONFIG_FILE.exists():
+            try:
+                with open(DEFAULT_CONFIG_FILE, encoding="utf-8") as f:
+                    data: dict[str, Any] = json.load(f)
+                if name := data.get("projectName"):
+                    return str(name)
+            except (json.JSONDecodeError, OSError):
+                pass
+        return "my-payload-cms"
