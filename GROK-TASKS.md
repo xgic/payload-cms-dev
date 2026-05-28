@@ -19,6 +19,9 @@ This file is the lightweight, informal task list for work that Grok Build should
 - [ ] Implement proper `xde reset` (migrate key logic from `reset-project.py`)
 - [x] Implement basic functional `xde check`
 - [x] Implement basic functional `xde env`
+- [x] Wire logs, shell, and basic clean
+- [x] Implement core `xde reset` with --dry-run / --yes / --rotate-credentials
+- [x] Improve `xde dev` to auto-start services and give better guidance
 
 ## Backlog / Ideas
 
