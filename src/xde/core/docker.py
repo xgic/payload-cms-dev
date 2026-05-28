@@ -137,3 +137,24 @@ class DockerComposeController:
             except (json.JSONDecodeError, OSError):
                 pass
         return "my-payload-cms"
+
+    def db_ready(self) -> bool:
+        """Check if PostgreSQL is accepting connections using pg_isready.
+
+        Runs pg_isready inside the postgres container for accuracy.
+        Returns True only if the database responds as ready.
+        """
+        try:
+            result = self._run_compose(
+                "exec",
+                "-T",
+                "postgres",
+                "pg_isready",
+                "-U",
+                "payload",  # default user from config examples
+                capture_output=True,
+                check=False,
+            )
+            return result.returncode == 0
+        except Exception:
+            return False

@@ -43,12 +43,16 @@ def run_dev(
 
     payload_project = docker.get_payload_project_name()
 
-    # Basic guidance (full DB check + cd/exec pnpm dev can be added next)
-    print_info(f"Target Payload project: {payload_project}")
-    print_info("DB readiness check: not yet implemented (will use pg_isready via docker exec)")
-    print_info(f"To manually start the server: cd {payload_project} && pnpm dev")
+    # Real DB check
+    if docker.db_ready():
+        print_success("Database is ready")
+    else:
+        print_warning("Database not ready yet. You may need to wait or run `xde reset` if this persists.")
 
-    print_success("Environment ready for development. Run pnpm dev inside the project folder.")
+    print_info(f"Target Payload project: {payload_project}")
+    print_info(f"Run `cd {payload_project} && pnpm dev` to start the development server.")
+
+    print_success("Environment ready for development.")
     print_info("Environment context: " + env.describe())
 
     return 0

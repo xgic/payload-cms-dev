@@ -102,6 +102,9 @@ Examples:
         "check",
         help="Diagnostic: verify PostgreSQL and services are reachable",
     )
+    check_parser.add_argument(
+        "--json", action="store_true", help="Output results as JSON (useful for scripts/agents)"
+    )
     check_parser.set_defaults(func=run_check)
 
     # build (with useful flags instead of many Makefile variants)
@@ -129,6 +132,9 @@ Examples:
     # env (lightweight environment inspection / management)
     env_parser = subparsers.add_parser(
         "env", help="Inspect and manage the generated environment"
+    )
+    env_parser.add_argument(
+        "--json", action="store_true", help="Output results as JSON (useful for scripts/agents)"
     )
     env_parser.set_defaults(func=run_env)
 
