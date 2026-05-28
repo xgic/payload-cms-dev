@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from xde.core.environment import EnvironmentContext
 from xde.core.docker import DockerComposeController
-from xde.utils.output import print_success, print_info
+from xde.utils.output import print_success, print_info, print_warning
 
 
 def run_up(
@@ -70,4 +72,44 @@ def run_shell(
     except Exception:
         # Fallback if exec fails in this context
         print_info("Shell session ended or failed to attach.")
+    return 0
+
+
+def run_clean(
+    args: object,
+    *,
+    env: EnvironmentContext,
+    docker: DockerComposeController,
+) -> int:
+    """Full environment cleanup (volumes + .env). Extremely destructive."""
+    yes = getattr(args, "yes", False)
+
+    print_warning("This will delete Docker volumes AND the generated .env file.")
+    print_warning("This is more destructive than `xde reset`.")
+
+    if not yes:
+        print_warning("Re-run with --yes only if you are absolutely sure.")
+        return 1
+
+    print_info("Performing full cleanup...")
+
+    # Stop services first
+    try:
+        docker.down()
+    except Exception:
+        pass
+
+    # Remove volumes (best effort)
+    try:
+        docker._run_compose("down", "-v")  # type: ignore[attr-defined]
+    except Exception:
+        pass
+
+    # Remove .env
+    env_file = Path(".devcontainer/.env")
+    if env_file.exists():
+        env_file.unlink()
+        print_success("Removed .env file")
+
+    print_success("Full cleanup complete. You will need to re-initialize the environment.")
     return 0

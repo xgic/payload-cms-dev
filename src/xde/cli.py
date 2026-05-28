@@ -28,7 +28,7 @@ from xde import __version__
 from xde.core.environment import EnvironmentContext
 from xde.core.docker import DockerComposeController
 from xde.commands.dev import run_dev
-from xde.commands.lifecycle import run_up, run_down, run_build, run_logs, run_shell
+from xde.commands.lifecycle import run_up, run_down, run_build, run_logs, run_shell, run_clean
 from xde.commands.reset import run_reset
 from xde.commands.diagnostics import run_check
 from xde.commands.env import run_env
@@ -140,7 +140,7 @@ Examples:
     clean_parser.add_argument(
         "--yes", action="store_true", help="Skip confirmation"
     )
-    clean_parser.set_defaults(func=lambda args: print_error("Not yet implemented"))
+    clean_parser.set_defaults(func=run_clean)
 
     return parser
 
