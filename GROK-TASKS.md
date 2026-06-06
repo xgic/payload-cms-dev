@@ -25,6 +25,7 @@ This file is the lightweight, informal task list for work that Grok Build should
 ### Testing Foundations (Step 3)
 - [x] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController) - unit tests with mocks for subprocess
 - [x] Gate: ruff + pytest (test-xde retired with Makefile). xde core tests + make was shim, now direct pytest in CI.
+- [x] Complete steps 1-6: port reset/env/schema, shims+warn, gate, remove Makefile (0.1.0 is xde-primary). See the removal commit.
 
 ### Ongoing / Previously Started
 - [x] Implement basic functional `xde check`

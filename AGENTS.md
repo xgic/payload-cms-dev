@@ -222,7 +222,7 @@ When working with reset or clean functionality:
 Avoid these recurring traps that have caused issues for agents in the past:
 
 - **Context blindness**: Assuming you are inside the Dev Container. Always check via `EnvironmentContext.detect()` concepts or by running `xde check` / `xde env`.
-- **Legacy reflex**: Reaching for `make ...` or direct calls to `.devcontainer/scripts/reset-project.py` etc. when `xde` equivalents exist or are the intended path.
+- **Legacy reflex**: Reaching for `make ...` (Makefile removed in 0.1.0) or old scripts when `xde` equivalents exist.
 - **Credential rotation over-eagerness**: Rotating secrets (`--rotate-credentials`) without strong justification can lead to authentication issues between running containers and the `.env` file. Always use strong safeguards.
 - **Project folder confusion**: Forgetting that the generated Payload app lives in a sibling folder (e.g. `website/`) controlled by `create-payload-config.json`, not inside `.devcontainer`.
 - **Weak safety defaults**: Proposing destructive operations without first using `--dry-run` and clearly explaining impact.
