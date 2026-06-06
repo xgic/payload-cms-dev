@@ -154,6 +154,17 @@ Examples:
         action="store_true",
         help="Output results as JSON (useful for scripts/agents)",
     )
+    env_parser.add_argument(
+        "--regenerate",
+        action="store_true",
+        help="Regenerate .env with fresh credentials (db from config)",
+    )
+    env_parser.add_argument(
+        "--yes", action="store_true", help="Skip confirmation for --regenerate"
+    )
+    env_parser.add_argument(
+        "--dry-run", action="store_true", help="Preview without writing"
+    )
     env_parser.set_defaults(func=run_env)
 
     # clean (more destructive, with strong safeguards)

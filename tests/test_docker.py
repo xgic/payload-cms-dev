@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from xde.commands.env import generate_fresh_env_content, perform_env_regenerate
 from xde.core.docker import DockerComposeController
 from xde.core.environment import EnvironmentContext, EnvironmentType
 
@@ -92,3 +93,36 @@ class TestDockerComposeController:
         """get_db_config uses defaults when no config or bad json."""
         with patch("xde.core.docker.DEFAULT_CONFIG_FILE", tmp_path / "no.json"):
             assert controller.get_db_config() == ("payload_db", "payload")
+
+
+class TestEnvRegenerate:
+    """Tests for the pure env regenerate helpers (step 2)."""
+
+    def test_generate_fresh_env_content_is_pure(self):
+        """Returns expected keys; different secrets prove pure/random."""
+        c1 = generate_fresh_env_content()
+        c2 = generate_fresh_env_content()
+        assert "POSTGRES_USER=" in c1
+        assert "PAYLOAD_SECRET=" in c1
+        assert "DATABASE_URI=" in c1
+        # Different runs produce different secrets (random)
+        assert c1 != c2
+
+    def test_perform_env_regenerate_dry_run(self, tmp_path):
+        """Dry run does not write file."""
+        target = tmp_path / ".env-test"
+        rc = perform_env_regenerate(dry_run=True, env_file=target)
+        assert rc == 0
+        assert not target.exists()
+
+    def test_perform_env_regenerate_writes_with_yes(self, tmp_path):
+        """With --yes it writes the file (real but in tmp)."""
+        target = tmp_path / ".env-test"
+        rc = perform_env_regenerate(yes=True, env_file=target)
+        assert rc == 0
+        assert target.exists()
+        content = target.read_text()
+        assert "POSTGRES_PASSWORD=" in content
+        assert (
+            "payload_db" in content or "website" in content
+        )  # db from config or default

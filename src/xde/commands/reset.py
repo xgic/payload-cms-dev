@@ -26,6 +26,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from xde.commands.env import perform_env_regenerate
 from xde.core.docker import DockerComposeController
 from xde.core.environment import EnvironmentContext
 from xde.utils.output import print_info, print_success, print_warning
@@ -116,10 +117,12 @@ def run_reset(
         )
 
     if rotate:
-        print_warning(
-            "Credential rotation requested but not yet "
-            "implemented (use legacy script temporarily)."
-        )
+        print_info("Rotating credentials (--rotate-credentials)...")
+        rc = perform_env_regenerate(yes=True)
+        if rc == 0:
+            print_success("Credentials rotated in .env.")
+        else:
+            print_warning("Credential rotation had issues (check .env).")
 
     print_success("Reset complete. Next: `xde up` or `xde dev`.")
     return 0
