@@ -15,12 +15,14 @@ This file is the lightweight, informal task list for work that Grok Build should
 ## Next Up (High Priority)
 
 ### xde v1 Completion (Immediate Focus)
-- [x] Finalize and lock the v1 command surface based on `docs/xde-v1-command-surface-proposal.md`
+- [x] Finalize and lock the v1 command surface based on `docs/xde-v1-command-surface-proposal.md` (proposal marked "Finalized", docs/AGENTS.md aligned, CLI in src/xde/cli.py matches the 10 commands)
 - [ ] Harden and complete highest-value commands:
-  - Full `xde dev` with real DB readiness check + auto-start services + clear path to `pnpm dev`
-  - Complete `xde reset` with logic migrated from `reset-project.py` (in progress)
-  - Improve `xde check` with real DB + service health reporting (in progress)
+  - Full `xde dev` with real DB readiness check + auto-start services + actually launch pnpm dev inside project (using docker exec)
+  - Complete `xde reset` with full logic migrated from `reset-project.py` (dry-run, compact, db setup, error handling, while keeping positive tone)
+  - Improve `xde check` with comprehensive DB + service health, structured output
 - [x] Create `docs/development-workflow.md` documenting commit discipline, testing requirements, and how to work during the Makefile → xde transition
+- [ ] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController) - unit tests with mocks for subprocess
+- [ ] Set up reliable `make validate` / lint + test gate that must pass before every commit (update Makefile or add script)
 
 ### Testing Foundations
 - [ ] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController)
