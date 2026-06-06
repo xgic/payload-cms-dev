@@ -43,7 +43,11 @@ These extensions ensure a **consistent, high-productivity development environmen
    ```
    This makes `xde dev`, `xde reset`, `xde check`, etc. available immediately on the host.
 3. Open the folder in **VS Code**
-4. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> then select the **Dev Containers: Rebuild Without Cache and Reopen in Container** option.
+4. The Dev Containers extension will automatically prompt to **Reopen in Container** — select it.
+
+   (If no prompt appears: Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (or <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> on macOS) and choose **Dev Containers: Reopen in Container**.)
+
+   This is the recommended command for the initial container setup.
 5. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL credentials)
 6. The container lifecycle will:
    - Run `initializeCommand` to generate `.env`
@@ -167,6 +171,25 @@ Ask AI tools to use the `xde` CLI for environment operations. Example prompts:
 - "Run `xde validate` and summarize any issues."
 
 During the transition period some legacy automation targets may still exist for compatibility, but the canonical interface is `xde`.
+
+## Troubleshooting
+
+### Rebuilding or Updating the Development Container
+
+For the **initial setup**, always use **Dev Containers: Reopen in Container** (as shown in the Quick Start above).
+
+**Rebuild Without Cache and Reopen in Container** should only be used when:
+
+- You have modified container configuration files (`Dockerfile`, `devcontainer.json`, `docker-compose.yml`, etc.)
+- You need to force a clean image rebuild (e.g., after dependency changes in the container or to troubleshoot build issues)
+- The container is in a broken state
+
+To trigger a full rebuild:
+
+1. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (or <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> on macOS)
+2. Select **Dev Containers: Rebuild Without Cache and Reopen in Container**
+
+This will discard cached layers and recreate the container from scratch.
 
 ## Next Steps
 
