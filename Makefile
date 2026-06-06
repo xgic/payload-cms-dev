@@ -400,7 +400,7 @@ test-db: ## Test database connectivity (developer-friendly)
 
 test-xde: ## Run initial xde core unit tests (EnvironmentContext, DockerComposeController)
 	@echo "$(EMOJI_RUN) Running xde core tests..."
-	@python3 -m pytest tests/test_environment.py tests/test_docker.py -q --tb=no || exit 1
+	@PYTHONPATH=src python3 -m pytest tests/test_environment.py tests/test_docker.py -q --tb=no || exit 1
 	@echo "$(EMOJI_OK) xde core tests passed."
 
 dev: ## Start the Payload development server (checks DB first)
