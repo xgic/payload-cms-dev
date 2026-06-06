@@ -52,9 +52,17 @@ This repository includes a [VS Code Dev Container](https://code.visualstudio.com
    cd payload-cms-dev-containers
    ```
 
-2. Open the folder in Visual Studio Code.
+2. **(Recommended) Install `xde` on your host** for powerful host-side commands before opening the container:
+   ```bash
+   pipx install -e .   # or: pip install -e . --user
+   ```
+   This makes `xde dev`, `xde reset`, `xde check`, etc. available immediately on the host.
 
-3. When prompted, select **Reopen in Container** (or run **Dev Containers: Reopen in Container** from the Command Palette).
+3. Open the folder in Visual Studio Code.
+
+4. When prompted, select **Reopen in Container** (or run **Dev Containers: Reopen in Container** from the Command Palette).
+
+   This is the recommended command for the initial container setup.
 
 The container will build on first use (this may take several minutes). Once ready, you will have a pre-configured environment with Node.js, pnpm, recommended VS Code extensions, and Payload CMS development tools already set up.
 
