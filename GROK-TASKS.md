@@ -26,6 +26,7 @@ This file is the lightweight, informal task list for work that Grok Build should
 - [x] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController) - unit tests with mocks for subprocess
 - [x] Gate: ruff + pytest (test-xde retired with Makefile). xde core tests + make was shim, now direct pytest in CI.
 - [x] Complete steps 1-6: port reset/env/schema, shims+warn, gate, remove Makefile (0.1.0 is xde-primary). See the removal commit.
+- [x] xg/ reference directory: confirmed no need on 0.1.0 (moved to reference/xg-ais branch); stray untracked copy cleaned + documented in AGENTS pitfall.
 
 ### Ongoing / Previously Started
 - [x] Implement basic functional `xde check`
@@ -46,7 +47,7 @@ This file is the lightweight, informal task list for work that Grok Build should
 - Consider adding `--json` support to diagnostic commands (`check`, `env`, etc.)
 - Evaluate whether `xde env` should have subcommands in v1 (`show`, `regenerate`)
 - Explore a lightweight "context dumper" helper for agents (e.g. `xde context` or a script)
-- **Long-term vision**: Turn xde into a world-class Python library + framework (not just a CLI). Make core functionality importable so other Python projects (Ansible modules, GitLab CI runners, custom automation tools, etc.) can use xde's logic directly via API instead of shelling out. This enables much deeper integration and future-proofing.
+- **Long-term vision**: Turn xde into a world-class Python library + framework (not just a CLI). Make core functionality importable so other Python projects (Ansible modules, custom automation tools, CI runners, etc.) can use xde's logic directly via API instead of shelling out. This enables much deeper integration and future-proofing.
 
 - **Docker/Compose Interface Strategy (Future Consideration)**
   - Current approach (as of 2026): We are deliberately using a simple subprocess-based implementation to call the `docker` and `docker compose` CLI. The operations we perform today are relatively straightforward, so we do not need additional complexity at this stage.
@@ -64,9 +65,6 @@ Priorities (in rough order):
 - Add integration tests that exercise real Docker Compose operations and the complete development lifecycle.
 - Implement end-to-end tests that bring up full environments and validate the generated Payload CMS applications (including browser-level validation where valuable).
 - Build automatic staging build and deployment pipelines.
-- Deep integration with the on-premises GitLab server for CI/CD, including automatic staging environment creation and testing.
-
-**Note**: SSH key access to the on-prem GitLab instance will be provided by the user when we reach the integration stage.
 
 This work must follow the Collaboration Principles in `AGENTS.md`: positive and constructive framing at all times. Past experiences are only referenced when they provide concrete lessons that help avoid repeating specific mistakes.
 

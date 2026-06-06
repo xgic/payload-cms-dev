@@ -26,13 +26,12 @@ These principles have been established to maximize effectiveness and maintain a 
   - Push regularly as backup on this private repository.
   - I have full autonomy to stage, commit, and push following these guidelines.
 
-- **Long-term vision for xde**: Evolve `xde` beyond a CLI into a high-quality, importable Python library and framework. This enables deep API-level integration from other tools (Ansible, custom GitLab CI runners, other automation, etc.).
+- **Long-term vision for xde**: Evolve `xde` beyond a CLI into a high-quality, importable Python library and framework. This enables deep API-level integration from other tools (Ansible, custom CI runners, other automation, etc.).
   - Docker/Docker Compose interface: As of 2026 we are intentionally using a simple subprocess-based approach in `src/xde/core/docker.py`. We will keep this as long as it remains sufficient. We will periodically re-evaluate more advanced options (e.g. `python-on-whales`, the official Docker SDK, or a small Go helper binary) in the future. See the "CURRENT STRATEGY & FUTURE CONSIDERATION" section in `docker.py` and the corresponding item in `GROK-TASKS.md`.
 
 - **Testing & Automation Roadmap**: The major strategic direction is a progressive increase in test coverage and automation:
   - Unit tests → Integration tests → End-to-end tests (including the generated Payload apps)
   - Automatic staging builds and deployments
-  - Integration with the on-premises GitLab server for full CI/CD pipelines
 
 - **Positive, forward-looking mindset.** Discussions and documentation should focus on where we are going and how to build excellent experiences, rather than dwelling on past difficulties unless the context directly prevents future errors.
 
@@ -259,9 +258,8 @@ A major long-term priority is dramatically increasing test coverage and automati
 - Integration tests exercising real Docker Compose lifecycles.
 - End-to-end tests that validate the full environment including the generated Payload CMS application.
 - Automatic staging builds and deployments.
-- Deep integration with the on-premises GitLab instance for CI/CD.
 
-When we reach the GitLab integration stage, the user will provide the necessary SSH key access. All testing and automation efforts should be approached in a positive, constructive spirit focused on reliability and excellent developer/agent experience.
+All testing and automation efforts should be approached in a positive, constructive spirit focused on reliability and excellent developer/agent experience.
 
 See `GROK-TASKS.md` for the current prioritized list.
 
