@@ -62,7 +62,6 @@ from typing import Any
 
 from xde.core.environment import EnvironmentContext
 
-
 COMPOSE_FILE = ".devcontainer/docker-compose.yml"
 DEFAULT_COMPOSE_PROJECT = "xgic-payload-cms-dev-containers"
 DEFAULT_CONFIG_FILE = Path(".devcontainer/create-payload-config.json")
@@ -164,12 +163,48 @@ class DockerComposeController:
                 pass
         return "my-payload-cms"
 
+    def get_db_config(self) -> tuple[str, str]:
+        """Return (db_name, db_user) from create-payload-config.json.
+
+        Prefers dbName/dbUser. Falls back to dbUri parse or defaults.
+        Mirrors legacy _get_db_details_from_config for fidelity.
+        """
+        default_db = "payload_db"
+        default_user = "payload"
+        if not DEFAULT_CONFIG_FILE.exists():
+            return default_db, default_user
+        try:
+            with DEFAULT_CONFIG_FILE.open(encoding="utf-8") as f:
+                cfg: dict[str, Any] = json.load(f)
+            db_name = cfg.get("dbName") or default_db
+            db_user = cfg.get("dbUser") or default_user
+            # Fallback parse from dbUri (robustness)
+            db_uri = cfg.get("dbUri") or ""
+            if db_uri and (db_name == default_db or db_user == default_user):
+                try:
+                    if "://" in db_uri:
+                        after = db_uri.split("://", 1)[1]
+                        if "@" in after and db_user == default_user:
+                            creds = after.split("@", 1)[0]
+                            if ":" in creds:
+                                db_user = creds.split(":", 1)[0] or db_user
+                        if "/" in after and db_name == default_db:
+                            after_host = after.split("@", 1)[-1]
+                            path = after_host.split("/", 1)[-1].split("?")[0]
+                            if path:
+                                db_name = path or db_name
+                except Exception:
+                    pass
+            return db_name, db_user
+        except Exception:
+            return default_db, default_user
+
     def db_ready(self) -> bool:
         """Check if PostgreSQL is accepting connections using pg_isready.
 
-        Runs pg_isready inside the postgres container for accuracy.
-        Returns True only if the database responds as ready.
+        Uses real db user from config (not hardcoded).
         """
+        _, db_user = self.get_db_config()
         try:
             result = self._run_compose(
                 "exec",
@@ -177,7 +212,7 @@ class DockerComposeController:
                 "postgres",
                 "pg_isready",
                 "-U",
-                "payload",  # default user from config examples
+                db_user,
                 capture_output=True,
                 check=False,
             )

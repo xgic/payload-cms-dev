@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from xde.core.environment import EnvironmentContext, EnvironmentType
 from xde.core.docker import DockerComposeController
+from xde.core.environment import EnvironmentContext, EnvironmentType
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ class TestDockerComposeController:
     """Tests for DockerComposeController using mocks for subprocess safety."""
 
     def test_services_running_returns_true_on_running_service(self, controller):
-        """services_running should return True when main service is listed as running."""
+        """services_running returns True for listed running service."""
         with patch.object(controller, "_run_compose") as mock_run:
             mock_result = MagicMock()
             mock_result.stdout = "xgic-payload-cms-dev-containers\nother"
@@ -74,5 +74,21 @@ class TestDockerComposeController:
     def test_get_payload_project_name_falls_back(self, controller, tmp_path):
         """Falls back when no config."""
         # Point to non-existent config by patching
-        with patch("xde.core.docker.DEFAULT_CONFIG_FILE", tmp_path / "nope.json"):
+        with patch(
+            "xde.core.docker.DEFAULT_CONFIG_FILE", tmp_path / "nope.json"
+        ):
             assert controller.get_payload_project_name() == "my-payload-cms"
+
+    def test_get_db_config_returns_values_from_config(
+        self, controller, tmp_path
+    ):
+        """get_db_config loads dbName/dbUser when present."""
+        cfg = tmp_path / "cfg.json"
+        cfg.write_text('{"dbName": "mydb", "dbUser": "me"}')
+        with patch("xde.core.docker.DEFAULT_CONFIG_FILE", cfg):
+            assert controller.get_db_config() == ("mydb", "me")
+
+    def test_get_db_config_falls_back_safely(self, controller, tmp_path):
+        """get_db_config uses defaults when no config or bad json."""
+        with patch("xde.core.docker.DEFAULT_CONFIG_FILE", tmp_path / "no.json"):
+            assert controller.get_db_config() == ("payload_db", "payload")

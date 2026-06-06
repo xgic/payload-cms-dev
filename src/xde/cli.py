@@ -5,7 +5,8 @@ This is the main command-line interface for the XGIC Dev Environment.
 Design goals (especially important for agentic use):
 - Small, predictable command surface (no aliases, one clear way to do things).
 - Excellent default behavior with clear escape hatches (`--yes`, `--dry-run`).
-- High-quality, actionable output using Rich (panels, colors with graceful fallback).
+- High-quality output using Rich (panels + graceful
+  color fallback).
 - Strong environment awareness via `EnvironmentContext`.
 
 The CLI is deliberately built using only stdlib + Rich + Pydantic to keep
@@ -19,20 +20,25 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import Any
 
 from rich.console import Console
-from rich.panel import Panel
 
 from xde import __version__
-from xde.core.environment import EnvironmentContext
-from xde.core.docker import DockerComposeController
 from xde.commands.dev import run_dev
-from xde.commands.lifecycle import run_up, run_down, run_build, run_logs, run_shell, run_clean
-from xde.commands.reset import run_reset
 from xde.commands.diagnostics import run_check
 from xde.commands.env import run_env
-from xde.utils.output import print_error, print_success
+from xde.commands.lifecycle import (
+    run_build,
+    run_clean,
+    run_down,
+    run_logs,
+    run_shell,
+    run_up,
+)
+from xde.commands.reset import run_reset
+from xde.core.docker import DockerComposeController
+from xde.core.environment import EnvironmentContext
+from xde.utils.output import print_error
 
 console = Console()
 
@@ -89,11 +95,19 @@ Examples:
         "--yes", action="store_true", help="Skip confirmation prompt"
     )
     reset_parser.add_argument(
-        "--dry-run", action="store_true", help="Show what would be done without making changes"
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without making changes",
     )
     reset_parser.add_argument(
-        "--rotate-credentials", action="store_true",
-        help="Also generate fresh database password and PAYLOAD_SECRET"
+        "--rotate-credentials",
+        action="store_true",
+        help="Also generate fresh database password and PAYLOAD_SECRET",
+    )
+    reset_parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="Compact output (for make shims / scripting)",
     )
     reset_parser.set_defaults(func=run_reset)
 
@@ -103,7 +117,9 @@ Examples:
         help="Diagnostic: verify PostgreSQL and services are reachable",
     )
     check_parser.add_argument(
-        "--json", action="store_true", help="Output results as JSON (useful for scripts/agents)"
+        "--json",
+        action="store_true",
+        help="Output results as JSON (useful for scripts/agents)",
     )
     check_parser.set_defaults(func=run_check)
 
@@ -134,7 +150,9 @@ Examples:
         "env", help="Inspect and manage the generated environment"
     )
     env_parser.add_argument(
-        "--json", action="store_true", help="Output results as JSON (useful for scripts/agents)"
+        "--json",
+        action="store_true",
+        help="Output results as JSON (useful for scripts/agents)",
     )
     env_parser.set_defaults(func=run_env)
 
