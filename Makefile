@@ -115,7 +115,7 @@ endif
 	test-in-container exec-shell \
 	reset-project-py devcontainer-tests \
 	docker-build-only docker-build-nocache docker-build-only-nocache \
-	check-db test-db dev dev-all \
+	check-db test-db dev dev-all test-xde \
 	pre-release-check generate-config-schema validate-config coverage \
 	emoji-debug
 
@@ -398,6 +398,11 @@ check-db: ## Internal: verify that PostgreSQL is reachable (with friendly error)
 test-db: ## Test database connectivity (developer-friendly)
 	-@$(MAKE) --no-print-directory check-db || exit 1
 
+test-xde: ## Run initial xde core unit tests (EnvironmentContext, DockerComposeController)
+	@echo "$(EMOJI_RUN) Running xde core tests..."
+	@python3 -m pytest tests/test_environment.py tests/test_docker.py -q --tb=no || exit 1
+	@echo "$(EMOJI_OK) xde core tests passed."
+
 dev: ## Start the Payload development server (checks DB first)
 	@$(MAKE) --no-print-directory check-db
 	@PROJECT_NAME=$$(python3 .devcontainer/scripts/get-payload-project-name.py 2>/dev/null || echo "website"); \
@@ -541,7 +546,7 @@ coverage: test-cov ## Alias for test-cov
 # Run validation (lint + unit tests + config schema).
 # When invoked from the host, the 'test' prerequisite will automatically
 # delegate itself to run inside the dev container via RUN_IN_CONTAINER.
-validate: validate-python lint-shell lint-makefile test validate-config
+validate: validate-python lint-shell lint-makefile test test-xde validate-config
 	@echo "$(EMOJI_OK) All validation passed."
 
 # =============================================================================
