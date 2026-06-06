@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from rich.console import Console
 from rich.panel import Panel
-from rich.text import Text
 
 console = Console()
+
 
 # Simple runtime emoji policy (can be made more sophisticated later)
 def _should_use_emoji() -> bool:

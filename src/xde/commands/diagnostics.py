@@ -1,10 +1,11 @@
 """Diagnostic commands (check, etc.)."""
 
 from __future__ import annotations
+
 import json
 
-from xde.core.environment import EnvironmentContext
 from xde.core.docker import DockerComposeController
+from xde.core.environment import EnvironmentContext
 from xde.utils.output import print_info, print_success, print_warning
 
 
@@ -41,14 +42,18 @@ def run_check(
         if services_ok:
             print_success("Docker Compose services: running")
         else:
-            print_warning("Docker Compose services: not all services appear to be running")
+            print_warning(
+                "Docker Compose services: not all services appear to be running"
+            )
             print_info("Suggestion: Run `xde up` to start services.")
 
         if db_ok:
             print_success("Database connectivity: ready (pg_isready)")
         else:
             print_warning("Database connectivity: not ready")
-            print_info("Suggestion: The database may still be starting or needs reset.")
+            print_info(
+                "Suggestion: The database may still be starting or needs reset."
+            )
 
         print_info(f"Expected Payload project folder: {payload_project}")
 

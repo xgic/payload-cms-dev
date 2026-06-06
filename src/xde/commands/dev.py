@@ -4,7 +4,7 @@ This is the single most important command in the entire tool.
 
 Intended behavior (the "just make it work" experience):
 - Ensure required services are running.
-- Perform a friendly database readiness check (with clear next steps on failure).
+- Perform DB readiness check (with clear next steps on failure).
 - Change into the generated Payload project directory.
 - Launch `pnpm dev`.
 
@@ -18,9 +18,13 @@ See:
 
 from __future__ import annotations
 
-from xde.core.environment import EnvironmentContext
 from xde.core.docker import DockerComposeController
-from xde.utils.output import print_info, print_success, print_warning, print_panel
+from xde.core.environment import EnvironmentContext
+from xde.utils.output import (
+    print_info,
+    print_success,
+    print_warning,
+)
 
 
 def run_dev(
@@ -47,22 +51,26 @@ def run_dev(
     if docker.db_ready():
         print_success("Database is ready")
     else:
-        print_warning("Database not ready yet. You may need to wait or run `xde reset` if this persists.")
+        print_warning("Database not ready yet. You may need `xde reset`.")
 
     print_info(f"Target Payload project: {payload_project}")
 
-    # Actually launch pnpm dev inside the project directory (via controller exec)
+    # Launch pnpm dev inside the project dir (via controller exec)
     try:
-        print_info(f"Launching pnpm dev inside {payload_project} (this will run the dev server)...")
+        print_info(f"Launching pnpm dev inside {payload_project}...")
         # The exec will run the command inside the container's project dir
         # Note: pnpm dev is long-running; this will attach until interrupted
         docker.exec(
             "xgic-payload-cms-dev-containers",
-            "sh", "-c", f"cd /workspace/{payload_project} && pnpm dev"
+            "sh",
+            "-c",
+            f"cd /workspace/{payload_project} && pnpm dev",
         )
     except Exception as e:
         print_warning(f"Failed to launch pnpm dev: {e}")
-        print_info(f"Fallback: manually run `cd {payload_project} && pnpm dev` inside the container or use `xde shell`.")
+        print_info(
+            f"Fallback: cd {payload_project} && pnpm dev (or xde shell)."
+        )
 
     print_success("Environment ready for development.")
     print_info("Environment context: " + env.describe())

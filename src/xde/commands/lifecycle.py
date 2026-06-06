@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from xde.core.environment import EnvironmentContext
 from xde.core.docker import DockerComposeController
-from xde.utils.output import print_success, print_info, print_warning
+from xde.core.environment import EnvironmentContext
+from xde.utils.output import print_info, print_success, print_warning
 
 
 def run_up(
@@ -40,7 +40,9 @@ def run_build(
     docker: DockerComposeController,
 ) -> int:
     no_cache = getattr(args, "no_cache", False)
-    print_info("Building services" + (" (no cache)" if no_cache else "") + "...")
+    print_info(
+        "Building services" + (" (no cache)" if no_cache else "") + "..."
+    )
     docker.build(no_cache=no_cache)
     print_success("Build complete")
     return 0
@@ -84,7 +86,9 @@ def run_clean(
     """Full environment cleanup (volumes + .env). Extremely destructive."""
     yes = getattr(args, "yes", False)
 
-    print_warning("This will delete Docker volumes AND the generated .env file.")
+    print_warning(
+        "This will delete Docker volumes AND the generated .env file."
+    )
     print_warning("This is more destructive than `xde reset`.")
 
     if not yes:
@@ -111,5 +115,7 @@ def run_clean(
         env_file.unlink()
         print_success("Removed .env file")
 
-    print_success("Full cleanup complete. You will need to re-initialize the environment.")
+    print_success(
+        "Full cleanup complete. You will need to re-initialize the environment."
+    )
     return 0

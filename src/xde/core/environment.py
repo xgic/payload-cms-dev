@@ -66,9 +66,7 @@ class EnvironmentContext:
         # Try to find project root (look for .devcontainer or pyproject.toml)
         cwd = os.getcwd()
         project_root = (
-            cwd
-            if os.path.exists(os.path.join(cwd, ".devcontainer"))
-            else None
+            cwd if os.path.exists(os.path.join(cwd, ".devcontainer")) else None
         )
 
         return cls(
