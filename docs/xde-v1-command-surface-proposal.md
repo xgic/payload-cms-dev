@@ -1,10 +1,10 @@
 # xde v1 Command Surface Proposal
 
 **Date**: June 2026  
-**Status**: Accepted / Locked for v1 implementation  
-**Goal**: Define the minimal, final command surface for `xde` v1 that is simple, powerful, and sufficient to eventually retire the Makefile.
+**Status**: Finalized for xde v1  
+**Goal**: Define the minimal, final command surface for `xde` v1 that is simple, powerful, and sufficient (Makefile retired in 0.1.0).
 
-**Decision**: This surface has been accepted as the target for the initial production-ready version of `xde`. Implementation work is proceeding against this proposal (see `docs/development-workflow.md`).
+**Decision**: This surface is now finalized. The CLI in `src/xde/cli.py` implements exactly these commands. All future xde v1 work targets this surface. See `docs/development-workflow.md` for implementation guidelines. Legacy Makefile targets will gradually delegate to or be replaced by these.
 
 ---
 

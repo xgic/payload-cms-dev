@@ -47,7 +47,7 @@ We are actively building toward the following testing progression:
 
 ## Working with the Makefile During Transition
 
-While we transition from the Makefile to `xde`:
+(Makefile removed in 0.1.0; all via xde):
 
 - Prefer using `xde` commands for new work.
 - When modifying existing Makefile targets, consider whether the logic can move into `xde` instead.

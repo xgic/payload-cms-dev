@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "xde"
 version = "0.1.0"
 description = """XGIC Dev Environment CLI - reliable replacement for
-Makefile-based dev container orchestration"""
+xde CLI + Docker Compose dev container orchestration for Payload CMS"""
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}

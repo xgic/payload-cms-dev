@@ -123,7 +123,7 @@ This project has two layers:
 - Fast, safe reset capabilities
 
 **Layer 2: The Developer Experience**
-- `xde` is the **primary interface** (replacing the Makefile over time).
+- `xde` is the **primary (and only) interface** (Makefile removed in 0.1.0).
 - The `create-payload-config.json` + schema system is the extensible configuration surface.
 - Everything should be optimized for both human developers *and* agents.
 
@@ -155,7 +155,7 @@ This project has two layers:
 Legacy locations:
 - `.devcontainer/scripts/reset-project.py` → `xde/commands/reset.py`
 - `.devcontainer/scripts/regenerate-env.py` → `xde/commands/env.py` (future)
-- Various Makefile targets → corresponding `xde` commands
+- (Makefile removed; all behavior now in xde commands)
 
 When migrating:
 - Extract pure functions first.
@@ -175,7 +175,7 @@ When migrating:
 
 `xde` should feel like a well-designed internal tool built *for* agents as much as humans.
 
-Current / near-term commands (as of latest):
+Current / near-term commands (v1 surface, finalized per `docs/xde-v1-command-surface-proposal.md`):
 
 - `dev` — The "I want to work now" command. Should be smart and forgiving.
 - `up` / `down` / `build` — Lifecycle primitives.
@@ -184,6 +184,8 @@ Current / near-term commands (as of latest):
 - `env` — Visibility into secrets and generated values.
 - `shell` / `logs` — Escape hatches.
 - `clean` — High danger. Must have very strong guardrails.
+
+(See `docs/development-workflow.md` for how these map to legacy Makefile targets during transition.)
 
 **Design rules for new commands**:
 - Default behavior should be the safe, common case.
