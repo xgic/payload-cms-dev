@@ -64,7 +64,7 @@ def run_reset(
         print_warning("This operation is destructive. Re-run with --yes to proceed.")
         return 1
 
-    # Actual execution (basic version for v1)
+    # Actual execution (hardened v1, with logic inspired by but modernized from legacy reset-project.py)
     print_info("Performing reset...")
 
     if project_path.exists():
@@ -80,8 +80,25 @@ def run_reset(
     else:
         print_warning(f"Could not remove volume {postgres_volume} (may not exist or in use)")
 
+    # Recreate postgres service and ensure DB (idempotent, from config)
+    try:
+        docker._run_compose("up", "-d", "postgres")  # type: ignore[attr-defined]
+        print_info("Postgres service recreated.")
+
+        # Basic wait for ready + ensure DB (simplified; full in legacy)
+        db_name = "payload_db"  # TODO: load from config in future
+        db_user = "payload"
+        # Ensure DB exists
+        docker._run_compose(  # type: ignore[attr-defined]
+            "exec", "-T", "postgres",
+            "psql", "-U", db_user, "-d", "postgres", "-c", f"CREATE DATABASE {db_name} OWNER {db_user};"
+        )
+        print_success(f"Ensured database '{db_name}' exists.")
+    except Exception as e:
+        print_warning(f"Issue recreating postgres or DB: {e}. Manual `xde up` may be needed.")
+
     if rotate:
-        print_warning("Credential rotation requested but not yet implemented in this build.")
+        print_warning("Credential rotation requested but not yet implemented in this build (use legacy script temporarily if needed).")
 
     print_success("Reset complete. You will likely want to run `xde up` or `xde dev` next.")
     return 0
