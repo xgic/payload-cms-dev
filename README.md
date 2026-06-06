@@ -36,37 +36,34 @@ These extensions ensure a **consistent, high-productivity development environmen
 
 ## Quick Start
 
-1. **Clone or use this repository as a GitHub Template**
-2. **(Recommended) Install `xde` on your host** for powerful host-side commands before opening the container:
+This repository includes a [VS Code Dev Container](https://code.visualstudio.com/docs/devcontainers/containers) configuration that provides a consistent, fully provisioned development environment for Payload CMS projects.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (Windows/macOS) or Docker Engine (Linux)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension for VS Code
+
+### Getting Started
+
+1. Clone the repository:
    ```bash
-   pipx install -e .   # or: pip install -e . --user
+   git clone https://github.com/XGIC/payload-cms-dev-containers.git
+   cd payload-cms-dev-containers
    ```
-   This makes `xde dev`, `xde reset`, `xde check`, etc. available immediately on the host.
-3. Open the folder in **VS Code**
-4. The Dev Containers extension will automatically prompt to **Reopen in Container** — select it.
 
-   (If no prompt appears: Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (or <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> on macOS) and choose **Dev Containers: Reopen in Container**.)
+2. Open the folder in Visual Studio Code.
 
-   This is the recommended command for the initial container setup.
-5. The development container's `initializeCommand` will automatically generate your secure `.env` file (PostgreSQL credentials)
-6. The container lifecycle will:
-   - Run `initializeCommand` to generate `.env`
-   - Run `postStartCommand` which executes `setup-payload.sh` (idempotent project creation)
-7. After creation completes, run `pnpm dev` in the new Payload subdirectory
-8. Open http://localhost:3000/admin
+3. When prompted, select **Reopen in Container** (or run **Dev Containers: Reopen in Container** from the Command Palette).
 
-**Payload Creation Flow**
+The container will build on first use (this may take several minutes). Once ready, you will have a pre-configured environment with Node.js, pnpm, recommended VS Code extensions, and Payload CMS development tools already set up.
 
-The real work happens in `.devcontainer/scripts/setup-payload.sh`, which is:
-- Called automatically via `postStartCommand` when the dev container starts
-- Idempotent — safe to run multiple times
+For full details on how Dev Containers work, see the official documentation:
 
-**For non-interactive / CI/CD automation** (e.g., when using this repo as a template):
-- Customize `.devcontainer/create-payload-config.json` with supported parameters.
-- The file has full JSON Schema support → excellent VS Code IntelliSense, validation, and autocomplete out of the box.
-- See `.devcontainer/create-payload-config.schema.json` for the complete schema.
+- [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers)
+- [Dev Container Specification](https://containers.dev/)
 
-Happy coding your dream web apps using Payload CMS in our optimized development environment.
+This configuration is also compatible with GitHub Codespaces.
 
 ## Repository Structure
 
