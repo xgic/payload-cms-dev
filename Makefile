@@ -265,13 +265,11 @@ project-delete: ## Delete only the generated Payload project folder
 	@echo "Removing generated project folder ($(PAYLOAD_PROJECT_NAME))..."
 	@rm -rf $(PAYLOAD_PROJECT_NAME)
 
-env-regenerate: ## Regenerate .devcontainer/.env with fresh random
-	## credentials (explicit rotation)
-	@echo "Regenerating fresh database credentials (.env)..."
-	@rm -f $(ENV_FILE)
-	@python3 .devcontainer/scripts/regenerate-env.py 2>/dev/null || \
-		bash $(INIT_ENV_SCRIPT) 2>/dev/null || \
-		echo "$(EMOJI_WARN)  Could not regenerate credentials."
+env-regenerate: ## DEPRECATED: use `xde env --regenerate`
+	@echo "$(EMOJI_WARN) WARNING: 'make env-regenerate' is deprecated."
+	@echo "$(EMOJI_ARROW) Use 'xde env --regenerate --yes' instead."
+	@xde env --regenerate --yes || \
+		python3 .devcontainer/scripts/regenerate-env.py 2>/dev/null || true
 
 postgres-reset reset-db: ## Reset Postgres service + data volume (fresh DB).
 	## DB name taken from create-payload-config.json.
@@ -333,10 +331,11 @@ postgres-reset reset-db: ## Reset Postgres service + data volume (fresh DB).
 # Note: No HOST_ONLY_GUARD is applied here. This target is intentionally
 # allowed to run from inside the dev container (the Python script has good
 # context detection and gives appropriate next-step advice either way).
-reset-project: ## Fast targeted reset (project folder + Postgres volume).
-	## Safe to run inside or outside the container.
-	## Credentials are stable by default.
-	@python3 .devcontainer/scripts/reset-project.py --compact $(if $(YES),--yes,)
+reset-project: ## DEPRECATED: use `xde reset`
+	@echo "$(EMOJI_WARN) WARNING: 'make reset-project' is deprecated."
+	@echo "$(EMOJI_ARROW) Use 'xde reset --compact --yes' (or without --compact)."
+	@xde reset --compact $(if $(YES),--yes,) || \
+		python3 .devcontainer/scripts/reset-project.py --compact $(if $(YES),--yes,) || true
 
 reset-project-py: ## Direct/low-level alias for the Python reset script
 	## (useful for --dry-run, --rotate-credentials, etc.)
@@ -395,28 +394,30 @@ check-db: ## Internal: verify that PostgreSQL is reachable (with friendly error)
 		 }"
 	@echo "==> Database connection OK."
 
-test-db: ## Test database connectivity (developer-friendly)
-	-@$(MAKE) --no-print-directory check-db || exit 1
+test-db: ## DEPRECATED: use `xde check` instead.
+	@echo "$(EMOJI_WARN) WARNING: 'make test-db' is deprecated, use 'xde check' instead."
+	@xde check
 
 test-xde: ## Run initial xde core unit tests (EnvironmentContext, DockerComposeController)
 	@echo "$(EMOJI_RUN) Running xde core tests..."
 	@PYTHONPATH=src python3 -m pytest tests/test_environment.py tests/test_docker.py -q --tb=no || exit 1
 	@echo "$(EMOJI_OK) xde core tests passed."
 
-dev: ## Start the Payload development server (checks DB first)
-	@$(MAKE) --no-print-directory check-db
-	@PROJECT_NAME=$$(python3 .devcontainer/scripts/get-payload-project-name.py 2>/dev/null || echo "website"); \
-	echo "$(EMOJI_ROCKET) Starting Payload dev server in $$PROJECT_NAME/..."; \
-	$(DOCKER_COMPOSE) exec --user node $(SERVICE_NAME) sh -c \
-		"set -a; . '$(WORKSPACE_DIR)/$(ENV_FILE)' 2>/dev/null || true; set +a; \
-		 cd '$(WORKSPACE_DIR)/$$PROJECT_NAME' && pnpm dev"
+dev: ## DEPRECATED: use `xde dev` instead (start the Payload development server).
+## This target now delegates to xde.
+	@echo "$(EMOJI_WARN) WARNING: 'make dev' is deprecated and will be removed."
+	@echo "$(EMOJI_ARROW) Use 'xde dev' instead."
+	@xde dev
 
-dev-all: ## Start all required services then run the development server
-	@$(MAKE) --no-print-directory up
-	@$(MAKE) --no-print-directory dev
+dev-all: ## DEPRECATED: use `xde dev` (and `xde up` if needed) instead.
+## This target now delegates.
+	@echo "$(EMOJI_WARN) WARNING: 'make dev-all' is deprecated and will be removed."
+	@echo "$(EMOJI_ARROW) Use 'xde dev' (it will bring up services if needed)."
+	@xde dev
 
-logs: ## Follow logs for all services
-	$(DOCKER_COMPOSE) logs -f
+logs: ## DEPRECATED: use `xde logs` instead.
+	@echo "$(EMOJI_WARN) WARNING: 'make logs' is deprecated, use 'xde logs' instead."
+	@xde logs
 
 ps: ## List running containers
 	$(DOCKER_COMPOSE) ps
@@ -430,9 +431,9 @@ shell: ## Open interactive shell in the primary Payload CMS service
 prune: ## Prune unused Docker objects system-wide (use with caution)
 	docker system prune -f --volumes
 
-env: ## Show current environment file status
-	@echo "ENV_FILE = $(ENV_FILE)"
-	@ls -la $(ENV_FILE) 2>/dev/null || echo "No .env file found."
+env: ## DEPRECATED: use `xde env` instead.
+	@echo "$(EMOJI_WARN) WARNING: 'make env' is deprecated, use 'xde env' instead."
+	@xde env
 
 refresh-env: ## Output the shell command to load the current .env
 	## (use: eval $(make refresh-env))
@@ -568,11 +569,10 @@ CONFIG_FILE   := .devcontainer/create-payload-config.json
 
 .PHONY: generate-config-schema validate-config
 
-generate-config-schema: ## Regenerate JSON Schema from canonical model
-	## (requires Python + Pydantic)
-	@echo "$(EMOJI_SYNC) Regenerating JSON Schema for create-payload-config.json..."
-	@cd .devcontainer/config && python3 generate_schema.py
-	@echo "$(EMOJI_OK) Schema updated at $(CONFIG_SCHEMA)"
+generate-config-schema: ## DEPRECATED: use `xde schema`
+	@echo "$(EMOJI_WARN) WARNING: 'make generate-config-schema' is deprecated."
+	@echo "$(EMOJI_ARROW) Use 'xde schema' instead (now the canonical path)."
+	@xde schema || python3 .devcontainer/config/generate_schema.py
 
 validate-config: ## Validate create-payload-config.json vs its JSON Schema
 	## (requires 'check-jsonschema' or Python)
