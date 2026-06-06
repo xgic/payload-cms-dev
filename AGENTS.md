@@ -226,7 +226,7 @@ Avoid these recurring traps that have caused issues for agents in the past:
 - **Credential rotation over-eagerness**: Rotating secrets (`--rotate-credentials`) without strong justification can lead to authentication issues between running containers and the `.env` file. Always use strong safeguards.
 - **Project folder confusion**: Forgetting that the generated Payload app lives in a sibling folder (e.g. `website/`) controlled by `create-payload-config.json`, not inside `.devcontainer`.
 - **Weak safety defaults**: Proposing destructive operations without first using `--dry-run` and clearly explaining impact.
-- **Treating reference material as active code**: The `xg/` reference material (advanced console patterns from the XG AIS project) lives on the `reference/xg-ais` branch and is **not** part of the current active implementation.
+- **Treating reference material as active code**: The `xg/` reference material (advanced console patterns from the XG AIS project) lives on the `reference/xg-ais` branch and is **not** part of the current active implementation. (Stray untracked copy on 0.1.0 working tree was cleaned up as part of this check.)
 - **Command surface bloat**: Adding too many ways to do the same thing. Small + predictable is better for agents (and humans).
 
 ---
