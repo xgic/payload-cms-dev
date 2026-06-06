@@ -17,16 +17,14 @@ This file is the lightweight, informal task list for work that Grok Build should
 ### xde v1 Completion (Immediate Focus)
 - [x] Finalize and lock the v1 command surface based on `docs/xde-v1-command-surface-proposal.md` (proposal marked "Finalized", docs/AGENTS.md aligned, CLI in src/xde/cli.py matches the 10 commands)
 - [ ] Harden and complete highest-value commands:
-  - Full `xde dev` with real DB readiness check + auto-start services + actually launch pnpm dev inside project (using docker exec)
-  - Complete `xde reset` with full logic migrated from `reset-project.py` (dry-run, compact, db setup, error handling, while keeping positive tone)
-  - Improve `xde check` with comprehensive DB + service health, structured output
+  - [x] Full `xde dev` with real DB readiness check + auto-start services + actually launch pnpm dev inside project (using docker exec)
+  - [ ] Complete `xde reset` with full logic migrated from `reset-project.py` (dry-run, compact, db setup, error handling, while keeping positive tone) (core done; full migration in progress)
+  - [ ] Improve `xde check` with comprehensive DB + service health, structured output (DB check done; more in progress)
 - [x] Create `docs/development-workflow.md` documenting commit discipline, testing requirements, and how to work during the Makefile → xde transition
-- [ ] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController) - unit tests with mocks for subprocess
-- [ ] Set up reliable `make validate` / lint + test gate that must pass before every commit (update Makefile or add script)
 
-### Testing Foundations
-- [ ] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController)
-- [ ] Set up reliable `make validate` / lint + test gate that must pass before every commit
+### Testing Foundations (Step 3)
+- [x] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController) - unit tests with mocks for subprocess
+- [ ] Set up reliable `make validate` / lint + test gate that must pass before every commit (update Makefile or add script)
 
 ### Ongoing / Previously Started
 - [x] Implement basic functional `xde check`
