@@ -24,7 +24,7 @@ This file is the lightweight, informal task list for work that Grok Build should
 
 ### Testing Foundations (Step 3)
 - [x] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController) - unit tests with mocks for subprocess
-- [ ] Set up reliable `make validate` / lint + test gate that must pass before every commit (update Makefile or add script)
+- [x] Set up reliable `make validate` / lint + test gate that must pass before every commit (added test-xde target, wired into validate)
 
 ### Ongoing / Previously Started
 - [x] Implement basic functional `xde check`
