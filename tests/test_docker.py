@@ -126,3 +126,10 @@ class TestEnvRegenerate:
         assert (
             "payload_db" in content or "website" in content
         )  # db from config or default
+
+
+def test_schema_command_is_callable():
+    """Basic existence test for the new schema command (step 3)."""
+    from xde.commands.schema import run_schema
+
+    assert callable(run_schema)

@@ -36,6 +36,7 @@ from xde.commands.lifecycle import (
     run_up,
 )
 from xde.commands.reset import run_reset
+from xde.commands.schema import run_schema
 from xde.core.docker import DockerComposeController
 from xde.core.environment import EnvironmentContext
 from xde.utils.output import print_error
@@ -166,6 +167,13 @@ Examples:
         "--dry-run", action="store_true", help="Preview without writing"
     )
     env_parser.set_defaults(func=run_env)
+
+    # schema (generate the single source of truth for config)
+    schema_parser = subparsers.add_parser(
+        "schema",
+        help="Generate create-payload-config JSON schema (for IntelliSense)",
+    )
+    schema_parser.set_defaults(func=run_schema)
 
     # clean (more destructive, with strong safeguards)
     clean_parser = subparsers.add_parser(
