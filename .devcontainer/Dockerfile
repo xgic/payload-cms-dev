@@ -4,9 +4,13 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Python 3.14 stage (clean, future-proof installation via official image)
+# Python stage (clean installation via official image, pinned to a glibc version
+# compatible with the node:lts-slim / Debian 12 bookworm base used for the final
+# image. Python 3.12-bookworm is used for compatibility; 3.14 full support is
+# pending an official bookworm-based tag or alternative method such as the
+# devcontainers/features/python feature.)
 # -----------------------------------------------------------------------------
-FROM python:3.14-slim AS python
+FROM python:3.12-slim-bookworm AS python
 
 # -----------------------------------------------------------------------------
 # Stage 1: Core base (changes very rarely)
@@ -113,7 +117,7 @@ FROM user-setup AS dev-tools
 # Enable pnpm via corepack
 RUN corepack enable && corepack use pnpm@10
 
-# Bring in clean Python 3.14 installation (multi-stage copy for reproducibility
+# Bring in clean Python installation (multi-stage copy for reproducibility
 # and to avoid PPA fragility). This is the recommended future-proof approach
 # when the primary runtime is Node but you need a modern Python for tooling.
 COPY --from=python /usr/local /usr/local
@@ -121,16 +125,22 @@ COPY --from=python /usr/local /usr/local
 # Ensure the new Python is early in PATH (before any system python3)
 ENV PATH="/usr/local/bin:${PATH}"
 
-# Create isolated Python 3.14 venv (for devcontainer scripting,
-# xde CLI, and testing)
+# Create isolated Python venv (for devcontainer scripting, xde CLI, and testing).
+# The base image is chosen for glibc compatibility with node:lts-slim.
 ENV PYTHON_VENV=/opt/venv
-RUN /usr/local/bin/python3.14 -m venv ${PYTHON_VENV} \
+RUN /usr/local/bin/python3 -m venv ${PYTHON_VENV} \
     && ${PYTHON_VENV}/bin/pip install --no-cache-dir \
        --upgrade pip setuptools wheel \
     && rm -rf /root/.cache/pip
 
 # Make venv tools available globally in the container (takes precedence)
 ENV PATH="${PYTHON_VENV}/bin:${PATH}"
+
+# Allow the app user (node) to install additional packages into the venv
+# during postCreateCommand (e.g. editable install of xde for the in-container CLI).
+# This is required because the venv is created as root but postCreate runs as the
+# remoteUser.
+RUN chown -R ${APP_USER}:${APP_USER} ${PYTHON_VENV}
 
 # -----------------------------------------------------------------------------
 # Stage 5: Development image (frequently changing)
