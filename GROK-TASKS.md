@@ -36,7 +36,7 @@ This file is the lightweight, informal task list for work that Grok Build should
 - [x] Improve `xde dev` to auto-start services and give better guidance
 - [x] Add real DB readiness checks (pg_isready) to check/dev
 - [x] Add --json support to diagnostic commands (check, env)
-- [x] Install xde on host via pipx and document installation for initial use after clone
+- [x] Make xde available inside the container by default (postCreateCommand + venv); document optional host install (uv tool, platform-separated) as advanced only. Host install no longer in main Quick Start.
 
 ## Recently Completed
 

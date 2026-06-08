@@ -52,19 +52,13 @@ This repository includes a [VS Code Dev Container](https://code.visualstudio.com
    cd payload-cms-dev-containers
    ```
 
-2. **(Recommended) Install `xde` on your host** for powerful host-side commands before opening the container:
-   ```bash
-   pipx install -e .   # or: pip install -e . --user
-   ```
-   This makes `xde dev`, `xde reset`, `xde check`, etc. available immediately on the host.
+2. Open the folder in Visual Studio Code.
 
-3. Open the folder in Visual Studio Code.
-
-4. When prompted, select **Reopen in Container** (or run **Dev Containers: Reopen in Container** from the Command Palette).
+3. When prompted, select **Reopen in Container** (or run **Dev Containers: Reopen in Container** from the Command Palette).
 
    This is the recommended command for the initial container setup.
 
-The container will build on first use (this may take several minutes). Once ready, you will have a pre-configured environment with Node.js, pnpm, recommended VS Code extensions, and Payload CMS development tools already set up.
+The container will build on first use (this may take several minutes). Once ready, you will have a pre-configured environment with Node.js, pnpm, recommended VS Code extensions, and Payload CMS development tools already set up. The `xde` CLI is pre-installed and available in your PATH inside the container.
 
 For full details on how Dev Containers work, see the official documentation:
 
@@ -165,7 +159,52 @@ xde stage dev
 
 ### Development Note
 
-During active development of the `xde` CLI, the recommended way to use it on the host is via an editable install (see the Quick Start section above). A proper console script entry point is provided by the `pyproject.toml`.
+The `xde` CLI is installed by default inside the Dev Container (the primary environment where the vast majority of development work happens). You do not need to install anything extra on your host for normal daily use.
+
+If you are actively developing the `xde` CLI itself, or need the commands on the host before the container is running (advanced / power-user scenarios), see the "Advanced: Installing xde on the Host (Optional)" section below. A proper console script entry point is provided by the `pyproject.toml`.
+
+## Advanced: Installing xde on the Host (Optional)
+
+The `xde` CLI is pre-installed and available inside the Dev Container by default (via the container's Python venv and postCreateCommand). This is the recommended and primary experience — users do most of their work inside the container.
+
+Host installation is entirely optional and intended only for advanced / power-user cases such as:
+- Running `xde check`, `xde env`, or `xde reset` from the host *before* the container is open.
+- Host-only scripting or CI that cannot easily use the dev container.
+- Actively developing changes to the xde source code on the host machine.
+- Using xde in environments outside a dev container (e.g., certain GitHub Actions runners).
+
+**Recommended modern tooling: uv**
+
+We prefer `uv tool install -e .` (from Astral) for isolated, fast, editable tool installs. It is actively maintained and generally faster than older alternatives.
+
+**macOS and Linux**
+
+```bash
+# One-time setup: install uv (if you do not already have it)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# From the root of this repository:
+uv tool install -e .
+```
+
+After installation, the `xde` command should be available in your shell (you may need to open a new terminal or ensure `~/.local/bin` is on your PATH — uv usually configures this for you).
+
+**Windows (PowerShell)**
+
+```powershell
+# One-time setup: install uv (if you do not already have it)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# From the root of this repository (in PowerShell):
+uv tool install -e .
+```
+
+**Platform notes and caveats**
+- Editable installs (`-e`) mean that local changes to the xde source are reflected immediately when you run `xde` (very useful when developing the CLI).
+- PATH differences: The exact location uv places tools varies by platform and shell. Common locations include `~/.local/bin` (Unix) or the uv tools directory on Windows. Restart your terminal after install if `xde` is not found.
+- To upgrade a tool install: `uv tool upgrade xde`
+- To remove: `uv tool uninstall xde`
+- This section is deliberately separated from the main Quick Start because most users (and all first-time container users) never need it.
 
 ## Working with AI Assistants (Grok, etc.)
 

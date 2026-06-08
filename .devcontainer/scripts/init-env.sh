@@ -71,4 +71,4 @@ DATABASE_URI=postgres://${PG_USER}:${PG_PASSWORD}@postgres:5432/${DB_NAME}
 EOF
 
 log_success "init-env" "Generated secure .env at $(pwd)/$ENV_FILE (POSTGRES_DB=${DB_NAME})"
-log_info "init-env" "Payload project creation will occur inside the container via postCreateCommand."
+log_info "init-env" "Payload project creation will occur inside the container (via postStartCommand / setup-payload.sh)."
