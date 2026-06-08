@@ -142,9 +142,20 @@ class DockerComposeController:
             args.append("-f")
         self._run_compose(*args, check=False)  # logs can be interrupted
 
-    def exec(self, service: str, *cmd: str) -> subprocess.CompletedProcess[str]:
-        """Run a command inside a service container."""
-        return self._run_compose("exec", service, *cmd)
+    def exec(
+        self, service: str, *cmd: str, check: bool = True
+    ) -> subprocess.CompletedProcess[str]:
+        """Run a command inside a service container.
+
+        Args:
+            service: Name of the compose service.
+            *cmd: Command and arguments to run inside the service.
+            check: If True (default), raise on non-zero exit. Set to False for
+                   long-running or intentionally interruptible commands (e.g.
+                   when the caller wants to handle return codes like 130/SIGINT
+                   itself). This is consistent with the logs() method.
+        """
+        return self._run_compose("exec", service, *cmd, check=check)
 
     def get_payload_project_name(self) -> str:
         """Return the name of the generated Payload project folder.

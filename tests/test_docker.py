@@ -133,3 +133,59 @@ def test_schema_command_is_callable():
     from xde.commands.schema import run_schema
 
     assert callable(run_schema)
+
+
+# --- Tests for run_dev (direct inside-container execution + clean interrupt) ---
+
+from unittest.mock import patch, MagicMock
+
+from xde.commands.dev import run_dev
+from xde.core.environment import EnvironmentContext, EnvironmentType
+
+
+def test_run_dev_inside_container_direct_and_clean_interrupt():
+    """Inside DEV_CONTAINER: runs pnpm dev directly, handles Ctrl+C (130) cleanly."""
+    mock_env = EnvironmentContext(env_type=EnvironmentType.DEV_CONTAINER)
+    mock_docker = MagicMock()
+
+    with patch("xde.commands.dev.subprocess.run") as mock_run:
+        # Simulate user pressing Ctrl+C: returncode 130
+        mock_result = MagicMock(returncode=130)
+        mock_run.return_value = mock_result
+
+        rc = run_dev({}, env=mock_env, docker=mock_docker)
+
+        assert rc == 0
+        mock_run.assert_called_once()
+        # Should not have called docker.exec for the dev server itself
+        mock_docker.exec.assert_not_called()
+
+
+def test_run_dev_inside_container_real_failure_still_reports():
+    """Inside: real non-zero (not interrupt) still gives warning + fallback."""
+    mock_env = EnvironmentContext(env_type=EnvironmentType.DEV_CONTAINER)
+    mock_docker = MagicMock()
+
+    with patch("xde.commands.dev.subprocess.run") as mock_run:
+        mock_result = MagicMock(returncode=1)
+        mock_run.return_value = mock_result
+
+        rc = run_dev({}, env=mock_env, docker=mock_docker)
+
+        assert rc == 1
+        # The warning/fallback path should have been exercised (we don't assert
+        # prints here to keep test simple, but rc indicates it took the failure branch)
+
+
+def test_run_dev_host_path_uses_docker_exec():
+    """Outside (HOST): falls back to docker.exec for the dev server launch."""
+    mock_env = EnvironmentContext(env_type=EnvironmentType.HOST)
+    mock_docker = MagicMock()
+    mock_docker.exec.return_value = MagicMock(returncode=0)
+
+    rc = run_dev({}, env=mock_env, docker=mock_docker)
+
+    # It will still print success etc., but the key is it used the docker path
+    mock_docker.exec.assert_called()
+    # rc will be 0 from the final return in current code for the host success path
+    assert rc == 0
