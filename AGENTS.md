@@ -93,19 +93,17 @@ When these things exist and are maintained, I can work dramatically faster, make
 
 ## Session Startup Checklist (Run These Commands Early)
 
-**Important**: After cloning, first install `xde` on the host (see README.md "Quick Start") so you can run powerful commands before entering the container:
+**Important**: `xde` is installed by default inside the Dev Container (the primary environment). You do **not** need to install anything on the host for normal use.
 
-```bash
-pipx install -e .
-```
-
-At the beginning of almost every session, gather this context:
+At the beginning of almost every session (once inside the container), gather this context:
 
 1. `xde --help` — See current capabilities and command surface.
 2. `xde check` — Get a diagnostic view of the environment health.
 3. `xde env` — Understand the current secrets and generated configuration.
 4. Review the relevant sections of `docs/grok-playbooks.md` for the task at hand.
 5. Check `create-payload-config.json` if the task involves project generation or configuration.
+
+(Optional / advanced) If you need `xde` on the host before the container is open (e.g. for pre-container diagnostics), see the "Advanced: Installing xde on the Host (Optional)" section in README.md. It uses modern `uv tool install -e .` with platform-specific instructions.
 
 Output a short summary of the environment state to the human before proposing actions. This dramatically reduces context errors.
 
@@ -134,11 +132,16 @@ This project has two layers:
 
 ### Workflow A: "I just cloned — get me into a working state"
 
-1. Run `xde --help` to see current capabilities.
-2. Run `xde check` to understand environment state.
-3. Run `xde env` to see credentials and config.
-4. Run `xde dev` as the primary way to start working.
-5. If things are broken, use `xde reset --dry-run` first to understand impact.
+`xde` is available by default inside the Dev Container (after `Dev Containers: Reopen in Container`).
+
+1. Open the folder in VS Code and select Reopen in Container when prompted.
+2. Once inside, run `xde --help` to see current capabilities.
+3. Run `xde check` to understand environment state.
+4. Run `xde env` to see credentials and config.
+5. Run `xde dev` as the primary way to start working.
+6. If things are broken, use `xde reset --dry-run` first to understand impact.
+
+(Optional advanced) For host-side `xde` commands before the container is open, see the optional host installation section in README.md.
 
 ### Workflow B: Making changes to `xde` itself
 
