@@ -94,11 +94,13 @@ def run_dev(
         try:
             print_info(f"Launching pnpm dev inside {payload_project}...")
             # Note: pnpm dev is long-running; attaches until interrupted.
-            # We use check=False to distinguish clean user interrupt
-            # (returncode 130 / SIGINT) from real launch failure.
+            # We use check=False + a signal trap so that pnpm does not print
+            # its "ELIFECYCLE Command failed." message on a normal user Ctrl+C
+            # (the shell exits 0 on INT/TERM, pnpm sees a clean script exit).
+            # Real non-zero errors still propagate their codes and messages.
             project_dir = f"/workspace/{payload_project}"
             result = subprocess.run(
-                ["pnpm", "dev"],
+                ["sh", "-c", 'trap "exit 0" INT TERM; exec pnpm dev'],
                 cwd=project_dir,
                 check=False,
             )
@@ -138,11 +140,14 @@ def run_dev(
                 "(via container)..."
             )
             # Note: pnpm dev is long-running; attaches until interrupted.
+            # Use a trap so pnpm doesn't print ELIFECYCLE on user Ctrl+C
+            # (see the direct inside path for details).
             docker.exec(
                 "xgic-payload-cms-dev-containers",
                 "sh",
                 "-c",
-                f"cd /workspace/{payload_project} && pnpm dev",
+                f"cd /workspace/{payload_project} && "
+                "sh -c 'trap \"exit 0\" INT TERM; exec pnpm dev'",
                 check=False,  # caller handles non-zero / interrupts
             )
         except Exception as e:
