@@ -157,6 +157,13 @@ WORKDIR ${WORKSPACE}
 # Copy source code as late as possible
 COPY --chown=${APP_USER}:${APP_USER} . .
 
+# Install the xde package (editable) into the venv so the `xde` CLI is
+# available inside the container by default. This is done at image build
+# time (rather than via postCreateCommand) to avoid the VS Code
+# "Running the postCreateCommand..." header and the "Done. Press any key
+# to close the terminal." prompt during first container creation.
+RUN /opt/venv/bin/pip install -e . --quiet --root-user-action=ignore
+
 USER ${APP_USER}
 
 # Default command for dev container

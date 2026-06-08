@@ -103,6 +103,14 @@ if [ -n "$AGENT_CLI_FLAG" ]; then
     CREATE_CMD+=($AGENT_CLI_FLAG)
 fi
 
+# Suppress the pnpm "Ignored build scripts" warning for @swc/core (a
+# dependency pulled in by next.js / Turbopack etc. during project creation).
+# This is the root cause of the prominent warning box seen during
+# `Dev Containers: Reopen in Container`.
+# Running it here (before create-payload-app triggers the pnpm install)
+# is safe, non-interactive, and idempotent.
+corepack pnpm approve-builds @swc/core || true
+
 log_debug "setup" "Invoking: ${CREATE_CMD[*]}"
 
 if "${CREATE_CMD[@]}" 2>&1; then

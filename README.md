@@ -60,6 +60,9 @@ This repository includes a [VS Code Dev Container](https://code.visualstudio.com
 
 The container will build on first use (this may take several minutes). Once ready, you will have a pre-configured environment with Node.js, pnpm, recommended VS Code extensions, and Payload CMS development tools already set up. The `xde` CLI is pre-installed and available in your PATH inside the container.
 
+**What to expect during first container creation**
+VS Code will show "Running the initializeCommand..." and "Running the postStartCommand..." headers (these come from the Dev Containers extension whenever hooks are defined in devcontainer.json). Our scripts are intentionally minimal and silent on repeat runs (idempotent). The `postCreateCommand` hook has been removed (xde install is baked into the image) to avoid the "Running the postCreateCommand..." header and the "Done. Press any key to close the terminal." prompt. A one-time pnpm "build scripts" warning for a dependency is suppressed via `pnpm approve-builds` during setup.
+
 For full details on how Dev Containers work, see the official documentation:
 
 - [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers)

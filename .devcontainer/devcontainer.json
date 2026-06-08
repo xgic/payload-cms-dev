@@ -16,14 +16,6 @@
   // Because setup-payload.sh is idempotent and produces no output when
   // the project already exists, this is the best place for it.
   "postStartCommand": "bash .devcontainer/scripts/setup-payload.sh",
-
-  // postCreateCommand runs once after the container is created (and after
-  // the workspace bind mount). We use it to install the xde package
-  // (editable) into the pre-created /opt/venv. This makes the `xde` CLI
-  // available inside the container by default — the primary environment
-  // where users do most of their work. The chown in the Dockerfile ensures
-  // the node user can write to the venv during this step.
-  "postCreateCommand": "/opt/venv/bin/pip install -e . --quiet --root-user-action=ignore",
   "customizations": {
     "vscode": {
       "extensions": [
