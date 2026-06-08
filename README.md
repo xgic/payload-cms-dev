@@ -120,7 +120,7 @@ All commands are designed to feel natural when working inside the Dev Container 
 | Command                  | Description                                                                 |
 |--------------------------|-----------------------------------------------------------------------------|
 | `xde` or `xde help`      | Show short, scannable usage information (level-1 help).                     |
-| `xde dev`                | **Primary daily command.** Starts the Payload development server. Performs a DB readiness check first. If containers are not running, prints a clear, actionable prompt instead of a raw error. |
+| `xde dev`                | **Primary daily command.** Starts the Payload development server (direct inside container for clean Ctrl+C handling; Docker only for cross-service or host orchestration). Performs a DB readiness check first. |
 | `xde up`                 | Start all development services (Docker Compose).                            |
 | `xde down`               | Stop containers (volumes are preserved).                                    |
 | `xde reset`              | Fast targeted reset: removes the generated Payload project folder and resets the Postgres data volume (stable credentials). |
