@@ -132,7 +132,7 @@ See the approved session plan.md for the full 0.2.0/0.3.0 high-level scopes, ris
 
 ## Playbook: Migrate Logic from Legacy Script into xde
 
-**When**: Moving functionality from legacy scripts (e.g. the former `reset-project.py`), `regenerate-env.py`, shell scripts, or Makefile targets.
+**When**: Moving functionality from legacy scripts (e.g. the former `reset-project.py`), `regenerate-env.py`, or shell scripts.
 
 **Note**: The `reset-project.py` migration is complete; the script and its dedicated fidelity tests have been removed. The playbook below is retained for future similar work.
 
@@ -210,7 +210,7 @@ Steps:
 ## Common Pitfalls in This Project (For Grok)
 
 - Assuming we're always inside the container (use `EnvironmentContext`).
-- Reaching for the old Makefile or raw Python scripts instead of `xde`.
+- Reaching for retired scripts or raw low-level commands (docker/shell) instead of `xde`.
 - Being too aggressive with credential rotation (this has caused authentication problems in the past).
 - Forgetting that the generated Payload project is a separate folder, not inside `.devcontainer`.
 - Underestimating how valuable good `--dry-run` and clear next-step messages are for both humans and agents.

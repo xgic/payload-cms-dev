@@ -21,10 +21,11 @@ This file is the lightweight, informal task list for work that Grok Build should
   - [x] Complete `xde reset` (targeted postgres volume handling, pre-stop for reliable volume removal, public-API targeted up so reset from inside the dev container does not recreate its own container, IF NOT EXISTS + safe wrapper for DB, clean output). Legacy reset-project.py + fidelity tests removed as deprecated. Full migration complete.
   - [x] `xde setup payloadcms` (nested under setup for future components without top-level bloat; modular + testable logic in core/project.py; wired to reset final step + thin fail-fast postStart shim).
   - [ ] Improve `xde check` with comprehensive DB + service health, structured output (DB check done; more in progress)
-- [x] Create `docs/development-workflow.md` documenting commit discipline, testing requirements, and how to work during the Makefile → xde transition
+- [x] Create `docs/development-workflow.md` documenting commit discipline, testing requirements, and current workflows (xde-primary)
 
 ### Future Releases (0.2.0 and Beyond) - External Contributor Simulation + AI Automation
-- [ ] **0.2.0 Release: Official MongoDB / Multi-Adapter Support** (high-level plan in session plan.md; execute following external contributor path from CONTRIBUTING.md + Grok AI automation with human verification).
+- [x] **0.2.0 Release planning + branching finalization + 0.1.0 merge (LGTM + final user directive)**: Conventional docs commit(s), 0.1.0 commits rebased into logical units (test refresh + release planning) and merged/pushed to main (671a8e5 + origin update), 0.1.0 confirmed passing all required testing and fully working for its initial Postgres dev env + xde scope (ruff clean, xde check/env healthy, no violations, git history per AGENTS). Separate Git repo advice for generated Payload dir delivered (Vercel/Codespaces/OSS etc.; see DEV-JOURNAL and plan). Adopted semantic `release/0.2.0` long-lived accumulation branch model (PRs target it until full release complete, then merge to main); all docs updated for the exact process (CONTRIBUTING, living guide, AGENTS, this file, plan, PR template already had the release type). Transitional artifacts (feat/0.2.0-mongodb-support + draft issues #1-3 + draft PR #4) closed/deleted per sole-dev "delete if can't cleanly update to prevent confusion" (audit comments + MCP/terminal; new `release/0.2.0` created from approved main; transparent notes in guide + plan + journal). First record commit on release/0.2.0 (docs + strategy + advice + execution). Human checkpoint required before further slices. (See approved plan "Final User Directive & Approval" + execution notes for full details.)
+- [ ] **0.2.0 Release: Official MongoDB / Multi-Adapter Support** (high-level plan in session plan.md; execute following external contributor path from CONTRIBUTING.md + Grok AI automation with human verification). (Planning + initial artifacts + cleanup + branching lock complete per above; code slices (config + pures + docker + tests) now target `release/0.2.0`.)
   - [ ] Grok automates: create GitHub milestone "0.2.0", draft Issues for sub-features (config schema/examples, docker-compose Mongo service + Dockerfile client, core/project.py + setup logic for --db mongodb, docs/README/TESTING updates, multi-DB E2E in skeletons, tests). Use MCP `create_issue` / `create_milestone` tools (or gh CLI), with explicit developer approval before creation/push.
   - [ ] First slice: Update create-payload-config.json (add mongodb example, dbAdapter support), enhance core/project.py (handle mongodb in build_create/ensure, resolve helpers), update setup/reset integration. Follow fork/branch/PR simulation, Conventional Commits, full tests/ruff, doc updates in same commit. Create draft PR via MCP `create_pull_request` (draft=true) from simulated fork.
   - [ ] Docker infra: Add Mongo service (profiles or conditional in docker-compose.yml), install mongo client in Dockerfile (multi-stage). Update .env/init logic and xde env.
@@ -47,8 +48,8 @@ This file is the lightweight, informal task list for work that Grok Build should
 
 ### Testing Foundations (Step 3)
 - [x] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController) - unit tests with mocks for subprocess
-- [x] Gate: ruff + pytest (test-xde retired with Makefile). xde core tests + make was shim, now direct pytest in CI.
-- [x] Complete steps 1-6: port reset/env/schema, shims+warn, gate, remove Makefile (0.1.0 is xde-primary). See the removal commit.
+- [x] Gate: ruff + pytest. Direct pytest in CI (no legacy shims).
+- [x] Complete the core xde v1 migration (reset, env, schema, shims, gates). 0.1.0 established xde as the single source of truth. See the relevant commits.
 - [x] xg/ reference directory: confirmed no need on 0.1.0 (moved to reference/xg-ais branch); stray untracked copy cleaned + documented in AGENTS pitfall.
 
 ### Ongoing / Previously Started
@@ -94,7 +95,7 @@ This work must follow the Collaboration Principles in `AGENTS.md`: positive and 
 ## Done / Recently Completed
 
 - [x] Test coverage verification baseline on 0.1.0 (post-setup-payloadcms + legacy removal): 33 focused tests, 53% on src/xde. Implemented prioritized recs 1-8 (expanded pure tests + dedicated test_project.py, extracted compute_synced/resolve helpers, integration + e2e skeletons, direct core imports for library vision, CI coverage surfacing on src/xde, GROK-TASKS note). See session plan.md for full report + gaps.
-- [x] (Related) Major refresh of TESTING.md to remove obsolete Makefile content and align with current xde-primary + unit→int→E2E + library roadmap. Hygiene: stale legacy pycache cleaned; website/ remains untracked per direction.
+- [x] (Related) Refresh of TESTING.md to align with current xde-primary + unit→int→E2E + library roadmap. Hygiene: stale legacy artifacts cleaned; website/ remains untracked per direction.
 
 *(Add more completed items here with date when marked done)*
 

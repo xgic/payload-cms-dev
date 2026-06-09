@@ -1,5 +1,5 @@
 """Test package for xgic-create-payload-app.
 
-Contains both the original reset-project tests and the new Makefile
-behavior / macro tests under tests/make/.
+Contains tests for the xde implementation (legacy test harnesses under
+tests/make/ have been removed).
 """

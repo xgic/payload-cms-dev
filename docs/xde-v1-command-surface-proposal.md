@@ -2,9 +2,9 @@
 
 **Date**: June 2026  
 **Status**: Finalized for xde v1  
-**Goal**: Define the minimal, final command surface for `xde` v1 that is simple, powerful, and sufficient (Makefile retired in 0.1.0).
+**Goal**: Define the minimal, final command surface for `xde` v1 that is simple, powerful, and sufficient.
 
-**Decision**: This surface is now finalized. The CLI in `src/xde/cli.py` implements exactly these commands. All future xde v1 work targets this surface. See `docs/development-workflow.md` for implementation guidelines. Legacy Makefile targets will gradually delegate to or be replaced by these.
+**Decision**: This surface is now finalized. The CLI in `src/xde/cli.py` implements exactly these commands. All future xde v1 work targets this surface. See `docs/development-workflow.md` and `DEV-JOURNAL.md` for historical context.
 
 ---
 
@@ -28,7 +28,7 @@ xde env                # Environment inspection + management
 xde clean              # Full environment cleanup (high danger)
 ```
 
-This surface covers ~85-90% of the *valuable* functionality that people actually use from the current Makefile, while being dramatically simpler.
+This surface covers the large majority of the *valuable* daily functionality while being dramatically simpler and more predictable.
 
 **Key Recommendations**:
 - Drop the `stage` subcommand entirely for v1 (already removed in current code).
@@ -64,18 +64,18 @@ The `stage` subtree has already been removed — this is the correct direction.
 
 ### Top-Level Commands
 
-| Command     | Purpose                                      | Key Flags                          | Replaces (Makefile) |
-|-------------|----------------------------------------------|------------------------------------|---------------------|
-| `dev`       | Smart "start working" experience             | (future: `--no-up`)                | `dev`, `dev-all` |
-| `up`        | Start services                               | `--build`                          | `up` |
-| `down`      | Stop services (volumes preserved)            | -                                  | `down` |
-| `reset`     | Fast targeted reset (project + postgres)     | `--yes`, `--dry-run`, `--rotate-credentials` | (legacy reset-project.py removed after migration) |
-| `check`     | Health diagnostics                           | `--json` (future)                  | `check-db`, `test-db`, parts of `ps` |
-| `build`     | Build images                                 | `--no-cache`                       | All `docker-build-*` variants |
-| `logs`      | Follow logs                                  | -                                  | `logs` |
-| `shell`     | Interactive shell in main service            | -                                  | `shell`, `exec-shell` |
-| `env`       | Inspect and manage environment               | `regenerate` (subcommand later)    | `env`, `env-regenerate`, `refresh-env` |
-| `clean`     | Full environment cleanup (volumes + .env)    | `--yes`                            | `clean`, `reset` (the dangerous one) |
+| Command     | Purpose                                      | Key Flags                          |
+|-------------|----------------------------------------------|------------------------------------|
+| `dev`       | Smart "start working" experience             | (future: `--no-up`)                |
+| `up`        | Start services                               | `--build`                          |
+| `down`      | Stop services (volumes preserved)            | -                                  |
+| `reset`     | Fast targeted reset (project + postgres)     | `--yes`, `--dry-run`, `--rotate-credentials` |
+| `check`     | Health diagnostics                           | `--json` (future)                  |
+| `build`     | Build images                                 | `--no-cache`                       |
+| `logs`      | Follow logs                                  | -                                  |
+| `shell`     | Interactive shell in main service            | -                                  |
+| `env`       | Inspect and manage environment               | (future subcommands possible)      |
+| `clean`     | Full environment cleanup (volumes + .env)    | `--yes`                            |
 
 ### Design Principles for This Surface
 
@@ -93,7 +93,7 @@ The `stage` subtree has already been removed — this is the correct direction.
 - **All `stage` commands** — Too much surface for v1. Can be re-introduced later as `xde stage ...` if real demand appears.
 - Most build variants (`docker-build-only`, `docker-build-only-nocache`, etc.) → covered by `xde build [--no-cache]`.
 - `prune` — Too dangerous and system-wide. Keep it out or put it under `xde clean --system-prune` (if we decide to support it).
-- Most lint/validate targets (`lint-shell`, `validate-python`, `lint-makefile`, etc.) — These can remain in the Makefile during transition or become `xde validate` later.
+- Most lint/validate targets from the prior approach — these became direct `ruff` + `pytest` usage (and `xde` where it adds value).
 - `exec` and `python` — Power-user commands. Can be added later as `xde exec` if needed.
 - `init-env` and `create-payload` — These are mostly lifecycle hooks. `xde` can call into them, but they don't need to be direct user commands in v1.
 
@@ -105,7 +105,7 @@ The `stage` subtree has already been removed — this is the correct direction.
 
 - It covers the **daily development loop** extremely well (`dev`, `up`, `down`, `reset`, `check`).
 - It gives agents a small, predictable vocabulary.
-- It removes the biggest source of confusion from the old Makefile (many similar build targets, aliases, internal targets leaking into user space).
+- It removes the biggest source of confusion from the prior broader automation surface (many similar targets, aliases, and internal details leaking into user space).
 - It positions `reset` and `check` as first-class citizens (they are disproportionately valuable).
 
 ### Why Not More Commands?
@@ -123,19 +123,9 @@ We still need distinct primitives for:
 
 ---
 
-## Migration Mapping (High Level)
+## Historical Note
 
-| Common Old Usage                    | New Recommended Command          | Notes |
-|-------------------------------------|----------------------------------|-------|
-| `make dev`                          | `xde dev`                        | Primary replacement |
-| `make up`                           | `xde up`                         | - |
-| `make reset-project`                | `xde reset`                      | Much better UX |
-| `make clean`                        | `xde clean`                      | Stronger warnings |
-| `make env`                          | `xde env`                        | - |
-| Various build targets               | `xde build [--no-cache]`         | Simpler |
-| `make shell`                        | `xde shell`                      | - |
-
-During the transition period, the Makefile can become a thin wrapper that calls `xde` where possible, with deprecation warnings.
+This proposal (finalized 2026) defined the locked v1 surface now implemented in `src/xde/cli.py`. The design deliberately favored a small, predictable command set over the broader surface of the prior automation approach. Historical details of the transition live in `DEV-JOURNAL.md`.
 
 ---
 
@@ -144,7 +134,7 @@ During the transition period, the Makefile can become a thin wrapper that calls 
 1. Should `xde env` have immediate subcommands (`show`, `regenerate`) or stay flat for v1?
 2. Should `xde reset` support `--project-only` and `--db-only` flags in v1, or keep it as one targeted reset?
 3. Do we want a `xde validate` command in v1 that runs schema + basic checks?
-4. How aggressive should we be with deprecation warnings in the Makefile once core `xde` commands are real?
+4. (Historical) How to handle any remaining thin compatibility shims during the transition to the locked v1 surface? (Resolved by full removal of the prior automation layer.)
 5. JSON output strategy: Should we add `--json` (or `--output json`) support? Recommendation: Add it selectively to diagnostic/inspection commands (`check`, `env`, future `config`) rather than every command. This is significantly more useful for agents than blanket application. A shared helper in `xde/utils/output.py` would keep it consistent.
 
 ---
@@ -156,7 +146,7 @@ I recommend we **agree on this surface** (or a close variant) before doing signi
 - Implement the `DockerComposeController` against a known interface.
 - Write consistent help text and behavior.
 - Update `AGENTS.md`, `docs/grok-playbooks.md`, and `DEV-JOURNAL.md` with confidence.
-- Move toward Makefile retirement with a clear target.
+- Move toward a clean, locked command surface (achieved).
 
 Once agreed, we can move quickly into implementation.
 

@@ -207,7 +207,7 @@ After entering the Dev Container, use `xde` (the primary interface) and direct t
 | `ruff format . && ruff check .` | Format + lint Python (enforces 80-col)       |
 | `PYTHONPATH=src python -m pytest ...` | Run Python tests                           |
 
-See `xde --help`, `TESTING.md`, and `docs/xde-reference.md` for details. Legacy `make` targets were retired in 0.1.0.
+See `xde --help`, `TESTING.md`, and `docs/xde-reference.md` for details. The prior automation layer (including its targets) was retired in 0.1.0.
 
 ### Debugging & Logging
 

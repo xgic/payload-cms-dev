@@ -1,6 +1,6 @@
 # Development Workflow
 
-This document defines how we work on this project, with a particular emphasis on maintaining high quality. The Makefile was retired in 0.1.0 in favor of the `xde` CLI as the single source of truth for all environment operations.
+This document defines how we work on this project, with a particular emphasis on maintaining high quality. `xde` is the single source of truth for all environment operations.
 
 These guidelines apply to both human contributors and AI-assisted development (Grok Build).
 
@@ -88,8 +88,6 @@ PYTHONPATH=src python -m pytest -q   # or the relevant test subset for the chang
 ```
 
 All linting and tests must pass cleanly.
-
-(Note: `make validate` and legacy Makefile targets were retired in 0.1.0; direct Ruff + pytest are the canonical local commands.)
 
 ---
 

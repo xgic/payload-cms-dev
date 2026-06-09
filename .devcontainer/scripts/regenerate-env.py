@@ -4,7 +4,7 @@
 This is primarily used for:
 - Initial dev container creation (via init-env.sh)
 - Explicit credential rotation (via --rotate-credentials on the reset script,
-  or calling this directly / make env-regenerate)
+  or calling this directly for credential rotation)
 
 Database name and user are read from .devcontainer/create-payload-config.json
 when available (fields: dbName, dbUser), falling back to sensible defaults.

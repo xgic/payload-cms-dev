@@ -45,7 +45,7 @@ PYTHONPATH=src python -m pytest tests/ -q --tb=line
 - [ ] New/changed behavior includes tests (prefer pure functions where possible — see `tests/test_project.py` patterns).
 - [ ] The commit also updates relevant documentation in the same atomic change (AGENTS, GROK-TASKS, living release guide, README Planned Extensions, TESTING.md, etc.).
 
-**Note**: Legacy `make validate` / `make test*` targets no longer exist. Use the direct commands above (or `xde` where it provides equivalent validation).
+**Note**: Use the direct commands shown above (or `xde` where it provides environment validation).
 
 ## 3. xde-Specific & Destructive Flow Validation **[Manual — High Value]**
 These are the modern equivalents of the old "reset + create" manual tests. Always start with `--dry-run`.
@@ -66,7 +66,7 @@ Inside the container:
 - [ ] The release-specific living guide (`docs/releases/0.2.0-...-external-contributor-guide.md`) accurately reflects scope, risks, success criteria, automation steps taken, and human gates.
 - [ ] CONTRIBUTING.md "Release Contributions & AI-Assisted Execution" section + Step-by-Step Guide are consistent with actual practice.
 - [ ] AGENTS.md, GROK-TASKS.md (Future Releases section), TESTING.md, and this checklist itself are updated if the process or philosophy changed.
-- [ ] No stale references to removed Makefile targets, old scripts (`reset-project.py`, etc.), or pre-`xde` workflows.
+- [ ] No stale references to retired automation, old scripts, or pre-`xde` workflows.
 - [ ] License section (README + LICENSE file) is correct (Apache 2.0 as of late 0.1.0/0.2.0 era).
 
 ## 5. Git, Branching & Release Hygiene (Current Model)
@@ -103,7 +103,7 @@ Typical items:
 - [ ] Consider a lightweight blog post or social note highlighting the release + the external-sim process (reputation building).
 
 ## Historical Note (v0.1.0 Only)
-The original "history reset using `git checkout --orphan`", heavy `make rebuild` + `make reset-project` flows, and one-time initial public commit process applied **only** to the very first public release of 0.1.0. They are no longer used. The current model (release branches + external simulation + `xde` + living guides) replaced them for all future releases.
+The original "history reset using `git checkout --orphan`" and one-time initial public commit process applied **only** to the very first public release of 0.1.0. They are no longer used. The current model (release branches + external simulation + `xde` + living guides) applies for all future releases.
 
 ---
 
@@ -114,7 +114,7 @@ The original "history reset using `git checkout --orphan`", heavy `make rebuild`
 ## Automation & Tooling Notes (Current State)
 
 - **CI Gates** (run on every PR to a release branch or main): Ruff (format + check) + `PYTHONPATH=src python -m pytest`. Enforced. Any commit touching code must pass.
-- **Environment Validation**: Use `xde check`, `xde env`, `xde reset --dry-run`, and `xde dev` (or the thin `setup-payload.sh` hook) instead of old Makefile targets. These are the repeatable, human-friendly ways to validate the dev container experience.
+- **Environment Validation**: Use `xde check`, `xde env`, `xde reset --dry-run`, and `xde dev` (or the thin `setup-payload.sh` hook). These are the repeatable, human-friendly ways to validate the dev container experience.
 - **Hard to fully automate** (still require thoughtful human + inside-container time):
   - End-to-end "I just cloned and it feels great" experience (including `xde dev` stopping cleanly on Ctrl+C).
   - Generated app behavior for new adapters (Mongo vs Postgres differences in Payload).

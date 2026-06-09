@@ -5,7 +5,7 @@ Generate a high-quality JSON Schema from the canonical configuration model.
 This is the single source of truth for the shape of
 `create-payload-config.json`.
 
-Run this script (or `make generate-config-schema`) whenever you change
+Run this script (or `python -m xde schema`) whenever you change
 the model.
 The output powers excellent VS Code IntelliSense via JSON Schema.
 """

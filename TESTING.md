@@ -2,8 +2,8 @@
 
 ## Current State
 
-- **Unit test coverage focus**: Core `src/xde/core/` (EnvironmentContext, DockerComposeController) and command logic via `pytest` (direct, no Makefile shim).
-  - Legacy `reset-project.py` and its fidelity tests (`tests/test_reset_project.py`, `tests/make/`) have been removed (migration complete; see plan for xde-reset-errors.txt work).
+- **Unit test coverage focus**: Core `src/xde/core/` (EnvironmentContext, DockerComposeController) and command logic via `pytest` (direct).
+  - Legacy `reset-project.py` and its fidelity tests have been removed (migration complete).
   - Remaining Python tests emphasize the active xde implementation (reset, env, docker controller, etc.).
 - **Integration/smoke testing**: `devcontainer-tests.sh` (version + connectivity checks) and manual `xde check` / `xde dev` / `xde reset --dry-run` flows inside the container.
 - **Python code under test focus**: The live `src/xde/` modules (highest value for day-to-day reliability and agent productivity).
@@ -32,7 +32,7 @@ This is a **Dev Container + DX tooling** repository, not a traditional applicati
 | Shell scripts (init/setup)  | Not measured    | Use `devcontainer-tests.sh` + `xde reset --dry-run` / manual verification inside the container |
 | Overall (active Python)     | **≥ 70%**       | Target for the xde implementation (legacy reset-project artifacts removed) |
 
-## Running Tests (Current, post-Makefile retirement)
+## Running Tests (Current)
 
 ```bash
 # Inside the dev container (recommended primary environment)
@@ -41,7 +41,7 @@ PYTHONPATH=src python -m pytest tests/ -q
 PYTHONPATH=src python -m pytest tests/ --cov=src/xde --cov-report=term-missing
 ```
 
-The legacy `make test*` targets and dedicated Makefile macro tests (`tests/make/`) have been retired along with the Makefile itself (migration to `xde` as the single source of truth is complete).
+Direct `pytest` usage (no legacy shims).
 
 Integration/smoke behavior is exercised via:
 - ` .devcontainer/scripts/devcontainer-tests.sh` (Node/pnpm + basic connectivity/version checks at different container lifecycle points)
@@ -60,7 +60,7 @@ These contain the current priorities (focus on `src/xde/core/` + commands that o
 - Focused unit tests on active `src/xde/` (EnvironmentContext, DockerComposeController with services= / rm_service / direct volume, env regeneration, dev launch paths, and the new `core/project.py` + `commands/setup.py` for `xde setup payloadcms`).
 - 33 tests (all passing in current runs): strong pure-function + controller coverage + dedicated tests for the project ensure logic used by reset + the hook.
 - Overall line coverage on `src/xde/` ~53% (higher on core abstractions; lower on thin CLI dispatch and some side-effect paths in project ensure / command run_ functions — see verification run for exact term-missing report).
-- No more legacy `reset-project.py` fidelity tests or Makefile macro harness (correctly removed).
+- No more legacy `reset-project.py` fidelity tests or old macro harness (correctly removed).
 
 ## Adding New Tests
 
