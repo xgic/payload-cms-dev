@@ -1,10 +1,11 @@
 """Pytest configuration and shared fixtures for devcontainer tooling tests."""
 
-from pathlib import Path
-import pytest
 import json
-from unittest.mock import MagicMock, patch
 import subprocess
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 
 
 @pytest.fixture
@@ -45,7 +46,7 @@ def config_with_db_uri_only(temp_workspace: Path) -> Path:
     config_path = temp_workspace / "create-payload-config.json"
     config = {
         "projectName": "uri-only",
-        "dbUri": "postgres://parsed_user:pass@host:5432/parsed_db_name?sslmode=require"
+        "dbUri": "postgres://parsed_user:pass@host:5432/parsed_db_name?sslmode=require",
     }
     config_path.write_text(json.dumps(config))
     return config_path
@@ -55,6 +56,7 @@ def config_with_db_uri_only(temp_workspace: Path) -> Path:
 # Fixtures for mocking side effects in reset-project.py
 # =============================================================================
 
+
 @pytest.fixture
 def mock_run():
     """
@@ -62,7 +64,7 @@ def mock_run():
     Useful for testing functions like reset_postgres without actually
     talking to Docker.
     """
-    with patch('reset_project.run') as mock:
+    with patch("reset_project.run") as mock:
         # Default: make run() return a successful CompletedProcess
         mock.return_value = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="", stderr=""
@@ -76,13 +78,20 @@ def mock_docker_compose_psql_success():
     Pre-configured mock_run that simulates successful postgres operations
     (pg_isready and CREATE DATABASE).
     """
+
     def side_effect(cmd, **kwargs):
         cmd_str = " ".join(cmd)
         if "pg_isready" in cmd_str:
-            return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="ready", stderr="")
+            return subprocess.CompletedProcess(
+                args=cmd, returncode=0, stdout="ready", stderr=""
+            )
         if "CREATE DATABASE" in cmd_str:
-            return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
-        return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
+            return subprocess.CompletedProcess(
+                args=cmd, returncode=0, stdout="", stderr=""
+            )
+        return subprocess.CompletedProcess(
+            args=cmd, returncode=0, stdout="", stderr=""
+        )
 
-    with patch('reset_project.run', side_effect=side_effect) as mock:
+    with patch("reset_project.run", side_effect=side_effect) as mock:
         yield mock

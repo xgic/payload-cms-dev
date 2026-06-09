@@ -5,8 +5,6 @@ from __future__ import annotations
 import os
 from unittest.mock import patch
 
-import pytest
-
 from xde.core.environment import EnvironmentContext, EnvironmentType
 
 
@@ -27,8 +25,10 @@ class TestEnvironmentDetection:
             assert ctx.env_type == EnvironmentType.DEV_CONTAINER
             assert ctx.is_remote is True
 
-    def test_detects_host_when_no_container_markers(self, tmp_path, monkeypatch):
-        """Should default to HOST when no container environment variables are present."""
+    def test_detects_host_when_no_container_markers(
+        self, tmp_path, monkeypatch
+    ):
+        """Should default to HOST when no container env markers present."""
         # Ensure we're not inside a fake .devcontainer
         monkeypatch.chdir(tmp_path)
         with patch.dict(os.environ, {}, clear=True):
