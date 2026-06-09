@@ -1,6 +1,6 @@
 """xde - XGIC Dev Environment CLI.
 
-Reliable, testable Python replacement for Makefile-based dev container
+Reliable, testable Python replacement for legacy Makefile-based dev container
 orchestration. Uses patterns inspired by the XG AIS console app (reference
 only).
 """

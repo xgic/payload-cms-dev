@@ -44,8 +44,7 @@ This section outlines the standards that apply specifically to **this repository
 Contributions to this repo typically involve:
 - Dockerfiles and Docker Compose files
 - Shell scripts (Bash)
-- Python automation scripts (reset-project.py, get-payload-project-name.py, regenerate-env.py, etc.)
-- Makefiles
+- Python automation in `src/xde/` (the primary interface; see `xde --help`)
 - YAML configuration (Dev Container, GitHub Actions, Dependabot)
 - Documentation (README, CONTRIBUTING, etc.)
 
@@ -54,20 +53,19 @@ Contributions to this repo typically involve:
 - **Dev Containers**: All development work should be done inside the provided Dev Container when possible. Changes must be tested inside the container before opening a PR.
 - **Docker**: Follow official [Docker Best Practices](https://docs.docker.com/build/building/best-practices/). Prefer multi-stage builds and minimize image size where reasonable.
 - **Shell Scripts**:
-  - All `.sh` files must pass `shellcheck` (`make lint-shell`).
+  - All `.sh` files must pass `shellcheck`.
   - Prefer POSIX-compliant syntax when practical. Use `set -euo pipefail` (or `set -e`) appropriately.
-  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers where possible. Complex logic belongs in Python.
-- **Python**: Follow PEP 8 with type hints where it improves clarity. The automation scripts (especially reset-project.py) should remain well-documented and robust.
+  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers (e.g. thin shims calling `xde`). Complex logic belongs in Python under `src/xde/`.
+- **Python**: Follow PEP 8 with type hints where it improves clarity. Core logic lives in `src/xde/core/` and commands; keep it well-documented and testable.
 - **YAML & GitHub Actions**: Use consistent indentation (2 spaces). Validate workflows with `actionlint` when making changes to `.github/workflows/`.
 - **Documentation**: 
   - Update `README.md` when user-facing behavior changes.
   - Update this file (`CONTRIBUTING.md`) when contribution processes or standards change.
-  - Add usage examples for new `make` targets or automation features.
 
 ### Recommended Practices
-- Keep the thin bash wrappers (`setup-payload.sh`, etc.) minimal. Move logic into the Python automation script when it grows complex.
+- Keep the thin bash wrappers (`setup-payload.sh`, etc.) minimal — they should typically just `exec xde ...`.
 - Prefer configuration via `create-payload-config.json` (which has rich JSON Schema support for VS Code IntelliSense) over hardcoding values in scripts.
-- Test changes using available `make` targets (especially `make lint-shell`, `make create-payload`, `make test`, and `make validate`).
+- Test changes with direct commands: `ruff format . && ruff check .`, `PYTHONPATH=src python -m pytest ...`, plus manual `xde check / xde env / xde reset --dry-run / xde dev` flows inside the container.
 
 All contributors are expected to review this document before submitting code.
 
@@ -83,7 +81,6 @@ The 80-character limit applies to:
 - Python (`.py`)
 - Shell scripts (`.sh`, `.bash`)
 - TypeScript and JavaScript (`.ts`, `.js`, `.tsx`) — especially in `.devcontainer/config/`
-- Makefiles (`Makefile`, `*.mk`)
 - Dockerfiles (`Dockerfile*`)
 - YAML workflow and configuration files (`.yml`, `.yaml`) — where reasonable (see exceptions)
 - TOML configuration (`pyproject.toml`, etc.)
@@ -102,7 +99,7 @@ Other justified exceptions (use sparingly and document why when non-obvious):
 - Certain JSON Schema `description` values (these are user-facing documentation rendered by editors).
 - Long string literals in tests that represent real-world data (e.g. large JSON fixtures, certificate material, or exact error output).
 - Base64-encoded values, cryptographic hashes, or other opaque binary data represented as strings.
-- Decorative ASCII art or rule lines in Makefiles and comments when they serve a clear visual purpose.
+- (Historical) Decorative ASCII art or rule lines in old Makefiles when they served a clear visual purpose.
 
 #### Enforcement and Tooling
 
@@ -129,8 +126,9 @@ This is the short, scannable version of the rules that matter most when contribu
 
 #### At a Glance
 
-- **Line length**: **80 characters maximum for all code files** (Python, Shell, TypeScript in `.devcontainer/config/`, Makefiles, Dockerfiles, etc.).
+- **Line length**: **80 characters maximum for all code files** (Python, Shell, TypeScript in `.devcontainer/config/`, Dockerfiles, YAML, etc.).
   - **Markdown files are explicitly exempt**. Write documentation naturally for web browsers, GitHub rendering, and VS Code Markdown preview. Do not add hard line breaks to prose.
+  - (Historical Makefiles are no longer present; the rule remains for other code files.)
 - **Python**: Ruff is the single source of truth for formatting and linting.
 - **Shell scripts**: Prefer POSIX-compliant syntax. All `.sh` files must pass ShellCheck.
 - **TypeScript config**: Follow existing patterns in `.devcontainer/config/types.ts` and `generate_schema.py`.
@@ -139,15 +137,14 @@ This is the short, scannable version of the rules that matter most when contribu
 
 #### Commands to Run Before Committing
 
-These are included in `make validate`:
-
 ```bash
 # Format and lint Python (enforces 80-char limit for code)
 ruff format .
 ruff check . --fix
 
-# Lint all shell scripts
-make lint-shell
+# Lint shell scripts (when shell changes are made)
+# shellcheck is available inside the Dev Container
+shellcheck .devcontainer/scripts/*.sh .devcontainer/scripts/lib/*.sh 2>/dev/null || true
 ```
 
 #### Good vs. Bad Examples
@@ -197,15 +194,20 @@ The project itself is designed to be self-hosting. We strongly recommend using t
 
 ### Local Development Commands
 
-After entering the Dev Container, the following `make` targets are particularly useful:
+After entering the Dev Container, use `xde` (the primary interface) and direct tools:
 
-| Command            | Purpose                                      |
-|--------------------|----------------------------------------------|
-| `make help`        | Show all available targets                   |
-| `make lint-shell`  | Run shellcheck on all scripts                |
-| `make create-payload` | Run Payload project creation inside the container |
-| `make rebuild`     | Clean + rebuild + test the entire environment|
-| `make env`         | Show status of the generated `.env` file     |
+| Command                  | Purpose                                           |
+|--------------------------|---------------------------------------------------|
+| `xde --help`             | Show all available commands                       |
+| `xde check`              | Health diagnostics (services, DB, project dir)    |
+| `xde env`                | Inspect generated `.env` and configuration        |
+| `xde dev`                | Recommended daily command: start Payload dev server |
+| `xde reset --dry-run`    | Preview impact of targeted reset (project + volume) |
+| `xde setup payloadcms`   | Ensure / recreate the Payload project (idempotent)|
+| `ruff format . && ruff check .` | Format + lint Python (enforces 80-col)       |
+| `PYTHONPATH=src python -m pytest ...` | Run Python tests                           |
+
+See `xde --help`, `TESTING.md`, and `docs/xde-reference.md` for details. Legacy `make` targets were retired in 0.1.0.
 
 ### Debugging & Logging
 
@@ -217,52 +219,51 @@ Supported values (case-insensitive):
 - `WARN` (or `WARNING`) — Warnings and errors only
 - `ERROR` — Errors only
 
-Examples inside the Dev Container:
+Examples inside the Dev Container (direct execution; thin scripts now delegate to `xde`):
 
 ```bash
-# Run the full setup with maximum verbosity
-LOG_LEVEL=DEBUG make exec CMD="bash .devcontainer/scripts/setup-payload.sh"
-
-# Run the Python automation with debug logging
-LOG_LEVEL=debug make exec CMD="bash .devcontainer/scripts/setup-payload.sh"
+# Run the post-start hook directly (thin wrapper around `xde setup payloadcms`)
+LOG_LEVEL=DEBUG bash .devcontainer/scripts/setup-payload.sh
 
 # Only show warnings and errors from init-env
 LOG_LEVEL=warn bash .devcontainer/scripts/init-env.sh
 ```
 
-The Python scripts (reset-project.py, etc.) also respect `LOG_LEVEL` via the shared logging patterns.
+The `xde` commands and thin scripts respect `LOG_LEVEL` via the shared logging patterns.
 
-This is particularly useful when debugging issues with the automated Payload project creation.
+This is particularly useful when debugging issues with the automated Payload project creation or environment setup.
 
 ### Contributing to the Automation Logic
 
-Payload project creation is intentionally a thin orchestration layer:
+Payload project creation and environment management are driven by `xde` (primary) with thin orchestration shims:
 
-- `setup-payload.sh` (invoked by `postStartCommand`) drives the official `create-payload-app` CLI using real non-interactive flags derived from `create-payload-config.json`.
-- `reset-project.py` is the robust Python implementation of fast resets (preferred over the older shell fragments).
+- `setup-payload.sh` (invoked by `postStartCommand`) is now a thin `exec xde setup payloadcms`.
+- Core logic for project ensure, reset, env, Docker orchestration lives in `src/xde/core/` and `src/xde/commands/`.
 
 When working in this area:
-- Prefer extending `create-payload-config.json` support (and its JSON Schema in `create-payload-config.schema.json`) over hardcoding behavior.
-- The canonical model lives in `.devcontainer/config/types.ts`. Run `make generate-config-schema` after changing it.
-- Keep the bash scripts in `.devcontainer/scripts/` as thin, readable wrappers.
-- Complex logic belongs in Python (following the pattern of `reset-project.py`).
-- Test changes locally with `make create-payload`, `make reset-project`, or `make rebuild`.
-- Update relevant documentation (README, script help text, this file) when user-visible behavior changes.
+- Prefer extending `create-payload-config.json` support (and its JSON Schema) over hardcoding behavior.
+- The canonical model lives in `.devcontainer/config/types.ts`. Run `python -m xde schema` (or the generate script) after changing it.
+- Keep the bash scripts in `.devcontainer/scripts/` as thin, readable shims that delegate to `xde`.
+- Complex logic belongs in Python under `src/xde/` (pure functions first, then commands).
+- Test changes locally with direct `ruff` + `pytest` + manual `xde reset --dry-run ; xde dev` flows inside the container.
+- Update relevant documentation (README, AGENTS.md, script comments, this file) when user-visible behavior changes.
 
 ### Linting & Quality
 
 This repository uses several tools to maintain code quality:
 
-- **Shell scripts**: `shellcheck` (`make lint-shell`). `shellcheck` is pre-installed in the Dev Container.
+- **Shell scripts**: `shellcheck` (pre-installed in the Dev Container; run manually or via CI).
 - **GitHub Actions workflows**: `actionlint` (run via CI).
 - **Shell formatting**: `shfmt` (enforced in CI).
 - **Python formatting & linting**: Ruff (80-character line length enforced for code files — see the [Line Length rule](#line-length-80-characters) above).
-- **Python tests**: `pytest` + coverage (run via `make test` / `make validate`). Test dependencies are installed on first use from `.devcontainer/requirements-dev.txt`.
+- **Python tests**: `pytest` + coverage (direct; see TESTING.md). Test dependencies are installed on first use from `.devcontainer/requirements-dev.txt`.
 
-The full lint + test suite runs automatically on every pull request. You can run everything locally with:
+The full lint + test suite runs automatically on every pull request. You can run the core gates locally with:
 
 ```bash
-make validate
+ruff format .
+ruff check . --fix
+PYTHONPATH=src python -m pytest -q
 ```
 
 ## GitHub Flow & Branching Strategy

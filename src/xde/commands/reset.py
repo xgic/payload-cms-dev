@@ -8,9 +8,10 @@ What it does (by design):
 - **Deliberately leaves credentials in `.env` alone** (this avoids the classic
   stale credentials between a running container and the `.env` file on disk).
 
-This command exists because full `make clean` / `make rebuild` cycles are
-too heavy for daily development. It provides a fast, safe "nuclear option"
-for the most common form of environment corruption.
+This command exists because full clean / rebuild cycles (as provided by
+the previous Makefile) were too heavy for daily development. It provides
+a fast, safe "nuclear option" for the most common form of environment
+corruption.
 
 Critical agent guidance:
 - Always use `--dry-run` first.

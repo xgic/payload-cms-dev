@@ -1,7 +1,7 @@
 # Development and testing dependencies for the XGIC Payload CMS Dev
 # Container itself.
-# These are installed on-demand inside the container when running
-# make test / make validate.
+# These are installed on-demand inside the container when running tests.
+# See TESTING.md for current commands (direct pytest).
 # They are intentionally NOT installed in the base Dockerfile to keep
 # the image lean.
 

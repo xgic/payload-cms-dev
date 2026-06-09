@@ -4,8 +4,8 @@ This module provides robust detection of the execution environment
 (host machine, VS Code Dev Container, generic container, etc.).
 
 It is one of the core abstractions in the project and replaces the
-fragile HOST_ONLY_GUARD / RUN_IN_CONTAINER Makefile macros with
-something properly testable and debuggable.
+fragile HOST_ONLY_GUARD / RUN_IN_CONTAINER macros from the previous
+Makefile implementation with something properly testable and debuggable.
 
 Key benefits for agents:
 - Clear, reliable signals instead of brittle environment variable checks.
@@ -37,8 +37,9 @@ class EnvironmentType(Enum):
 class EnvironmentContext:
     """Rich context object describing the current execution environment.
 
-    This replaces the fragile HOST_ONLY_GUARD / RUN_IN_CONTAINER Makefile macros
-    with something properly testable and debuggable.
+    This replaces the fragile HOST_ONLY_GUARD / RUN_IN_CONTAINER macros
+    from the previous Makefile implementation with something properly testable
+    and debuggable.
     """
 
     env_type: EnvironmentType

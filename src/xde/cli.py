@@ -109,7 +109,7 @@ Examples:
     reset_parser.add_argument(
         "--compact",
         action="store_true",
-        help="Compact output (for make shims / scripting)",
+        help="Compact output (for scripting)",
     )
     reset_parser.set_defaults(func=run_reset)
 
@@ -125,7 +125,7 @@ Examples:
     )
     check_parser.set_defaults(func=run_check)
 
-    # build (with useful flags instead of many Makefile variants)
+    # build (with useful flags)
     build_parser = subparsers.add_parser(
         "build",
         help="Build or rebuild services (use --no-cache for clean build)",

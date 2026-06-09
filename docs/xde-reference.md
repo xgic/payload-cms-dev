@@ -131,7 +131,7 @@ xde check
 xde reset --dry-run
 ```
 
-Always prefer `xde` commands over reaching for `make` or raw `docker compose` unless you're explicitly doing migration work.
+Always prefer `xde` commands over raw `docker compose` (unless performing advanced low-level debugging).
 
 **Grok Tip**: When a command is not yet fully implemented, still document what the *ideal* behavior should be in this file. This helps future sessions stay aligned on the vision.
 
