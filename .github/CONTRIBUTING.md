@@ -397,7 +397,7 @@ Maintainers will merge only after at least one approval and successful CI.
 
 ## Contributor License Agreement
 
-All contributions are licensed under the project’s [MIT License](LICENSE). By submitting a pull request, you affirm that you have the right to license your contribution under these terms.
+All contributions are licensed under the Apache License 2.0 (see [LICENSE](LICENSE)). By submitting a pull request, you affirm that you have the right to license your contribution under these terms.
 
 ## Recognition
 

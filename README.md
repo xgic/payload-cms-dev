@@ -1,6 +1,6 @@
 # XGIC Payload CMS VS Code Dev Containers
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Payload CMS](https://img.shields.io/badge/Payload%20CMS-3.x+-000000?logo=payloadcms&logoColor=white)](https://payloadcms.com)
 [![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
@@ -252,7 +252,7 @@ This will discard cached layers and recreate the container from scratch.
 
 ## License
 
-MIT © 2026 [XGIC](https://xgic.net). See [LICENSE](LICENSE) file for details.
+Apache 2.0 © 2026 [XGIC](https://xgic.net). See [LICENSE](LICENSE) file for details.
 
 ---
 
