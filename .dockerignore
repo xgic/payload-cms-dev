@@ -43,6 +43,7 @@ Thumbs.db
 
 # Documentation & meta (not needed in image)
 *.md
+!README.md
 LICENSE
 RELEASE_CHECKLIST.md
 TESTING.md

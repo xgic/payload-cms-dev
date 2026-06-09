@@ -23,6 +23,7 @@ CONFIG_PATH = Path(".devcontainer/create-payload-config.json")
 DEFAULT_DB_NAME = "payload_db"
 DEFAULT_DB_USER = "payload"
 
+
 def _load_db_details() -> tuple[str, str]:
     """Load dbName and dbUser from config, with safe fallbacks."""
     db_name = DEFAULT_DB_NAME
@@ -64,7 +65,10 @@ try:
     with ENV_PATH.open("w", encoding="utf-8") as f:
         f.write(content)
     print(f"  Generated fresh credentials in {ENV_PATH}")
-    print(f"  (POSTGRES_DB={DB_NAME}, new random POSTGRES_PASSWORD + matching DATABASE_URI)")
+    print(
+        f"  (POSTGRES_DB={DB_NAME}, new random POSTGRES_PASSWORD"
+        " + matching DATABASE_URI)"
+    )
 except Exception as e:
     print(f"ERROR: Failed to write {ENV_PATH}: {e}", file=sys.stderr)
     sys.exit(1)

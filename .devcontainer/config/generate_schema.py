@@ -10,14 +10,14 @@ the model.
 The output powers excellent VS Code IntelliSense via JSON Schema.
 """
 
-from pydantic import BaseModel, Field, EmailStr
-from typing import Literal, Optional
-from enum import Enum
 import json
+from enum import StrEnum
 from pathlib import Path
 
+from pydantic import BaseModel, EmailStr, Field
 
-class Template(str, Enum):
+
+class Template(StrEnum):
     blank = "blank"
     website = "website"
     ecommerce = "ecommerce"
@@ -26,7 +26,7 @@ class Template(str, Enum):
     payload_website = "payload-website"
 
 
-class DbAdapter(str, Enum):
+class DbAdapter(StrEnum):
     postgres = "postgres"
     mongodb = "mongodb"
     sqlite = "sqlite"
@@ -34,7 +34,7 @@ class DbAdapter(str, Enum):
     vercel_postgres = "vercel-postgres"
 
 
-class Agent(str, Enum):
+class Agent(StrEnum):
     claude = "claude"
     codex = "codex"
     cursor = "cursor"
@@ -64,7 +64,7 @@ class CreatePayloadConfig(BaseModel):
         description="Which official Payload starter template to scaffold",
     )
 
-    example: Optional[str] = Field(
+    example: str | None = Field(
         default=None,
         description=(
             "Optional: Use a specific Payload example instead of a template"
@@ -99,7 +99,7 @@ class CreatePayloadConfig(BaseModel):
         description="Database user name",
     )
 
-    dbUri: Optional[str] = Field(
+    dbUri: str | None = Field(
         default=None,
         description=(
             "Full database connection string. In normal devcontainer "
@@ -135,7 +135,9 @@ if __name__ == "__main__":
 
     # Enhance the schema for humans and editors
     schema["$schema"] = "http://json-schema.org/draft-07/schema#"
-    schema["$id"] = "https://raw.githubusercontent.com/XGIC/payload-cms-dev-containers/main/.devcontainer/create-payload-config.schema.json"
+    schema["$id"] = (
+        "https://raw.githubusercontent.com/XGIC/payload-cms-dev-containers/main/.devcontainer/create-payload-config.schema.json"
+    )
     schema["title"] = "XGIC Create Payload Config"
     schema["description"] = (
         "Configuration for the XGIC Payload CMS Dev Container. "
