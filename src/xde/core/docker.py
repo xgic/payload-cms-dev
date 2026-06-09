@@ -117,16 +117,50 @@ class DockerComposeController:
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
 
-    def up(self, *, build: bool = False) -> None:
-        """Start all services in detached mode."""
+    def up(
+        self, *, build: bool = False, services: list[str] | None = None
+    ) -> None:
+        """Start services in detached mode.
+
+        If services is provided (list of service names), only those services
+        are started. This enables targeted handling (e.g. only "postgres")
+        during reset so the caller's own main dev container is not recreated
+        while the reset command is running inside it.
+        """
         args = ["up", "-d"]
         if build:
             args.append("--build")
+        if services:
+            args.extend(services)
         self._run_compose(*args)
 
     def down(self) -> None:
         """Stop services (volumes are preserved)."""
         self._run_compose("down")
+
+    def rm_service(
+        self,
+        service: str,
+        *,
+        force: bool = True,
+        stop: bool = True,
+        remove_volumes: bool = False,
+    ) -> None:
+        """Best-effort compose rm for a single service.
+
+        Used by reset to stop/remove *only* the postgres container before
+        attempting to remove its named data volume (so the volume rm can
+        succeed). Matches the proven sequence from the legacy reset script.
+        """
+        args = ["rm"]
+        if force:
+            args.append("-f")
+        if stop:
+            args.append("-s")
+        if remove_volumes:
+            args.append("-v")
+        args.append(service)
+        self._run_compose(*args, check=False)
 
     def build(self, *, no_cache: bool = False) -> None:
         """Build images."""
@@ -234,10 +268,23 @@ class DockerComposeController:
     def remove_volume(self, volume_name: str) -> bool:
         """Attempt to remove a Docker volume.
 
-        Returns True if removal succeeded or volume did not exist.
+        Uses the top-level `docker volume rm` command (docker compose has no
+        'volume' subcommand; that was the source of the noisy "unknown docker
+        command" + full help spam in reset).
+
+        Returns True if removal succeeded or the volume did not exist.
+        Output is captured so expected "not found" cases stay quiet.
         """
         try:
-            self._run_compose("volume", "rm", "-f", volume_name)
-            return True
+            result = subprocess.run(
+                ["docker", "volume", "rm", "-f", volume_name],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            # With -f, modern docker returns 0 whether the volume was removed
+            # or simply did not exist. Non-zero is a real failure (e.g. in use
+            # without -f, permission issues). We treat rc==0 as success.
+            return result.returncode == 0
         except Exception:
             return False
