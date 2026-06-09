@@ -34,6 +34,7 @@ This surface covers ~85-90% of the *valuable* functionality that people actually
 - Drop the `stage` subcommand entirely for v1 (already removed in current code).
 - Use flags instead of many similar commands (`--no-cache`, `--yes`, `--dry-run`, `--rotate-credentials`).
 - Keep `env` as a lightweight top-level command with future subcommands.
+- Use nested subcommands sparingly for extensibility (e.g. `setup payloadcms`) so the top-level `xde --help` stays concise.
 - Make `--dry-run` and clear next-step messaging a first-class design principle.
 
 ---
@@ -68,7 +69,7 @@ The `stage` subtree has already been removed — this is the correct direction.
 | `dev`       | Smart "start working" experience             | (future: `--no-up`)                | `dev`, `dev-all` |
 | `up`        | Start services                               | `--build`                          | `up` |
 | `down`      | Stop services (volumes preserved)            | -                                  | `down` |
-| `reset`     | Fast targeted reset (project + postgres)     | `--yes`, `--dry-run`, `--rotate-credentials` | `reset-project` |
+| `reset`     | Fast targeted reset (project + postgres)     | `--yes`, `--dry-run`, `--rotate-credentials` | (legacy reset-project.py removed after migration) |
 | `check`     | Health diagnostics                           | `--json` (future)                  | `check-db`, `test-db`, parts of `ps` |
 | `build`     | Build images                                 | `--no-cache`                       | All `docker-build-*` variants |
 | `logs`      | Follow logs                                  | -                                  | `logs` |

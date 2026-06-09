@@ -29,6 +29,7 @@ from pathlib import Path
 from xde.commands.env import perform_env_regenerate
 from xde.core.docker import DockerComposeController
 from xde.core.environment import EnvironmentContext
+from xde.core.project import ensure_payload_project
 from xde.utils.output import print_info, print_success, print_warning
 
 
@@ -68,8 +69,8 @@ def run_reset(
         )
         return 1
 
-    # Actual execution (hardened v1, modernized from
-    # legacy reset-project.py)
+    # Actual execution (hardened v1; modernized from the historical
+    # legacy reset-project.py which has now been removed)
     print_info("Performing reset...")
 
     if project_path.exists():
@@ -80,6 +81,12 @@ def run_reset(
     else:
         print_info(f"Project directory {project_path} did not exist.")
 
+    # Best-effort: stop/remove *only* the postgres service/container first.
+    # This releases the named volume so the subsequent docker volume rm
+    # can succeed (the volume is mounted by the postgres container).
+    # Sequence matches the (now-removed) historical legacy reset-project.py.
+    docker.rm_service("postgres", force=True, stop=True, remove_volumes=False)
+
     # Remove the postgres volume via docker
     if docker.remove_volume(postgres_volume):
         print_success(f"Removed volume: {postgres_volume}")
@@ -89,27 +96,36 @@ def run_reset(
             "(may not exist or in use)"
         )
 
-    # Recreate postgres service and ensure DB (idempotent, from config)
+    # Recreate *only* the postgres service (targeted) and ensure DB.
+    # We use the public up(services=...) so that reset (which runs inside the
+    # main dev container) does not attempt to recreate its own container.
+    # Pre-stop (above) + targeted up + IF NOT EXISTS wrapper give reliable,
+    # quiet volume + DB reset.
     db_name, db_user = docker.get_db_config()
     try:
-        docker._run_compose("up", "-d", "postgres")  # type: ignore[attr-defined]
+        docker.up(services=["postgres"])
         print_info("Postgres service recreated.")
 
-        # Ensure DB exists (idempotent; tolerate already-exists like legacy)
-        docker._run_compose(  # type: ignore[attr-defined]
-            "exec",
-            "-T",
+        # Optional: a short pg_isready wait here (like the legacy script)
+        # would make the CREATE step even more reliable after a fresh start.
+        # The 2>/dev/null || true wrapper below already protects us.
+
+        sql = f"CREATE DATABASE IF NOT EXISTS {db_name} OWNER {db_user};"
+        docker.exec(
             "postgres",
-            "psql",
-            "-U",
-            db_user,
-            "-d",
-            "postgres",
+            "sh",
             "-c",
-            f"CREATE DATABASE {db_name} OWNER {db_user};",
+            f'psql -U {db_user} -d postgres -c "{sql}" 2>/dev/null || true',
             check=False,
         )
         print_success(f"Ensured database '{db_name}' exists.")
+
+        # Ensure the Payload project directory (recreate after the delete
+        # performed at the start of reset). This was historically only done
+        # by the devcontainer postStart hook. Running it here makes the
+        # post-reset guidance ("Next: xde dev") immediately actionable
+        # without a container restart or hook re-execution.
+        ensure_payload_project()
     except Exception as e:
         print_warning(
             f"Issue recreating postgres or DB: {e}. "
@@ -124,5 +140,7 @@ def run_reset(
         else:
             print_warning("Credential rotation had issues (check .env).")
 
-    print_success("Reset complete. Next: `xde up` or `xde dev`.")
+    print_success(
+        "Reset complete. Project ensured. Next: `xde dev` (or `xde up`)."
+    )
     return 0

@@ -37,6 +37,7 @@ from xde.commands.lifecycle import (
 )
 from xde.commands.reset import run_reset
 from xde.commands.schema import run_schema
+from xde.commands.setup import run_setup_payloadcms
 from xde.core.docker import DockerComposeController
 from xde.core.environment import EnvironmentContext
 from xde.utils.output import print_error
@@ -174,6 +175,21 @@ Examples:
         help="Generate create-payload-config JSON schema (for IntelliSense)",
     )
     schema_parser.set_defaults(func=run_schema)
+
+    # setup (nested subcommands for extensibility; keeps top-level help
+    # concise while allowing future components like "setup stage" etc.)
+    setup_parser = subparsers.add_parser(
+        "setup",
+        help="Setup / ensure components (e.g. payloadcms project)",
+    )
+    setup_subparsers = setup_parser.add_subparsers(
+        dest="setup_command", help="Component to set up"
+    )
+    payloadcms_parser = setup_subparsers.add_parser(
+        "payloadcms",
+        help="Ensure Payload CMS project exists (idempotent; used by hooks)",
+    )
+    payloadcms_parser.set_defaults(func=run_setup_payloadcms)
 
     # clean (more destructive, with strong safeguards)
     clean_parser = subparsers.add_parser(

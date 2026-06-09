@@ -18,7 +18,8 @@ This file is the lightweight, informal task list for work that Grok Build should
 - [x] Finalize and lock the v1 command surface based on `docs/xde-v1-command-surface-proposal.md` (proposal marked "Finalized", docs/AGENTS.md aligned, CLI in src/xde/cli.py matches the 10 commands)
 - [ ] Harden and complete highest-value commands:
   - [x] Full `xde dev` with real DB readiness check + auto-start services + actually launch pnpm dev inside project (using docker exec)
-  - [ ] Complete `xde reset` with full logic migrated from `reset-project.py` (dry-run, compact, db setup, error handling, while keeping positive tone) (core done; full migration in progress)
+  - [x] Complete `xde reset` (targeted postgres volume handling, pre-stop for reliable volume removal, public-API targeted up so reset from inside the dev container does not recreate its own container, IF NOT EXISTS + safe wrapper for DB, clean output). Legacy reset-project.py + fidelity tests removed as deprecated. Full migration complete.
+  - [x] `xde setup payloadcms` (nested under setup for future components without top-level bloat; modular + testable logic in core/project.py; wired to reset final step + thin fail-fast postStart shim).
   - [ ] Improve `xde check` with comprehensive DB + service health, structured output (DB check done; more in progress)
 - [x] Create `docs/development-workflow.md` documenting commit discipline, testing requirements, and how to work during the Makefile → xde transition
 

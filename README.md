@@ -84,8 +84,8 @@ This configuration is also compatible with GitHub Codespaces.
 │   └── scripts/
 │       ├── setup-payload.sh            # Main project creation logic (postStartCommand)
 │       ├── devcontainer-tests.sh
-│       ├── init-env.sh
-│       └── reset-project.py              # Reliable Python implementation of fast environment resets
+│       └── init-env.sh
+│   (reset-project.py and its dedicated fidelity tests were removed after full migration to xde)
 ├── .dockerignore
 ├── .github/
 │   └── CONTRIBUTING.md
@@ -130,6 +130,7 @@ All commands are designed to feel natural when working inside the Dev Container 
 | `xde check`              | Diagnostic: verify that PostgreSQL and required services are reachable.     |
 | `xde logs`               | Follow logs for all services.                                               |
 | `xde shell`              | Open an interactive shell in the main service container.                    |
+| `xde setup payloadcms`   | Ensure the Payload CMS project dir is created/configured (idempotent; also run automatically by reset and the devcontainer hook). |
 
 ### Planned Extensions (Post v1)
 
