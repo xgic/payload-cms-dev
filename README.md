@@ -132,13 +132,18 @@ All commands are designed to feel natural when working inside the Dev Container 
 | `xde shell`              | Open an interactive shell in the main service container.                    |
 | `xde setup payloadcms`   | Ensure the Payload CMS project dir is created/configured (idempotent; also run automatically by reset and the devcontainer hook). |
 
-### Planned Extensions (Post v1)
+### Planned Extensions (Post v1) and Release Roadmap
 
-The following capabilities are under consideration for future releases:
+High-level planning for future releases is tracked in [GROK-TASKS.md](GROK-TASKS.md) (see new "Future Releases (0.2.0 and Beyond)" section) and the detailed living example in [docs/releases/0.2.0-mongodb-support-external-contributor-guide.md](docs/releases/0.2.0-mongodb-support-external-contributor-guide.md).
 
-- **Staging-Mirror Testing**: A `stage` namespace for testing against production-like environments (e.g., `xde stage up`).
-- **Maintenance & Quality commands**: `xde validate`, `xde lint`, `xde schema`.
-- **Interactive Experience**: A Textual-based TUI (`xde tui`) for dashboards, logs, and wizards.
+All 0.2.0+ release work is executed and documented following the **external contributor simulation** (exact steps from [CONTRIBUTING.md](.github/CONTRIBUTING.md)) + heavy Grok Build GitHub MCP automation (draft issues/PRs, file pushes, etc.) **with mandatory human/developer verification and approval gates at every step**. This leads by example, provides clear artifacts for future contributors, demonstrates expertise, and elevates XGIC's professional reputation as an AI-first, contributor-friendly OSS project.
+
+Version-tagged capabilities under consideration:
+
+- **0.2.0: Official MongoDB / Multi-Adapter Support** (see the dedicated external contributor guide and GROK-TASKS for scope: config/schema, Docker (compose + Dockerfile), xde logic (leverage existing pure helpers), docs, tests/E2E for Mongo generated apps, release artifacts). Default remains Postgres for stability.
+- **0.3.0: AI-First Completeness & Polish** (context & agent ergonomics including improved detection from questions.md + more --json + `xde context`; library extraction with examples; testing roadmap advancement to real integration + full E2E for generated apps (HTTP + future Playwright); `stage` namespace; `xde validate`/`lint`; TUI exploration; ecosystem/CI templates; full multi-adapter maturity).
+
+See the approved session plan.md for the full high-level vision, process, and Grok automation details. All work remains positive, 80-col for code, atomic commits with tests + docs, and aligned with the mission of being the #1 foundation for AI-assisted (Grok Build etc.) Payload CMS development.
 
 These features are not part of the initial v1 command surface.
 

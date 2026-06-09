@@ -10,6 +10,7 @@
 - [ ] Documentation update
 - [ ] Refactoring / Code cleanup
 - [ ] Devcontainer / Infrastructure improvement
+- [ ] Release / Versioning work (0.2.0+ – see external contributor simulation process in CONTRIBUTING.md and the 0.2.0 living guide)
 
 ## Testing
 
@@ -30,6 +31,11 @@
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix/feature works
 - [ ] New and existing unit tests pass locally with `make validate`
+
+## AI Assistance (for 0.2.0+ release work and agentic contributions)
+
+- [ ] This PR (or the work leading to it) was drafted/assisted by Grok Build (or similar) using GitHub MCP tools (create_branch, issue_write, create_pull_request draft, push_files, etc.) as part of the external contributor simulation + AI automation process (see approved plan.md "AI Automation of Release Processes" and the "Release Contributions & AI-Assisted Execution" section in CONTRIBUTING.md).
+- Human/developer verification steps completed before remote actions (list or link to GitHub comments/approvals): 
 
 ## Related Issues
 

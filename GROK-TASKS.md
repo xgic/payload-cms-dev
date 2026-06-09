@@ -23,6 +23,28 @@ This file is the lightweight, informal task list for work that Grok Build should
   - [ ] Improve `xde check` with comprehensive DB + service health, structured output (DB check done; more in progress)
 - [x] Create `docs/development-workflow.md` documenting commit discipline, testing requirements, and how to work during the Makefile → xde transition
 
+### Future Releases (0.2.0 and Beyond) - External Contributor Simulation + AI Automation
+- [ ] **0.2.0 Release: Official MongoDB / Multi-Adapter Support** (high-level plan in session plan.md; execute following external contributor path from CONTRIBUTING.md + Grok AI automation with human verification).
+  - [ ] Grok automates: create GitHub milestone "0.2.0", draft Issues for sub-features (config schema/examples, docker-compose Mongo service + Dockerfile client, core/project.py + setup logic for --db mongodb, docs/README/TESTING updates, multi-DB E2E in skeletons, tests). Use MCP `create_issue` / `create_milestone` tools (or gh CLI), with explicit developer approval before creation/push.
+  - [ ] First slice: Update create-payload-config.json (add mongodb example, dbAdapter support), enhance core/project.py (handle mongodb in build_create/ensure, resolve helpers), update setup/reset integration. Follow fork/branch/PR simulation, Conventional Commits, full tests/ruff, doc updates in same commit. Create draft PR via MCP `create_pull_request` (draft=true) from simulated fork.
+  - [ ] Docker infra: Add Mongo service (profiles or conditional in docker-compose.yml), install mongo client in Dockerfile (multi-stage). Update .env/init logic and xde env.
+  - [ ] Docs & DX: Major updates to README (features, Planned Extensions with 0.2.0 tag), AGENTS (pitfalls for DB choice, workflows), playbooks (new "Switch DB Adapter" or "Mongo Setup"), TESTING (E2E for Mongo apps), create-payload-config docs. Link to release guide.
+  - [ ] Tests: Expand unit (config, command building for Mongo), leverage integration skeleton for Mongo flows, update devcontainer-tests.sh. Full E2E coverage for generated Mongo app.
+  - [ ] Release: Version 0.2.0, changelog, updated quick-start demonstrating choice. All work as "new external contributor" example (documented in new docs/releases/0.2.0-...-guide.md). Grok automates OSS artifacts (issues, draft PRs, branch) with human sign-off at each gate.
+- [ ] **0.3.0 Release: AI-First Completeness & Polish** (high-level in plan.md; build on 0.2.0 multi-DB).
+  - [ ] Context & Agent Ergonomics: Improve AI context detection (template vs generated app, extend EnvironmentContext, env markers in devcontainer.json). Add `xde context` dumper. More --json on commands (check, env, setup, reset). Safety (--dry-run/--yes everywhere).
+  - [ ] Library / Framework: Extract more core (project, docker, env) as importable with examples/ (Ansible, CI, external tools). Add docs showing direct `from xde.core...`. Stable public API notes.
+  - [ ] Testing Roadmap: Advance skeletons to real integration tests (Docker Compose lifecycles), full E2E (generated app validation with HTTP + future Playwright for Payload admin/frontend). `xde validate` / `xde lint` commands. Higher coverage, property/golden tests.
+  - [ ] Multi-Env & Polish (build on 0.2): `stage` namespace (`xde stage up/dev`). Full multi-adapter maturity. Maintenance commands (`xde schema` enhancements, `xde clean`).
+  - [ ] Interactive/Advanced: Explore Textual TUI (`xde tui`). Richer output, error recovery.
+  - [ ] Ecosystem & CI: CI templates using xde. Automatic staging pipelines (per roadmap). Support more create-payload-app options via config.
+  - [ ] Grok AI Automation: Use MCP tools for all OSS tasks (draft issues/PRs from "external fork" simulation, file updates via `create_or_update_file`/`push_files`, milestone management). Require human/developer verification/approval for every create/merge action. Log all steps for audit/reputation.
+  - [ ] Reputation/Examples: Each release (0.3.0+) produces living examples in docs (following the 0.2.0 external + AI template). Update GROK-TASKS "Done", CONTRIBUTORS.md, etc. via automation where possible.
+- [ ] Move/adapt existing backlog (context dumper, --json, library vision, testing E2E, Docker strategy) into the 0.2/0.3 sections above as sub-tasks.
+- [ ] Add note in GROK-TASKS on the AI-first release process: "All future release work (0.2.0+) is executed and documented as external contributor simulation (CONTRIBUTING.md steps) + heavy Grok Build GitHub MCP automation (create_issue, create_pull_request draft, etc.) with mandatory human verification gates at each step. This leads by example and elevates XGIC reputation."
+
+### Testing & Automation Roadmap (High Priority Future Work)
+
 ### Testing Foundations (Step 3)
 - [x] Add first meaningful test coverage focused on core `src/xde/core/` modules (EnvironmentContext and DockerComposeController) - unit tests with mocks for subprocess
 - [x] Gate: ruff + pytest (test-xde retired with Makefile). xde core tests + make was shim, now direct pytest in CI.

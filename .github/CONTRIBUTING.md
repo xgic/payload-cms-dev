@@ -406,6 +406,31 @@ Contributors are recognized in:
 - Release notes.
 - The XGIC open-source hall of fame.
 
+## Release Contributions & AI-Assisted Execution (0.2.0 and Beyond)
+
+All release work for 0.2.0+ (MongoDB support, AI-first features, etc.) **must be planned, executed, and documented exactly as if you were a new external contributor**, following the full GitHub Flow + fork/PR model + OSS best practices described in this document, *in addition to* the project's internal guidelines (AGENTS.md, etc.).
+
+This is a deliberate, synergistic requirement:
+- Provides **clear, living examples** that future contributors can literally follow or reference.
+- Demonstrates deep expertise in professional OSS processes.
+- Elevates XGIC's reputation as a thoughtful, AI-first, contributor-friendly open-source leader in the Payload + Dev Containers space.
+- Turns internal release work into public goods (the artifacts become onboarding material and proof of quality).
+
+**The process (external contributor simulation + heavy Grok Build AI automation with human gates)**:
+- Follow the exact "Step-by-Step Guide: Initiating a New Feature Branch (GitHub Free Account)" above (fork simulation, clone, upstream, feature branch like `feat/0.2.0-mongodb-support`, Conventional Commits, full PR template, etc.).
+- Start every implementation/planning session with the AGENTS session startup (`xde --help; xde check; xde env`).
+- All commits: atomic, full functionality (code + tests + docs), ruff + relevant pytest green, 80-col for code, positive tone, update AGENTS/GROK-TASKS/playbooks where philosophy changes. Push regularly.
+- Grok Build (as the AI-first project) automates as much as possible using its GitHub MCP tools (`create_branch`, `issue_write`/`create_issue`, `create_pull_request` with `draft: true`, `push_files`/`create_or_update_file`, `add_issue_comment`, review tools, etc.) and `run_terminal_command` (gh CLI). 
+  - Examples: Grok creates the feat branch, drafts the milestone + labeled "ai-draft" issues for sub-tasks (with bodies that explicitly instruct to follow this process), drafts the PR from the branch, applies file changes, etc.
+  - **Mandatory human/developer verification and approval at every gate**: Review the tool output/draft (on GitHub or in session), approve/comment ("LGTM, proceed"), then Grok executes the remote action. Never bypass. Log everything for audit/reputation.
+- Use GitHub milestones (e.g., "0.2.0"), Projects, labels, and link everything ("Closes #xxx").
+- The full history + a dedicated narrative guide (see `docs/releases/0.2.0-...-external-contributor-guide.md`) becomes the reusable template for 0.3.0+ and a reputation asset.
+- Post-merge: Grok can help update "Done" in GROK-TASKS, CONTRIBUTORS.md, release notes, etc. (with human approval).
+
+See the approved high-level plan in the private session plan.md (and the living 0.2.0 guide) for the detailed vision, high-level scopes (Mongo for 0.2.0; context detection, library extraction, E2E, stage, TUI, etc. for 0.3.0), risks, success criteria, and Grok-specific automation examples. All release work must produce clear examples while advancing the mission of being the #1 agent-optimized foundation for Payload CMS.
+
+This section was added as part of the 0.2.0+ planning (see GROK-TASKS "Future Releases" and the external simulation requirement). It extends (does not replace) the existing contributor guide.
+
 ## For AI Coding Assistants
 
 If you are an AI coding assistant (Grok Build, Claude, Cursor, etc.), please read the following in order **before** making changes:
@@ -422,6 +447,8 @@ If you are an AI coding assistant (Grok Build, Claude, Cursor, etc.), please rea
 - Safety guidance
 - How to help evolve the project to be even more agent-friendly
 
+**For release work (0.2.0+)**: Additionally follow the "Release Contributions & AI-Assisted Execution" section above + the external contributor simulation in the 0.2.0 living guide. Grok Build will heavily use its GitHub MCP tools for automation (branch, draft issues/PRs with "ai-draft" labels, file pushes, comments) **but every remote action requires explicit human/developer verification and approval before execution**. This is non-negotiable for auditability, correctness, and to demonstrate the AI-first + professional OSS leadership that elevates the project and XGIC.
+
 This project is explicitly designed to become one of the best possible foundations for agentic (Grok Build, etc.) development of Payload CMS applications.
 
 ---
@@ -429,4 +456,4 @@ This project is explicitly designed to become one of the best possible foundatio
 **Thank you for helping make Payload CMS development faster, more reliable, and more accessible for the entire community.**
 
 Questions? Open an issue or reach out to the maintainers via Discussions.  
-Last updated: June 2026 (added AGENTS.md for AI assistants)
+Last updated: [current – added Release Contributions & AI-Assisted Execution section per 0.2.0+ external simulation plan]

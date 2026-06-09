@@ -68,6 +68,58 @@ Steps:
    - Update `AGENTS.md` if this changes preferred workflows.
    - Update help text / epilog in `cli.py`.
 
+## Playbook: Planning and Executing a Release (0.2.0+ External Contributor Simulation + AI Automation)
+
+**When**: Any 0.2.0+ release work (MongoDB/multi-adapter in 0.2.0; context detection, library extraction, E2E, stage, TUI, etc. in 0.3.0). This is the living template for demonstrating expertise and providing clear examples (per the approved high-level plan).
+
+**Core principle**: Execute and document *exactly* as a new external contributor would (full steps from the "Step-by-Step Guide" in CONTRIBUTING.md + OSS best practices: GitHub Flow, fork/PR model, milestones, Conventional Commits, PR template, recognition, etc.) *plus* the project's internal AGENTS guidelines (session startup, atomic commits with full func + lint + tests + docs, 80-col, positive tone, update AGENTS/GROK-TASKS when philosophy changes, prefer xde, etc.).
+
+**Grok Build AI automation (unique to this AI-first project)**: Grok heavily automates the mechanical/OSS tasks using its connected GitHub MCP tools (after `search_tool` for schema):
+- `grok_com_github__create_branch` (for the feat/ release branch – simulates the "create feature branch" after fork).
+- `grok_com_github__issue_write` (method=create) for the release milestone + labeled "ai-draft" issues for sub-tasks (bodies must explicitly instruct to follow this external sim + human gates; link to the plan and this playbook).
+- `grok_com_github__create_pull_request` (with `draft: true`) from the branch, with full PR template body + "Closes #xxx" links.
+- `grok_com_github__push_files` / `create_or_update_file` for changes (Conventional Commit message in the call).
+- `grok_com_github__add_issue_comment`, `pull_request_review_write`, etc. for updates/reviews.
+- `run_terminal_command` (gh CLI) as fallback or for anything not covered by MCP.
+- **Non-negotiable human/developer verification gates**: After *every* tool call that would make a remote change (branch, issue, PR draft, push, merge), Grok must output the result + clear summary and **pause for explicit human approval** (e.g., "LGTM on GitHub issue #X, proceed with code changes" or comment on the draft). Log all outputs/responses in the session for the audit trail. This ensures correctness, tone, and builds the transparent, professional record that elevates XGIC reputation.
+
+**High-level steps (narrative form – the 0.2.0 living guide in docs/releases/ is the detailed, reusable artifact)**:
+
+1. **Session startup (AGENTS – always)**: `xde --help; xde check; xde env`. Review create-payload-config, git status, recent docs.
+
+2. **Fork simulation + branch (Grok automates via MCP `create_branch` for `feat/0.2.0-xxx` on the repo; document as external fork simulation per CONTRIBUTING. Human approves the branch creation output before any further remote actions.)**
+
+3. **Create high-level + detailed plan** (this playbook + the release-specific guide in docs/releases/, plus update GROK-TASKS with 0.x section + automation sub-tasks). Human reviews/approves the plan.
+
+4. **Break into atomic, valuable slices** (small-first, per commit rules). For each:
+   - Grok drafts the changes (code, tests, docs) + any OSS artifacts (issues, PR body).
+   - Human verifies (review diff, run ruff/pytest locally if needed, approve).
+   - Grok applies via MCP push / create_or_update on the feat branch (Conventional message).
+   - CI must pass (existing lint + test workflows).
+   - Update *all relevant docs* in the same commit (CONTRIBUTING, README, AGENTS, playbooks, this guide, etc.).
+   - Open/update draft PR via MCP (human approves the `create_pull_request` call).
+
+5. **Address reviews** (Grok can draft responses via MCP review/comment tools; human approves before posting).
+
+6. **Merge** (human gate via MCP `merge_pull_request` or UI, after approval + checks). Grok automates post-merge (GROK-TASKS "Done", CONTRIBUTORS.md, release notes, etc. – with approval).
+
+7. **Release artifacts + announcement**. The full GitHub history (issues with ai-draft labels, branch, draft PRs, clean commits) + this guide + the session plan become the "clear example for future contributors".
+
+**Grok-specific examples** (adapt for any release):
+- "Using the MCP tools after search, create a draft issue for [sub-task] with labels ['0.2.0', 'ai-draft', 'enhancement'], body that quotes the external sim requirement from CONTRIBUTING + this playbook, and notes 'Human verification required before code or PR'."
+- "After human approval on the issue, use `push_files` on the feat branch with a full Conventional Commit message that includes the change + docs update + test results."
+- "Draft the PR with `create_pull_request` (draft: true, full template, Closes links). Log the URL for human review before any merge."
+
+**Documentation updates required in the same atomic commits as code**: See the "Updated Documentation Tasks" in the session plan.md (CONTRIBUTING, README, AGENTS, playbooks, PR template, new release guide artifact, GROK-TASKS, etc.). All must stay positive, scannable, and aligned with the mission.
+
+**Risks / Considerations** (document for transparency): Scope creep (stick to high-level + smallest valuable slices); human gates are mandatory (AI drafts are high-quality but not infallible); as owner, the "fork" is simulated for the example value – the public record still demonstrates the full external flow.
+
+**Success**: The release produces not just the feature (e.g. working MongoDB support), but a complete, auditable, impressive set of artifacts (guide, history, automation logs) that future contributors can follow and that visibly elevates the project's and XGIC's reputation. Repeat for 0.3.0+ (80%+ automation once the template exists).
+
+See the approved session plan.md for the full 0.2.0/0.3.0 high-level scopes, risks, success criteria, and Grok GitHub capability enhancements. This playbook was added as part of that planning.
+
+(End of new release playbook.)
+
 5. **Add agent-friendly touches**:
    - Good success/failure messages with next steps (use Rich panels).
    - Consider `--json` output if the command produces structured data.
