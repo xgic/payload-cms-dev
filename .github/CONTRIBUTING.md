@@ -266,13 +266,13 @@ ruff check . --fix
 PYTHONPATH=src python -m pytest -q
 ```
 
-## GitHub Flow & Branching Strategy
+## Branching Strategy and Protected Branches (0.2.0+)
 
-We follow the **GitHub Flow** model:
-- The `main` branch is the only long-lived branch and is always in a releasable state.
-- All changes are made in short-lived **feature branches** created from `main`.
-- Every pull request targets `main`.
-- Protected branch rules (enforced via repository settings) require passing status checks and at least one approving review before merging.
+The project uses a pragmatic hybrid model that supports both ongoing development and disciplined major releases:
+
+- `main` is the ultimate long-lived "source of truth" (releases, tags, and the history that guarantees reproducible dev containers). It is protected (see `docs/branch-protection.md`).
+- For each major release cycle we use a semantic long-lived accumulation branch (e.g. `release/0.2.0`). All work, PRs (including external contributor simulations and Grok Build automation), and validation target this branch until the full scope (code + tests + docs + examples) is complete. Only then do we perform the final merge `release/0.X.0` → `main` + tag.
+- Short-lived branches (`feat/...`, `fix/...`, `docs/...`, etc.) are created from the current base (usually the active release branch or `main`) and always merged via PR.
 
 **Branch naming convention** (enforced via Conventional Commits tooling):
 - `feat/...` – new features or enhancements
@@ -281,10 +281,15 @@ We follow the **GitHub Flow** model:
 - `refactor/...` – code refactoring without functional change
 - `test/...` – adding or updating tests
 - `chore/...` – build, CI, or tooling changes
+- `release/...` – used for the long-lived accumulation branches during a release cycle
 
-## Step-by-Step Guide: Initiating a New Feature Branch (GitHub Free Account)
+Protected branch rules (enforced via repository settings / rulesets) require passing status checks and at least one approving review before merging to `main` or an active `release/*` branch. See the full policy and setup guidance in [docs/branch-protection.md](../docs/branch-protection.md). This policy is deliberately compatible with (and reinforces) the atomic-commit + human-gate + Grok automation patterns described in `AGENTS.md` and the release living guides.
 
-GitHub Free accounts do **not** grant direct push access to organization repositories. Therefore, all external contributors **must** use the **Fork + Pull Request** workflow. The following guide is tailored specifically for contributors to `XGIC/payload-cms-dev-containers` and adheres to GitHub’s official best practices (GitHub Flow, fork model, and Conventional Commits).
+## Step-by-Step Guide: Initiating Work as an External Contributor (GitHub Free Account)
+
+GitHub Free accounts do **not** grant direct push access to organization repositories. Therefore, all external contributors **must** use the **Fork + Pull Request** workflow. The following guide is tailored specifically for contributors to `XGIC/payload-cms-dev-containers` and adheres to GitHub’s official best practices, the fork model, and Conventional Commits.
+
+During an active release the base branch for your PRs will be the current `release/0.X.0` (see the release-specific living guide). For general/small contributions it will be `main` or the tip of the active release branch.
 
 ### Step 1: Fork the Repository
 1. Navigate to [https://github.com/XGIC/payload-cms-dev-containers](https://github.com/XGIC/payload-cms-dev-containers) in your browser.
@@ -306,15 +311,15 @@ git remote -v   # verify remotes
 ```
 
 ### Step 4: Fetch the Latest Upstream Changes
-Always start from the latest `main`:
+Always start from the current base (usually `main` or the active `release/0.X.0`):
 ```bash
 git fetch upstream
-git checkout main
+git checkout main   # or the relevant release branch
 git merge upstream/main   # or git rebase upstream/main
 git push origin main
 ```
 
-### Step 5: Create a New Feature Branch
+### Step 5: Create a New Feature / Fix Branch
 ```bash
 git checkout -b feat/descriptive-feature-name
 ```
@@ -329,7 +334,7 @@ Branch names must be lowercase, use hyphens, and be descriptive.
 - Work exclusively inside the Dev Container (recommended).
 - Follow the [Coding Standards](#coding-standards--best-practices) below.
 - For human contributors: Keep changes reasonably scoped.
-- For agent-driven work: Commits should represent logical, atomic units of change (smaller commits, including single-file changes, are acceptable when they improve clarity). All commits must pass linting and relevant tests. See the Collaboration Principles in `AGENTS.md`. Local development commits may be granular; history should be cleaned before pushing or merging to the primary branch.
+- For agent-driven work: Commits should represent logical, atomic units of change (smaller commits, including single-file changes, are acceptable when they improve clarity). All commits must pass linting and relevant tests. See the Collaboration Principles in `AGENTS.md`. Local development commits may be granular; history should be cleaned before pushing or merging to a protected branch.
 
 ### Step 7: Stage, Commit, and Push
 Use **Conventional Commits** (see section below):
@@ -342,11 +347,11 @@ git push origin feat/descriptive-feature-name
 ### Step 8: Open a Pull Request
 1. Go to your fork on GitHub.
 2. Click **Compare & pull request**.
-3. Ensure the base repository is `XGIC/payload-cms-dev-containers` and base branch is `main`.
+3. Ensure the base repository is `XGIC/payload-cms-dev-containers` and the **base branch** is the current target (`main` or the active `release/0.X.0` as documented in the release living guide or RELEASE_CHECKLIST.md).
 4. Fill out the PR template completely.
 5. Link any related issues using `Closes #123` or `Resolves #123`.
 
-Your PR will automatically trigger CI checks (Docker build, linting, tests). All checks must pass before review.
+Your PR will automatically trigger CI checks (linting via ruff + ShellCheck + actionlint etc., tests via pytest, devcontainer validation where applicable). All checks must pass before review. The branch protection rules on the target (main or the release branch) will also be enforced.
 
 ## Commit Message Convention
 
