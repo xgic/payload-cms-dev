@@ -1,0 +1,11 @@
+# Development and testing dependencies for the XGIC Payload CMS Dev
+# Container itself.
+# These are installed on-demand inside the container when running
+# make test / make validate.
+# They are intentionally NOT installed in the base Dockerfile to keep
+# the image lean.
+
+pytest>=8.0
+pytest-cov>=5.0
+pytest-mock>=3.14
+pytest-subprocess>=1.5

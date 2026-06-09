@@ -3,15 +3,19 @@
   "dockerComposeFile": "./docker-compose.yml",
   "service": "xgic-payload-cms-dev-containers",
   "mounts": [
-    "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
   ],
-  "workspaceFolder": "/app",
+  "workspaceFolder": "/workspace",
   "remoteUser": "node",
+  // === LIFECYCLE HOOKS ===
+  // initializeCommand runs on the host before the container is created.
+  // It is intentionally kept minimal and silent when possible.
+  "initializeCommand": "bash .devcontainer/scripts/init-env.sh",
 
-  // === LIFECYCLE HOOKS (Critical for automation) ===
-  "initializeCommand": "bash .devcontainer/init-env.sh",
-  "postCreateCommand": "bash .devcontainer/post-create.sh || true",
-
+  // postStartCommand runs every time the container starts.
+  // Because setup-payload.sh is idempotent and produces no output when
+  // the project already exists, this is the best place for it.
+  "postStartCommand": "bash .devcontainer/scripts/setup-payload.sh",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -19,7 +23,6 @@
         "christian-kohler.npm-intellisense",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "gitlab.gitlab-workflow",
         "GraphQL.vscode-graphql",
         "ms-azuretools.vscode-docker",
         "ms-vscode.vscode-typescript-next",
@@ -30,10 +33,12 @@
       ]
     }
   },
-
-  "forwardPorts": [3000, 8080],
+  "forwardPorts": [
+    3000
+  ],
   "portsAttributes": {
-    "3000": { "label": "Payload Admin" },
-    "8080": { "label": "pgAdmin 4" }
+    "3000": {
+      "label": "Payload CMS"
+    }
   }
 }

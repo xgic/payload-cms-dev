@@ -1,5 +1,5 @@
 {
-  "$schema": "./create-payload-config.schema.json",
+  "$schema": "../create-payload-config.schema.json",
   "projectName": "website",
   "template": "website",
   "example": null,

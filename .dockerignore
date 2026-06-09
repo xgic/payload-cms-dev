@@ -1,0 +1,80 @@
+# =============================================
+# Docker ignore for XGIC Payload CMS Dev Container
+# Goal: Minimize context size and improve layer caching
+# =============================================
+
+# Git
+.git
+.gitignore
+
+# Node / pnpm
+node_modules
+.pnpm-store
+pnpm-lock.yaml
+**/node_modules
+**/.pnpm-store
+
+# Generated Payload projects (users create these)
+my-payload-cms
+website
+**/.next
+**/out
+**/dist
+**/build
+
+# Python
+__pycache__
+*.py[cod]
+*.egg-info
+.venv
+venv
+env
+htmlcov
+.coverage
+.pytest_cache
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Documentation & meta (not needed in image)
+*.md
+!README.md
+LICENSE
+RELEASE_CHECKLIST.md
+TESTING.md
+COMMIT_MESSAGE*.txt
+COVERAGE_REPORT*.txt
+schema-error.png
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# CI / GitHub
+.github
+.gitlab-ci*
+
+# Temporary / debug
+results.txt
+tmp/
+temp/
+*.log
+
+# Secrets (never copy these)
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+secrets/
+
+# Other
+*.orig
+.cache
+.nyc_output

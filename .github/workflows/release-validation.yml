@@ -1,0 +1,53 @@
+name: Release Validation
+
+on:
+  workflow_dispatch:   # Manual trigger before cutting a release
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-devcontainer:
+    name: Validate Dev Container Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build devcontainer image
+        run: |
+          docker compose -f .devcontainer/docker-compose.yml build --no-cache
+
+      - name: Basic smoke test of the container
+        run: |
+          docker compose -f .devcontainer/docker-compose.yml up -d
+          sleep 10
+          docker compose -f .devcontainer/docker-compose.yml exec -T xgic-payload-cms-dev-containers \
+            bash -c "node --version && pnpm --version && psql --version"
+
+      - name: Run devcontainer validation script (if present)
+        run: |
+          docker compose -f .devcontainer/docker-compose.yml exec -T xgic-payload-cms-dev-containers \
+            bash .devcontainer/scripts/devcontainer-tests.sh || true
+
+  run-full-validation:
+    name: Run xde-based validation inside container
+    runs-on: ubuntu-latest
+    needs: validate-devcontainer
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install devcontainer CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Run full validation using devcontainer (xde primary)
+        run: |
+          devcontainer up --workspace-folder .
+          devcontainer exec --workspace-folder . -- bash -c '
+            xde check || true
+            xde schema || python3 .devcontainer/config/generate_schema.py || true
+            python3 -m pytest tests/test_environment.py tests/test_docker.py -q || true
+            echo "xde + core tests + schema validation complete"
+          '

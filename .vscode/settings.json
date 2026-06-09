@@ -4,9 +4,9 @@
     "chsh",
     "dbaeumer",
     "dearmor",
-    "dpage",
     "dpkg",
     "eamodio",
+    "ecommerce",
     "errorlens",
     "esbenp",
     "healthcheck",
@@ -18,8 +18,9 @@
     "nextjs",
     "payloadcms",
     "payloadtests",
-    "pgadmin",
     "pgdg",
+    "PGPASSWORD",
+    "pnpx",
     "psql",
     "sqltools",
     "tracepath",
@@ -39,7 +40,7 @@
       "name": "postgres",
       "database": "payload_db",
       "username": "payload",
-      "password": "payload_password"
+      "password": "be78b0173f08d83e92bfac66a2396403"
     }
   ]
 }

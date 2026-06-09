@@ -1,0 +1,146 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+# Cancel in-progress runs on new pushes (saves CI minutes)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write   # Required for Code Scanning SARIF upload
+
+jobs:
+  # ============================================
+  # ShellCheck - Core strict linting
+  # ============================================
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show ShellCheck version (apt)
+        run: shellcheck --version || echo "ShellCheck not available yet"
+
+      # 1. Reviewdog for excellent PR feedback + strict enforcement
+      #    Pinned to a specific commit for supply-chain security (best practice).
+      #    Update the SHA periodically via Dependabot.
+      - name: Run ShellCheck via reviewdog (warnings fail + PR annotations)
+        uses: reviewdog/action-shellcheck@e6c4e0e6f6e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2  # v1.XX (pinned commit example)
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          level: warning                # Fail on warnings (very strict)
+          fail_on_error: true
+          shellcheck_flags: >-
+            --severity=warning
+            --external-sources
+            --enable=all
+
+      # 2. Explicit run as defense-in-depth (guarantees job failure status)
+      - name: Strict ShellCheck verification (fail on any warning+)
+        run: |
+          echo "::group::Strict ShellCheck"
+          shellcheck \
+            --severity=warning \
+            --external-sources \
+            --enable=all \
+            .devcontainer/scripts/*.sh
+          echo "::endgroup::"
+        shell: bash
+
+      # 3. Generate and upload SARIF for GitHub Code Scanning (Security tab)
+      - name: Generate SARIF from ShellCheck
+        run: |
+          shellcheck \
+            --severity=warning \
+            --external-sources \
+            --enable=all \
+            --format sarif \
+            .devcontainer/scripts/*.sh > shellcheck-results.sarif || true
+        shell: bash
+
+      - name: Upload SARIF to GitHub (Code Scanning)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: shellcheck-results.sarif
+          category: shellcheck
+
+  # ============================================
+  # Matrix: Test against multiple ShellCheck versions
+  # ============================================
+  shellcheck-matrix:
+    name: ShellCheck (Matrix)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ['latest', '0.9.0']   # Test current + a known stable older version
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ShellCheck ${{ matrix.version }}
+        uses: docker://koalaman/shellcheck:${{ matrix.version }}
+        with:
+          args: >-
+            --severity=warning
+            --external-sources
+            --enable=all
+            .devcontainer/scripts/*.sh
+
+  # ============================================
+  # Additional Linters (Industry standard)
+  # ============================================
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check GitHub Actions workflows
+        uses: reviewdog/action-actionlint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          level: warning
+          fail_on_error: true
+
+  shfmt:
+    name: shfmt (shell formatting)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shfmt
+        run: |
+          curl -sSfL https://github.com/mvdan/sh/releases/download/v3.8.0/shfmt_v3.8.0_linux_amd64 -o /usr/local/bin/shfmt
+          chmod +x /usr/local/bin/shfmt
+      - name: Check shell formatting (diff mode)
+        run: |
+          shfmt -i 2 -ci -bn -d .devcontainer/scripts/*.sh
+        shell: bash
+
+  # Optional but useful for YAML hygiene
+  yamllint:
+    name: yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run yamllint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: ".github/"
+          config_data: |
+            extends: default
+            rules:
+              line-length: disable
+              truthy: disable
+
+  # Makefile linting (checkmake) retired: Makefile removed in 0.1.0.
+  # xde is now the single source of truth for dev/CI commands.
