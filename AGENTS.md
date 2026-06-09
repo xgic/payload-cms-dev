@@ -154,14 +154,14 @@ This project has two layers:
 
 ### Workflow C: Migrating logic from legacy scripts into `xde`
 
-Legacy locations:
-- `.devcontainer/scripts/reset-project.py` → `xde/commands/reset.py`
-- `.devcontainer/scripts/regenerate-env.py` → `xde/commands/env.py` (future)
-- (Makefile removed; all behavior now in xde commands)
+The reset migration is complete:
+- `.devcontainer/scripts/reset-project.py` (and its dedicated fidelity tests under `tests/test_reset_project.py` + `tests/make/`) have been removed as deprecated/outdated.
+- Core behavior lives in `src/xde/commands/reset.py` + `src/xde/core/docker.py` (with targeted `up(services=...)` and `rm_service` helpers so reset can safely manage only the postgres volume without touching the caller's own container).
 
-When migrating:
+Historical note (for future similar migrations):
 - Extract pure functions first.
 - Make them testable.
+- Remove the old script + its fidelity tests once the xde path is the canonical one and references have been swept.
 - Keep the old script working during transition if needed (thin wrapper calling into the new code).
 - Update `AGENTS.md` with the new preferred way.
 

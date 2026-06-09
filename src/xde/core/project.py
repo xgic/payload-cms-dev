@@ -124,14 +124,52 @@ def build_create_payload_command(
     return cmd
 
 
+def resolve_db_connection_string(
+    json_db_uri: str, live_db_uri: str
+) -> str | None:
+    """Pure helper: resolve the DB connection string preferring live env.
+
+    Extracted for testability and library reuse (called by ensure and
+    potentially external tools integrating with xde project setup).
+    """
+    return live_db_uri or json_db_uri or None
+
+
+def compute_synced_project_env_content(
+    original_content: str, live_db_uri: str, live_payload_secret: str
+) -> str:
+    """Pure: return .env content with live creds (DATABASE_URL/PAYLOAD_SECRET).
+
+    re.sub version of legacy sed (post create-payload-app). Extracted
+    for unit tests (no I/O) + library consumers.
+    """
+    content = original_content
+    if live_db_uri:
+        content = re.sub(
+            r"^DATABASE_URL=.*$",
+            f"DATABASE_URL={live_db_uri}",
+            content,
+            flags=re.MULTILINE,
+        )
+    if live_payload_secret:
+        content = re.sub(
+            r"^PAYLOAD_SECRET=.*$",
+            f"PAYLOAD_SECRET={live_payload_secret}",
+            content,
+            flags=re.MULTILINE,
+        )
+    return content
+
+
 def _sync_live_env_into_project(
     project_dir: Path, live_db_uri: str, live_payload_secret: str
 ) -> None:
     """Best-effort sync of live credentials into the generated project's .env.
 
     The container-level .env uses DATABASE_URI; generated projects use
-    DATABASE_URL (plus PAYLOAD_SECRET). We rewrite only if values exist.
-    Uses pure Python so it is portable (no GNU/BSD sed -i differences).
+    DATABASE_URL (plus PAYLOAD_SECRET). Delegates to the pure
+    compute_synced_project_env_content for the rewrite logic (portable,
+    no GNU/BSD sed -i differences, fully unit-testable).
     """
     gen_env = project_dir / ".env"
     if not gen_env.is_file():
@@ -139,33 +177,11 @@ def _sync_live_env_into_project(
 
     try:
         content = gen_env.read_text(encoding="utf-8")
-        changed = False
-
-        if live_db_uri:
-            # Replace DATABASE_URL=... line (website template convention)
-            new_content = re.sub(
-                r"^DATABASE_URL=.*$",
-                f"DATABASE_URL={live_db_uri}",
-                content,
-                flags=re.MULTILINE,
-            )
-            if new_content != content:
-                content = new_content
-                changed = True
-
-        if live_payload_secret:
-            new_content = re.sub(
-                r"^PAYLOAD_SECRET=.*$",
-                f"PAYLOAD_SECRET={live_payload_secret}",
-                content,
-                flags=re.MULTILINE,
-            )
-            if new_content != content:
-                content = new_content
-                changed = True
-
-        if changed:
-            gen_env.write_text(content, encoding="utf-8")
+        new_content = compute_synced_project_env_content(
+            content, live_db_uri, live_payload_secret
+        )
+        if new_content != content:
+            gen_env.write_text(new_content, encoding="utf-8")
     except Exception:
         # Never let sync failure break creation flow
         pass
@@ -210,7 +226,9 @@ def ensure_payload_project(*, quiet: bool = False) -> int:
     live_db_uri = os.environ.get("DATABASE_URI", "")
     live_secret = os.environ.get("PAYLOAD_SECRET", "")
 
-    db_uri_for_cli: str | None = live_db_uri or json_db_uri or None
+    db_uri_for_cli: str | None = resolve_db_connection_string(
+        json_db_uri, live_db_uri
+    )
 
     # Suppress pnpm "Ignored build scripts" for @swc/core before the
     # create step triggers its internal pnpm install.

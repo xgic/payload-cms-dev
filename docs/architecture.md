@@ -93,7 +93,7 @@ Instead we are:
 - Re-implementing them in a cleaner, more testable, more agent-friendly way inside `xde`.
 - Adding strong guardrails and better UX along the way.
 
-Destructive operations in particular (`reset-project`) are being given much more thought and safety than they had in the Makefile era.
+Destructive operations in particular (now `xde reset`) are given strong guardrails, targeted postgres handling, and clean UX (no self-recreate of the caller's container when running reset from inside the dev container). This is a major improvement over the Makefile era.
 
 ## Key Invariants Agents Must Respect
 

@@ -80,7 +80,9 @@ Steps:
 
 ## Playbook: Migrate Logic from Legacy Script into xde
 
-**When**: Moving functionality from `reset-project.py`, `regenerate-env.py`, shell scripts, or Makefile targets.
+**When**: Moving functionality from legacy scripts (e.g. the former `reset-project.py`), `regenerate-env.py`, shell scripts, or Makefile targets.
+
+**Note**: The `reset-project.py` migration is complete; the script and its dedicated fidelity tests have been removed. The playbook below is retained for future similar work.
 
 Steps:
 

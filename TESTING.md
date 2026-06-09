@@ -1,16 +1,14 @@
 # Testing Strategy for XGIC Payload CMS Dev Containers
 
-## Current State (as of 0.1.0)
+## Current State
 
-- **Unit test coverage**: 59% overall (will rise with new Makefile tests)
-  - `tests/`: 100% (existing Python tests + new `tests/make/` macro tests)
-  - `reset-project.py`: 41%
-  - `get-payload-project-name.py`: 0%
-  - `regenerate-env.py`: 0%
-- **Integration/smoke testing**: `devcontainer-tests.sh` (version + connectivity checks)
-- **Python code under test focus**: `reset-project.py` (highest value/complexity) + supporting config helpers
+- **Unit test coverage focus**: Core `src/xde/core/` (EnvironmentContext, DockerComposeController) and command logic via `pytest` (direct, no Makefile shim).
+  - Legacy `reset-project.py` and its fidelity tests (`tests/test_reset_project.py`, `tests/make/`) have been removed (migration complete; see plan for xde-reset-errors.txt work).
+  - Remaining Python tests emphasize the active xde implementation (reset, env, docker controller, etc.).
+- **Integration/smoke testing**: `devcontainer-tests.sh` (version + connectivity checks) and manual `xde check` / `xde dev` / `xde reset --dry-run` flows inside the container.
+- **Python code under test focus**: The live `src/xde/` modules (highest value for day-to-day reliability and agent productivity).
 
-> **Note on Python test tooling**: `pytest`, `pytest-cov`, and `pytest-mock` are **not** pre-installed in the base container image (to keep it lean). They are installed on-demand the first time you run `make test`, `make test-cov`, or `make validate`. See the `ensure-dev-python` target in the Makefile.
+> **Note on Python test tooling**: `pytest`, `pytest-cov`, and `pytest-mock` are installed on-demand the first time you run the test commands (see TESTING.md "Running Tests" section). They are not in the base image to keep it lean.
 
 ## Testing Philosophy
 
@@ -18,97 +16,73 @@ This is a **Dev Container + DX tooling** repository, not a traditional applicati
 
 **Priorities (in order):**
 
-1. **Reliability of destructive operations** (`reset-project.py`)
-2. **Correctness of credential and config handling**
-3. **Schema validation** (for excellent VS Code DX)
-4. **Smoke testing** of the container environment
-5. High line coverage on shell scripts (low priority — hard to test meaningfully)
+1. **Reliability of destructive operations** (now `xde reset` + the DockerComposeController volume/DB paths)
+2. **Correctness of credential and config handling** (env regeneration, create-payload-config)
+3. **Schema validation** (for excellent VS Code DX via the single source of truth)
+4. **Smoke testing** of the container environment (`xde check`, `devcontainer-tests.sh`)
+5. High line coverage on shell scripts (low priority — hard to test meaningfully; rely on idempotency + manual runs inside the container)
 
 ## Recommended Coverage Targets (for future work)
 
 | Component                    | Target Coverage | Rationale |
 |-----------------------------|------------------|---------|
-| `reset-project.py` (core logic) | 70%             | Most complex + dangerous code (currently 41%) |
-| `regenerate-env.py`         | 60%             | Credential generation is security-adjacent (currently 0%) |
-| Config loading helpers      | 80%             | Small and critical |
-| Shell scripts               | Not measured    | Use `devcontainer-tests.sh` + manual verification |
-| Overall project             | **60%**         | Current CI floor (we are at 59% as of 0.1.0 with focused testing) |
+| `src/xde/core/` (controller + env) | High (focus area) | The live orchestration and credential logic that reset, dev, etc. depend on |
+| Reset + DB/volume paths     | High            | Highest-risk user-facing destructive operation |
+| Config loading + schema     | High            | Small and critical for the whole template |
+| Shell scripts (init/setup)  | Not measured    | Use `devcontainer-tests.sh` + `xde reset --dry-run` / manual verification inside the container |
+| Overall (active Python)     | **≥ 70%**       | Target for the xde implementation (legacy reset-project artifacts removed) |
 
-## Running Tests
+## Running Tests (Current, post-Makefile retirement)
 
 ```bash
-# Inside the dev container (recommended)
-make test
-make test-make         # Dedicated Makefile guard/delegation/@-leakage tests
-make test-cov          # Generates htmlcov/ + enforces 60% threshold
-make validate          # Full lint (incl. checkmake) + test + schema validation
+# Inside the dev container (recommended primary environment)
+# Ensure dev extras if needed: python -m pip install -e '.[dev]'
+PYTHONPATH=src python -m pytest tests/ -q
+PYTHONPATH=src python -m pytest tests/ --cov=src/xde --cov-report=term-missing
 ```
 
-As of 0.1.0 we achieve 59% overall coverage with the current focused test suite.
+The legacy `make test*` targets and dedicated Makefile macro tests (`tests/make/`) have been retired along with the Makefile itself (migration to `xde` as the single source of truth is complete).
+
+Integration/smoke behavior is exercised via:
+- ` .devcontainer/scripts/devcontainer-tests.sh` (Node/pnpm + basic connectivity/version checks at different container lifecycle points)
+- Manual `xde check`, `xde env`, `xde reset --dry-run`, `xde dev` (targeted) flows inside the running dev container.
+
+**AI assistants**: See (in priority order):
+1. [AGENTS.md](AGENTS.md) — testing philosophy + "good testability of the core logic" as a foundation.
+2. [GROK-TASKS.md](GROK-TASKS.md) — Testing & Automation Roadmap (unit for core xde logic → integration → E2E including generated Payload apps).
+3. [docs/grok-playbooks.md](docs/grok-playbooks.md)
+4. [docs/architecture.md](docs/architecture.md)
+
+These contain the current priorities (focus on `src/xde/core/` + commands that own destructive flows and project scaffolding).
+
+## Current State (as of post-0.1.0 work)
+
+- Focused unit tests on active `src/xde/` (EnvironmentContext, DockerComposeController with services= / rm_service / direct volume, env regeneration, dev launch paths, and the new `core/project.py` + `commands/setup.py` for `xde setup payloadcms`).
+- 33 tests (all passing in current runs): strong pure-function + controller coverage + dedicated tests for the project ensure logic used by reset + the hook.
+- Overall line coverage on `src/xde/` ~53% (higher on core abstractions; lower on thin CLI dispatch and some side-effect paths in project ensure / command run_ functions — see verification run for exact term-missing report).
+- No more legacy `reset-project.py` fidelity tests or Makefile macro harness (correctly removed).
 
 ## Adding New Tests
 
-- Place unit tests in `tests/`
-- Use `pytest` + `pytest-mock` for filesystem and subprocess mocking
-- Prefer testing pure functions over side-effect heavy code
-- Integration behavior is covered by `devcontainer-tests.sh` + `make rebuild`
+- Place unit tests in `tests/`.
+- Use `pytest` + `pytest-mock` (or monkeypatch) for filesystem/subprocess/config.
+- Prefer testing pure functions (see the excellent `TestPayloadProjectSetupPure` pattern for `load_*`, `is_complete`, `build_create...` in `core/project.py` and the expanded coverage in `tests/test_project.py`).
+- Side-effect heavy paths (actual `pnpx create-payload-app`, live secret sync) are intentionally best-effort and covered via the idempotent devcontainer hook + manual `xde reset --yes ; xde dev` flows inside the container.
+- Integration: see the lightweight skeleton under `tests/integration/` (temp config fixtures + example combined flows; can grow to drive real targeted `up(services=...)` + project creation).
+- E2E (long-term per roadmap): after `xde dev` + project creation (or `reset --yes`), validate the generated Payload app. Initial skeleton in `tests/e2e/` (skipped placeholder describing HTTP checks on :3000 + admin reachability; Playwright for browser flows later).
 
-**AI assistants**: See (in priority order):
-1. [AGENTS.md](AGENTS.md)
-2. [docs/grok-playbooks.md](docs/grok-playbooks.md)
-3. [docs/architecture.md](docs/architecture.md)
-4. [docs/xde-reference.md](docs/xde-reference.md)
+## CI / Gates
 
-These contain testing priorities, workflows, architecture, and recommended commands.
+Python tests + coverage run via GitHub workflows on push/PR. Ruff (format + check, 80-col for code files) is enforced. Any commit touching code must pass ruff + all relevant tests (per AGENTS).
 
-## Makefile Behavior Testing (New in 0.1.x)
+## Future Improvements (aligned with roadmap)
 
-The most complex and historically bug-prone part of the project is the **Makefile** itself — specifically the `HOST_ONLY_GUARD` and `RUN_IN_CONTAINER` macros, context detection via `REMOTE_CONTAINERS` / `CODESPACES` / `XG_AIS_HOST_TYPE`, and delegation logic.
-
-### Why dedicated Makefile tests exist
-
-Traditional "make test" only exercises Python. After several delegation bugs during early development, we added first-class tests for the Makefile's observable behavior to prevent regressions.
-
-### How it works
-
-- Tests live in `tests/make/` (self-contained minimal Makefiles that embed the exact macro definitions under test).
-- Heavy use of `pytest-subprocess` + environment variable matrices to simulate host vs. dev container execution contexts.
-- Explicit regression tests ensure a leading `@` is **never** passed through `$(call RUN_IN_CONTAINER, ...)` (the root cause of the `@make` failure).
-- Exact user-facing error messages are asserted so the delegation UX stays excellent.
-
-### Running the Makefile tests
-
-```bash
-# All of the following run the new Makefile tests:
-make test-make
-make test-makefile
-make test               # includes them via the normal test path
-make validate           # runs them as part of full validation
-```
-
-The tests are fast, run both on the host and inside the container, and are enforced in CI.
-
-### Adding new Makefile tests
-
-- Add tests in `tests/make/test_*.py`
-- Use the fixtures in `tests/make/conftest.py` (`minimal_makefile_with_macros`, `run_make`, etc.)
-- For new macro behavior, prefer writing small isolated test Makefiles over testing the full real Makefile (much less brittle).
-- Always add a regression test when you touch `HOST_ONLY_GUARD`, `RUN_IN_CONTAINER`, or any recipe that uses `$(call ...)` delegation.
-
-## CI Enforcement
-
-Python tests + coverage run on every push and pull request via `.github/workflows/test.yml`.
-
-As of the 0.1.0 release we have 59% overall coverage. The CI job (and `make test-cov`) will fail if coverage drops below the 60% floor.
-
-## Future Improvements (Post 0.1.0)
-
-- Add property-based testing for config parsing edge cases
-- Golden file tests for generated `.env` content
-- More robust Docker mocking for `reset_postgres` flows
-- Tighten `checkmake` rules in CI (currently advisory) and expand Makefile test coverage to more real targets
-- Consider adding a small Bats suite under `tests/make/` later if pure-shell contributors want it (pytest remains the primary harness)
+- Dramatically increase unit coverage for remaining core paths (especially project ensure side effects, full reset + setup integration, config edge cases).
+- Add integration tests exercising real Docker Compose + complete dev lifecycle (targeted up, project creation, dev server).
+- E2E that create a full generated Payload app (via `xde setup payloadcms` or reset) and validate it (including browser-level with Playwright where valuable).
+- Property-based / golden-file tests for config + generated `.env`.
+- Keep the library-friendly design: core classes (`EnvironmentContext`, `DockerComposeController`, `ensure_payload_project`, etc.) should remain easy to import and test in isolation for use by external tools.
 
 ---
 
-**Goal**: High confidence in the most dangerous parts of the tooling, without turning a Dev Container template into a heavily-tested Python project.
+**Goal**: High confidence in the most dangerous parts of the tooling (reset, credential handling, project scaffolding) and the core abstractions that agents rely on, while progressively moving toward the published unit → integration → E2E (generated apps) roadmap. The recent addition of well-tested pure logic in `core/project.py` (used by both `xde setup payloadcms` and reset) is a concrete step in the right direction.

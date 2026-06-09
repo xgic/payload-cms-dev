@@ -32,16 +32,21 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest pytest-cov pytest-mock pytest-subprocess
+          pip install -e .
 
-      - name: Run tests with coverage (enforce minimum threshold)
+      - name: Run tests with coverage (baseline from verification; soft floor)
         run: |
+          # Baseline established during test coverage verification on 0.1.0
+          # (see plan + GROK-TASKS). Focus on the real xde core now that
+          # legacy scripts/Makefile are retired. Adjust threshold gradually
+          # as unit coverage on src/xde increases (rec8).
           python -m pytest \
-            --cov=.devcontainer/scripts \
-            --cov=tests \
+            --cov=src/xde \
             --cov-report=term-missing \
-            --cov-fail-under=60
+            --cov-report=html \
+            --cov-fail-under=50
 
-      - name: Upload coverage report (optional artifact)
+      - name: Upload coverage report (artifact for PR review)
         uses: actions/upload-artifact@v4
         if: always()
         with:

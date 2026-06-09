@@ -71,7 +71,10 @@ This work must follow the Collaboration Principles in `AGENTS.md`: positive and 
 
 ## Done / Recently Completed
 
-*(Add completed items here with date when marked done)*
+- [x] Test coverage verification baseline on 0.1.0 (post-setup-payloadcms + legacy removal): 33 focused tests, 53% on src/xde. Implemented prioritized recs 1-8 (expanded pure tests + dedicated test_project.py, extracted compute_synced/resolve helpers, integration + e2e skeletons, direct core imports for library vision, CI coverage surfacing on src/xde, GROK-TASKS note). See session plan.md for full report + gaps.
+- [x] (Related) Major refresh of TESTING.md to remove obsolete Makefile content and align with current xde-primary + unit→int→E2E + library roadmap. Hygiene: stale legacy pycache cleaned; website/ remains untracked per direction.
+
+*(Add more completed items here with date when marked done)*
 
 ---
 
