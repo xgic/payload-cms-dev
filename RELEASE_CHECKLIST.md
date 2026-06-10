@@ -79,10 +79,12 @@ Inside the container:
 
 **For the final release merge (when the release branch is *complete*)**:
 - [ ] Living guide, GROK-TASKS "Done" items, README Planned Extensions, and any changelogs/release notes are finalized.
-- [ ] Open (or directly perform) the final PR/merge from `release/0.2.0` → `main`.
-- [ ] Create annotated tag `v0.2.0` (or appropriate) on main after the merge.
-- [ ] Push tag + main.
-- [ ] Create the GitHub Release with clear notes linking to the living guide and key PRs/issues.
+- [ ] Open (or directly perform) the final PR/merge from `release/0.2.0` → `main`. (This is the key human gate / "PR approval" that the entire release scope is complete.)
+- [ ] **Standard automated tagging task (after the merge lands on main)**: Create an annotated tag on the *exact* merge commit. Grok proposes the command (preferably `gh release create` which creates both the annotated tag and the rich GitHub Release in one step; derive title/notes from the finalized living guide + this checklist). Human explicitly approves (LGTM/comment). Grok executes via terminal + pushes. Tag message must reference the release scope, living guide, and key artifacts.
+  - Example (Grok will adapt): `gh release create v0.2.0 --target main --title "v0.2.0 — ..." --notes "..." `
+  - Or: `git tag -a v0.2.0 -m "..." && git push origin v0.2.0 && gh release create v0.2.0 ...`
+- [ ] Confirm the tag points to the correct merge commit on main and the GitHub Release is published with links to the living guide, milestone, and major PRs/issues.
+- [ ] (Post-tag) Update any remaining "Done" items, CONTRIBUTORS.md, etc. (Grok automates with human approval).
 
 ## 6. Specific Release Success Criteria (0.2.0+ Example)
 See the detailed criteria in the release's living guide (`docs/releases/0.2.0-...`).
