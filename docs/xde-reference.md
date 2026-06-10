@@ -101,8 +101,12 @@ Must have very strong warnings and confirmation.
 
 - `xde schema generate`
 - `xde config` (read values from `create-payload-config.json`)
-- `xde validate`
 - `xde exec` (thin wrapper around docker compose exec)
+
+**Deliberately not in scope** (and unlikely to be added):
+- `xde test`, `xde lint`, `xde validate`, or similar "run all the things" commands for code quality.
+
+`xde` is intentionally scoped to dev container orchestration and the generated Payload project lifecycle. Code formatting, linting (`ruff`), and testing (`pytest`) use the standard tools directly. This keeps the command surface small and predictable (see AGENTS.md "Command surface bloat" pitfall and the v1 surface proposal) and makes the actual quality tooling transparent to both humans and agents. `xde check` is strictly for environment health (services, DB, project folder).
 
 ---
 

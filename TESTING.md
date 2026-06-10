@@ -43,6 +43,24 @@ PYTHONPATH=src python -m pytest tests/ --cov=src/xde --cov-report=term-missing
 
 Direct `pytest` usage (no legacy shims).
 
+### Why we use direct commands (and do not have `xde test`)
+
+`xde` owns **environment orchestration** (Docker Compose lifecycle, targeted reset of the generated project + Postgres volume, `setup payloadcms`, launching the dev server, credential/env management, and health diagnostics via `xde check`).
+
+Code quality and testing use the real tools directly:
+
+- `ruff format . && ruff check . --fix`
+- `PYTHONPATH=src python -m pytest ...`
+
+This decision is intentional and documented in multiple places:
+- The locked v1 `xde` command surface (see `docs/xde-v1-command-surface-proposal.md` and AGENTS.md) deliberately kept lint/validate/test concerns as direct `ruff` + `pytest` usage rather than wrappers.
+- "Command surface bloat" is called out as a pitfall in AGENTS.md. Adding top-level commands like `test` or `validate` increases cognitive load for both humans and agents.
+- We retired the previous Makefile (and its many `make test*` / `make validate` targets) precisely to favor explicit, transparent, standard tooling.
+
+`xde check` is for **environment** health (services, DB via pg_isready, expected Payload project folder). It is intentionally lightweight and focused.
+
+If you want a one-liner for convenience inside the container, a local shell alias or a thin `scripts/run-tests.sh` (outside of xde) is acceptable. Do not propose pulling general testing/linting into the `xde` CLI.
+
 Integration/smoke behavior is exercised via:
 - ` .devcontainer/scripts/devcontainer-tests.sh` (Node/pnpm + basic connectivity/version checks at different container lifecycle points)
 - Manual `xde check`, `xde env`, `xde reset --dry-run`, `xde dev` (targeted) flows inside the running dev container.
