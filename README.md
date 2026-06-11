@@ -11,7 +11,7 @@
 - **Node.js LTS Slim** + **pnpm 10** (pinned for maximum Payload CMS compatibility)
 - **PostgreSQL 18** server + client with persistent data volume
 - Docker-in-Docker + Buildx + Compose support
-- Non-root `node` user and security-hardened base image
+- Non-root `node` user and security-hardened VS Code Dev Container image
 - Automated environment validation via `devcontainer-tests.sh`
 - Automated/semi-automated Payload CMS project creation during devcontainer startup
 
