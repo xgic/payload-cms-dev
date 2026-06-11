@@ -48,7 +48,8 @@ def run_check(
             print_info("Suggestion: Run `xde up` to start services.")
 
         if db_ok:
-            print_success("Database connectivity: ready (pg_isready)")
+            db_label = docker.get_db_service()
+            print_success(f"Database connectivity: ready ({db_label})")
         else:
             print_warning("Database connectivity: not ready")
             print_info(

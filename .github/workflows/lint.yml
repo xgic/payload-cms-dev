@@ -142,5 +142,4 @@ jobs:
               line-length: disable
               truthy: disable
 
-  # Makefile linting (checkmake) retired: Makefile removed in 0.1.0.
-  # xde is now the single source of truth for dev/CI commands.
+  # Legacy automation linting retired. xde + ruff/pytest are the current source of truth for dev/CI commands.

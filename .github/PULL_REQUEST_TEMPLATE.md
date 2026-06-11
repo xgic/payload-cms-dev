@@ -14,13 +14,13 @@
 
 ## Testing
 
-**Required:** Please confirm the following before requesting review:
+**Required:** Please confirm the following before requesting review (see TESTING.md and AGENTS.md for current commands):
 
-- [ ] `make validate` passes locally (lint + tests + schema)
-- [ ] `make test-cov` passes (or coverage threshold is intentionally adjusted)
-- [ ] Changes were tested inside the dev container (`make test-in-container` if relevant)
-- [ ] A full `make rebuild` was performed at least once for significant container changes
-- [ ] Manual smoke tests were performed for affected flows (e.g. `make reset-project`, `make create-payload`)
+- [ ] `ruff format . && ruff check .` passes (80-col for code files)
+- [ ] `PYTHONPATH=src python -m pytest tests/ -q` passes (or coverage intentionally adjusted)
+- [ ] Changes were tested inside the Dev Container
+- [ ] `xde check`, `xde env`, and targeted `xde reset --dry-run` + smoke flows were exercised for environment / destructive changes
+- [ ] Manual verification of affected `xde` commands (e.g. `xde dev`, `xde setup payloadcms`, `xde reset --yes`) performed where relevant
 
 ## Checklist
 
@@ -30,7 +30,7 @@
 - [ ] I have made corresponding changes to the documentation (README, CONTRIBUTING, TESTING.md, etc.)
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix/feature works
-- [ ] New and existing unit tests pass locally with `make validate`
+- [ ] New and existing unit tests pass locally (ruff + pytest)
 
 ## AI Assistance (for 0.2.0+ release work and agentic contributions)
 

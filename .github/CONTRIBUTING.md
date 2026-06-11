@@ -44,8 +44,7 @@ This section outlines the standards that apply specifically to **this repository
 Contributions to this repo typically involve:
 - Dockerfiles and Docker Compose files
 - Shell scripts (Bash)
-- Python automation scripts (reset-project.py, get-payload-project-name.py, regenerate-env.py, etc.)
-- Makefiles
+- Python automation in `src/xde/` (the primary interface; see `xde --help`)
 - YAML configuration (Dev Container, GitHub Actions, Dependabot)
 - Documentation (README, CONTRIBUTING, etc.)
 
@@ -54,20 +53,19 @@ Contributions to this repo typically involve:
 - **Dev Containers**: All development work should be done inside the provided Dev Container when possible. Changes must be tested inside the container before opening a PR.
 - **Docker**: Follow official [Docker Best Practices](https://docs.docker.com/build/building/best-practices/). Prefer multi-stage builds and minimize image size where reasonable.
 - **Shell Scripts**:
-  - All `.sh` files must pass `shellcheck` (`make lint-shell`).
+  - All `.sh` files must pass `shellcheck`.
   - Prefer POSIX-compliant syntax when practical. Use `set -euo pipefail` (or `set -e`) appropriately.
-  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers where possible. Complex logic belongs in Python.
-- **Python**: Follow PEP 8 with type hints where it improves clarity. The automation scripts (especially reset-project.py) should remain well-documented and robust.
+  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers (e.g. thin shims calling `xde`). Complex logic belongs in Python under `src/xde/`.
+- **Python**: Follow PEP 8 with type hints where it improves clarity. Core logic lives in `src/xde/core/` and commands; keep it well-documented and testable.
 - **YAML & GitHub Actions**: Use consistent indentation (2 spaces). Validate workflows with `actionlint` when making changes to `.github/workflows/`.
 - **Documentation**: 
   - Update `README.md` when user-facing behavior changes.
   - Update this file (`CONTRIBUTING.md`) when contribution processes or standards change.
-  - Add usage examples for new `make` targets or automation features.
 
 ### Recommended Practices
-- Keep the thin bash wrappers (`setup-payload.sh`, etc.) minimal. Move logic into the Python automation script when it grows complex.
+- Keep the thin bash wrappers (`setup-payload.sh`, etc.) minimal — they should typically just `exec xde ...`.
 - Prefer configuration via `create-payload-config.json` (which has rich JSON Schema support for VS Code IntelliSense) over hardcoding values in scripts.
-- Test changes using available `make` targets (especially `make lint-shell`, `make create-payload`, `make test`, and `make validate`).
+- Test changes with direct commands: `ruff format . && ruff check .`, `PYTHONPATH=src python -m pytest ...`, plus manual `xde check / xde env / xde reset --dry-run / xde dev` flows inside the container.
 
 All contributors are expected to review this document before submitting code.
 
@@ -83,7 +81,6 @@ The 80-character limit applies to:
 - Python (`.py`)
 - Shell scripts (`.sh`, `.bash`)
 - TypeScript and JavaScript (`.ts`, `.js`, `.tsx`) — especially in `.devcontainer/config/`
-- Makefiles (`Makefile`, `*.mk`)
 - Dockerfiles (`Dockerfile*`)
 - YAML workflow and configuration files (`.yml`, `.yaml`) — where reasonable (see exceptions)
 - TOML configuration (`pyproject.toml`, etc.)
@@ -102,7 +99,7 @@ Other justified exceptions (use sparingly and document why when non-obvious):
 - Certain JSON Schema `description` values (these are user-facing documentation rendered by editors).
 - Long string literals in tests that represent real-world data (e.g. large JSON fixtures, certificate material, or exact error output).
 - Base64-encoded values, cryptographic hashes, or other opaque binary data represented as strings.
-- Decorative ASCII art or rule lines in Makefiles and comments when they serve a clear visual purpose.
+- (Historical) Decorative ASCII art or rule lines in old Makefiles when they served a clear visual purpose.
 
 #### Enforcement and Tooling
 
@@ -129,8 +126,9 @@ This is the short, scannable version of the rules that matter most when contribu
 
 #### At a Glance
 
-- **Line length**: **80 characters maximum for all code files** (Python, Shell, TypeScript in `.devcontainer/config/`, Makefiles, Dockerfiles, etc.).
+- **Line length**: **80 characters maximum for all code files** (Python, Shell, TypeScript in `.devcontainer/config/`, Dockerfiles, YAML, etc.).
   - **Markdown files are explicitly exempt**. Write documentation naturally for web browsers, GitHub rendering, and VS Code Markdown preview. Do not add hard line breaks to prose.
+  - (Historical Makefiles are no longer present; the rule remains for other code files.)
 - **Python**: Ruff is the single source of truth for formatting and linting.
 - **Shell scripts**: Prefer POSIX-compliant syntax. All `.sh` files must pass ShellCheck.
 - **TypeScript config**: Follow existing patterns in `.devcontainer/config/types.ts` and `generate_schema.py`.
@@ -139,15 +137,14 @@ This is the short, scannable version of the rules that matter most when contribu
 
 #### Commands to Run Before Committing
 
-These are included in `make validate`:
-
 ```bash
 # Format and lint Python (enforces 80-char limit for code)
 ruff format .
 ruff check . --fix
 
-# Lint all shell scripts
-make lint-shell
+# Lint shell scripts (when shell changes are made)
+# shellcheck is available inside the Dev Container
+shellcheck .devcontainer/scripts/*.sh .devcontainer/scripts/lib/*.sh 2>/dev/null || true
 ```
 
 #### Good vs. Bad Examples
@@ -197,15 +194,20 @@ The project itself is designed to be self-hosting. We strongly recommend using t
 
 ### Local Development Commands
 
-After entering the Dev Container, the following `make` targets are particularly useful:
+After entering the Dev Container, use `xde` (the primary interface) and direct tools:
 
-| Command            | Purpose                                      |
-|--------------------|----------------------------------------------|
-| `make help`        | Show all available targets                   |
-| `make lint-shell`  | Run shellcheck on all scripts                |
-| `make create-payload` | Run Payload project creation inside the container |
-| `make rebuild`     | Clean + rebuild + test the entire environment|
-| `make env`         | Show status of the generated `.env` file     |
+| Command                  | Purpose                                           |
+|--------------------------|---------------------------------------------------|
+| `xde --help`             | Show all available commands                       |
+| `xde check`              | Health diagnostics (services, DB, project dir)    |
+| `xde env`                | Inspect generated `.env` and configuration        |
+| `xde dev`                | Recommended daily command: start Payload dev server |
+| `xde reset --dry-run`    | Preview impact of targeted reset (project + volume) |
+| `xde setup payloadcms`   | Ensure / recreate the Payload project (idempotent)|
+| `ruff format . && ruff check .` | Format + lint Python (enforces 80-col)       |
+| `PYTHONPATH=src python -m pytest ...` | Run Python tests                           |
+
+See `xde --help`, `TESTING.md`, and `docs/xde-reference.md` for details. The prior automation layer (including its targets) was retired in 0.1.0.
 
 ### Debugging & Logging
 
@@ -217,61 +219,60 @@ Supported values (case-insensitive):
 - `WARN` (or `WARNING`) — Warnings and errors only
 - `ERROR` — Errors only
 
-Examples inside the Dev Container:
+Examples inside the Dev Container (direct execution; thin scripts now delegate to `xde`):
 
 ```bash
-# Run the full setup with maximum verbosity
-LOG_LEVEL=DEBUG make exec CMD="bash .devcontainer/scripts/setup-payload.sh"
-
-# Run the Python automation with debug logging
-LOG_LEVEL=debug make exec CMD="bash .devcontainer/scripts/setup-payload.sh"
+# Run the post-start hook directly (thin wrapper around `xde setup payloadcms`)
+LOG_LEVEL=DEBUG bash .devcontainer/scripts/setup-payload.sh
 
 # Only show warnings and errors from init-env
 LOG_LEVEL=warn bash .devcontainer/scripts/init-env.sh
 ```
 
-The Python scripts (reset-project.py, etc.) also respect `LOG_LEVEL` via the shared logging patterns.
+The `xde` commands and thin scripts respect `LOG_LEVEL` via the shared logging patterns.
 
-This is particularly useful when debugging issues with the automated Payload project creation.
+This is particularly useful when debugging issues with the automated Payload project creation or environment setup.
 
 ### Contributing to the Automation Logic
 
-Payload project creation is intentionally a thin orchestration layer:
+Payload project creation and environment management are driven by `xde` (primary) with thin orchestration shims:
 
-- `setup-payload.sh` (invoked by `postStartCommand`) drives the official `create-payload-app` CLI using real non-interactive flags derived from `create-payload-config.json`.
-- `reset-project.py` is the robust Python implementation of fast resets (preferred over the older shell fragments).
+- `setup-payload.sh` (invoked by `postStartCommand`) is now a thin `exec xde setup payloadcms`.
+- Core logic for project ensure, reset, env, Docker orchestration lives in `src/xde/core/` and `src/xde/commands/`.
 
 When working in this area:
-- Prefer extending `create-payload-config.json` support (and its JSON Schema in `create-payload-config.schema.json`) over hardcoding behavior.
-- The canonical model lives in `.devcontainer/config/types.ts`. Run `make generate-config-schema` after changing it.
-- Keep the bash scripts in `.devcontainer/scripts/` as thin, readable wrappers.
-- Complex logic belongs in Python (following the pattern of `reset-project.py`).
-- Test changes locally with `make create-payload`, `make reset-project`, or `make rebuild`.
-- Update relevant documentation (README, script help text, this file) when user-visible behavior changes.
+- Prefer extending `create-payload-config.json` support (and its JSON Schema) over hardcoding behavior.
+- The canonical model lives in `.devcontainer/config/types.ts`. Run `python -m xde schema` (or the generate script) after changing it.
+- Keep the bash scripts in `.devcontainer/scripts/` as thin, readable shims that delegate to `xde`.
+- Complex logic belongs in Python under `src/xde/` (pure functions first, then commands).
+- Test changes locally with direct `ruff` + `pytest` + manual `xde reset --dry-run ; xde dev` flows inside the container.
+- Update relevant documentation (README, AGENTS.md, script comments, this file) when user-visible behavior changes.
 
 ### Linting & Quality
 
 This repository uses several tools to maintain code quality:
 
-- **Shell scripts**: `shellcheck` (`make lint-shell`). `shellcheck` is pre-installed in the Dev Container.
+- **Shell scripts**: `shellcheck` (pre-installed in the Dev Container; run manually or via CI).
 - **GitHub Actions workflows**: `actionlint` (run via CI).
 - **Shell formatting**: `shfmt` (enforced in CI).
 - **Python formatting & linting**: Ruff (80-character line length enforced for code files — see the [Line Length rule](#line-length-80-characters) above).
-- **Python tests**: `pytest` + coverage (run via `make test` / `make validate`). Test dependencies are installed on first use from `.devcontainer/requirements-dev.txt`.
+- **Python tests**: `pytest` + coverage (direct; see TESTING.md). Test dependencies are installed on first use from `.devcontainer/requirements-dev.txt`.
 
-The full lint + test suite runs automatically on every pull request. You can run everything locally with:
+The full lint + test suite runs automatically on every pull request. You can run the core gates locally with:
 
 ```bash
-make validate
+ruff format .
+ruff check . --fix
+PYTHONPATH=src python -m pytest -q
 ```
 
-## GitHub Flow & Branching Strategy
+## Branching Strategy and Protected Branches (0.2.0+)
 
-We follow the **GitHub Flow** model:
-- The `main` branch is the only long-lived branch and is always in a releasable state.
-- All changes are made in short-lived **feature branches** created from `main`.
-- Every pull request targets `main`.
-- Protected branch rules (enforced via repository settings) require passing status checks and at least one approving review before merging.
+The project uses a pragmatic hybrid model that supports both ongoing development and disciplined major releases:
+
+- `main` is the ultimate long-lived "source of truth" (releases, tags, and the history that guarantees reproducible dev containers). It is protected (see `docs/branch-protection.md`).
+- For each major release cycle we use a semantic long-lived accumulation branch (e.g. `release/0.2.0`). All work, PRs (including external contributor simulations and Grok Build automation), and validation target this branch until the full scope (code + tests + docs + examples) is complete. Only then do we perform the final merge `release/0.X.0` → `main` + tag.
+- Short-lived branches (`feat/...`, `fix/...`, `docs/...`, etc.) are created from the current base (usually the active release branch or `main`) and always merged via PR.
 
 **Branch naming convention** (enforced via Conventional Commits tooling):
 - `feat/...` – new features or enhancements
@@ -280,10 +281,15 @@ We follow the **GitHub Flow** model:
 - `refactor/...` – code refactoring without functional change
 - `test/...` – adding or updating tests
 - `chore/...` – build, CI, or tooling changes
+- `release/...` – used for the long-lived accumulation branches during a release cycle
 
-## Step-by-Step Guide: Initiating a New Feature Branch (GitHub Free Account)
+Protected branch rules (enforced via repository settings / rulesets) require passing status checks and at least one approving review before merging to `main` or an active `release/*` branch. See the full policy and setup guidance in [docs/branch-protection.md](../docs/branch-protection.md). This policy is deliberately compatible with (and reinforces) the atomic-commit + human-gate + Grok automation patterns described in `AGENTS.md` and the release living guides.
 
-GitHub Free accounts do **not** grant direct push access to organization repositories. Therefore, all external contributors **must** use the **Fork + Pull Request** workflow. The following guide is tailored specifically for contributors to `XGIC/payload-cms-dev-containers` and adheres to GitHub’s official best practices (GitHub Flow, fork model, and Conventional Commits).
+## Step-by-Step Guide: Initiating Work as an External Contributor (GitHub Free Account)
+
+GitHub Free accounts do **not** grant direct push access to organization repositories. Therefore, all external contributors **must** use the **Fork + Pull Request** workflow. The following guide is tailored specifically for contributors to `XGIC/payload-cms-dev-containers` and adheres to GitHub’s official best practices, the fork model, and Conventional Commits.
+
+During an active release the base branch for your PRs will be the current `release/0.X.0` (see the release-specific living guide). For general/small contributions it will be `main` or the tip of the active release branch.
 
 ### Step 1: Fork the Repository
 1. Navigate to [https://github.com/XGIC/payload-cms-dev-containers](https://github.com/XGIC/payload-cms-dev-containers) in your browser.
@@ -305,15 +311,15 @@ git remote -v   # verify remotes
 ```
 
 ### Step 4: Fetch the Latest Upstream Changes
-Always start from the latest `main`:
+Always start from the current base (usually `main` or the active `release/0.X.0`):
 ```bash
 git fetch upstream
-git checkout main
+git checkout main   # or the relevant release branch
 git merge upstream/main   # or git rebase upstream/main
 git push origin main
 ```
 
-### Step 5: Create a New Feature Branch
+### Step 5: Create a New Feature / Fix Branch
 ```bash
 git checkout -b feat/descriptive-feature-name
 ```
@@ -328,7 +334,7 @@ Branch names must be lowercase, use hyphens, and be descriptive.
 - Work exclusively inside the Dev Container (recommended).
 - Follow the [Coding Standards](#coding-standards--best-practices) below.
 - For human contributors: Keep changes reasonably scoped.
-- For agent-driven work: Commits should represent logical, atomic units of change (smaller commits, including single-file changes, are acceptable when they improve clarity). All commits must pass linting and relevant tests. See the Collaboration Principles in `AGENTS.md`. Local development commits may be granular; history should be cleaned before pushing or merging to the primary branch.
+- For agent-driven work: Commits should represent logical, atomic units of change (smaller commits, including single-file changes, are acceptable when they improve clarity). All commits must pass linting and relevant tests. See the Collaboration Principles in `AGENTS.md`. Local development commits may be granular; history should be cleaned before pushing or merging to a protected branch.
 
 ### Step 7: Stage, Commit, and Push
 Use **Conventional Commits** (see section below):
@@ -341,11 +347,11 @@ git push origin feat/descriptive-feature-name
 ### Step 8: Open a Pull Request
 1. Go to your fork on GitHub.
 2. Click **Compare & pull request**.
-3. Ensure the base repository is `XGIC/payload-cms-dev-containers` and base branch is `main`.
+3. Ensure the base repository is `XGIC/payload-cms-dev-containers` and the **base branch** is the current target (`main` or the active `release/0.X.0` as documented in the release living guide or RELEASE_CHECKLIST.md).
 4. Fill out the PR template completely.
 5. Link any related issues using `Closes #123` or `Resolves #123`.
 
-Your PR will automatically trigger CI checks (Docker build, linting, tests). All checks must pass before review.
+Your PR will automatically trigger CI checks (linting via ruff + ShellCheck + actionlint etc., tests via pytest, devcontainer validation where applicable). All checks must pass before review. The branch protection rules on the target (main or the release branch) will also be enforced.
 
 ## Commit Message Convention
 
@@ -397,7 +403,7 @@ Maintainers will merge only after at least one approval and successful CI.
 
 ## Contributor License Agreement
 
-All contributions are licensed under the project’s [MIT License](LICENSE). By submitting a pull request, you affirm that you have the right to license your contribution under these terms.
+All contributions are licensed under the Apache License 2.0 (see [LICENSE](LICENSE)). By submitting a pull request, you affirm that you have the right to license your contribution under these terms.
 
 ## Recognition
 

@@ -1,16 +1,15 @@
 #!/bin/bash
 set -e
 
-# This script runs on the host during initializeCommand (and via `make init-env`).
+# This script runs on the host during initializeCommand.
 # It generates a secure .env file **only if one does not already exist**.
 #
 # This makes the script idempotent: repeated devcontainer rebuilds,
 # `docker compose up`, or manual invocations will not rotate secrets
 # and invalidate existing database data.
 #
-# To explicitly rotate credentials, use:
-#   make env-regenerate
-#   make reset-project --rotate-credentials   (or the Python script directly)
+# To explicitly rotate credentials, use `xde reset --rotate-credentials`
+# (preferred for full reset) or edit the .env and inspect with `xde env`.
 
 # Source shared logging (with graceful fallback if the lib is missing, e.g. after a hard clean)
 LOGGING_LIB="$(dirname "$0")/lib/logging.sh"

@@ -19,10 +19,9 @@ This document gives AI agents (especially Grok Build) a clear mental model of th
    - Single, clean, testable interface for all environment operations.
    - Designed to be excellent for both humans and agents.
 
-4. **Legacy Automation** (being migrated)
-   - `Makefile`
-   - `.devcontainer/scripts/*.sh` and `*.py`
-   - These exist for backward compatibility during the transition.
+4. **Legacy Automation** (retired in 0.1.0)
+   - Earlier shell/Python scripts in `.devcontainer/scripts/`.
+   - Migration to `xde` as the single, testable interface is complete. Historical context is preserved in `DEV-JOURNAL.md` and `GROK-TASKS.md`.
 
 ## Core Abstractions (Most Important for Agents)
 
@@ -33,7 +32,7 @@ Tells you where you are running:
 - `DEV_CONTAINER`
 - `GENERIC_CONTAINER`
 
-This replaces the old fragile Makefile `HOST_ONLY_GUARD` / `RUN_IN_CONTAINER` macros.
+This replaces fragile environment-guard patterns from earlier automation.
 
 **Always** start by understanding the environment context when reasoning about a task.
 
@@ -84,16 +83,16 @@ Agents should prefer reading/writing this config over hardcoding values.
 
 The goal is for step 6 (`xde dev`) to become the only thing a human or agent needs to remember.
 
-## Migration Philosophy
+## Migration Philosophy (Historical)
 
-We are deliberately **not** porting the entire Makefile 1:1.
+The implementation deliberately did not port the entire earlier automation approach 1:1.
 
-Instead we are:
-- Identifying the *valuable outcomes* the Makefile delivered.
+Instead the approach was:
+- Identifying the *valuable outcomes* the earlier automation delivered.
 - Re-implementing them in a cleaner, more testable, more agent-friendly way inside `xde`.
 - Adding strong guardrails and better UX along the way.
 
-Destructive operations in particular (now `xde reset`) are given strong guardrails, targeted postgres handling, and clean UX (no self-recreate of the caller's container when running reset from inside the dev container). This is a major improvement over the Makefile era.
+Destructive operations in particular (now `xde reset`) are given strong guardrails, targeted postgres handling, and clean UX (no self-recreate of the caller's container when running reset from inside the dev container). This was a major improvement over the earlier automation era.
 
 ## Key Invariants Agents Must Respect
 

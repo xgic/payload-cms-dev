@@ -1,6 +1,6 @@
 # Development Workflow
 
-This document defines how we work on this project, with a particular emphasis on maintaining high quality while moving quickly toward the goal of retiring the Makefile in favor of `xde`.
+This document defines how we work on this project, with a particular emphasis on maintaining high quality. `xde` is the single source of truth for all environment operations.
 
 These guidelines apply to both human contributors and AI-assisted development (Grok Build).
 
@@ -36,7 +36,7 @@ All commits must use the [Conventional Commits](https://www.conventionalcommits.
 
 Before every commit that touches code:
 
-1. Run the project's linting and test suite (via `make validate` or equivalent when available).
+1. Run the project's linting and test suite (ruff + pytest).
 2. All tests must pass.
 3. Linting must be clean.
 
@@ -44,15 +44,6 @@ We are actively building toward the following testing progression:
 - Unit tests for core logic in `src/xde/core/`
 - Integration tests exercising real Docker Compose behavior
 - End-to-end tests validating full environments and generated Payload applications
-
-## Working with the Makefile During Transition
-
-(Makefile removed in 0.1.0; all via xde):
-
-- Prefer using `xde` commands for new work.
-- When modifying existing Makefile targets, consider whether the logic can move into `xde` instead.
-- The Makefile may become a thin compatibility layer with deprecation warnings over time.
-- Never introduce new complex logic into the Makefile unless there is a strong short-term reason.
 
 ## Docker and Docker Compose Interface
 
@@ -91,13 +82,9 @@ with minimal impact.
 Before committing code changes:
 
 ```bash
-# Recommended
-make validate
-
-# Minimum (when make validate is not yet fully available)
 ruff format .
 ruff check .
-pytest -q   # or the relevant test subset for the change
+PYTHONPATH=src python -m pytest -q   # or the relevant test subset for the change
 ```
 
 All linting and tests must pass cleanly.

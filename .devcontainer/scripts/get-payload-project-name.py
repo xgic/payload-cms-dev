@@ -2,7 +2,8 @@
 """Return the name of the generated Payload project folder.
 
 Reads from .devcontainer/create-payload-config.json if present.
-Always produces a safe default so that Make targets never break.
+Always produces a safe default so tools/scripts have a reliable
+project name.
 """
 
 import json
@@ -22,5 +23,5 @@ try:
     name = data.get("projectName") or DEFAULT
     print(name)
 except Exception:
-    # Never let a bad config or json error break the Makefile
+    # Never let a bad config or json error break tools or scripts
     print(DEFAULT)

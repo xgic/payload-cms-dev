@@ -38,11 +38,33 @@ def generate_fresh_env_content() -> str:
     """Pure: return .env content with fresh secrets + db from config.
 
     Fully testable, no I/O or side effects.
+    Adapter-aware for 0.2.0+ (postgres or mongodb).
     """
     db_name, db_user = _load_db_details()
-    pg_pass = secrets.token_hex(16)
     payload_secret = secrets.token_hex(32)
-    return f"""POSTGRES_USER={db_user}
+
+    # Load adapter to decide env style (default postgres for stability)
+    adapter = "postgres"
+    if CONFIG_PATH.exists():
+        try:
+            with CONFIG_PATH.open(encoding="utf-8") as f:
+                cfg = json.load(f)
+            adapter = str(cfg.get("dbAdapter", "postgres")).lower()
+        except Exception:
+            pass
+
+    if adapter == "mongodb":
+        mongo_pass = secrets.token_hex(16)
+        return f"""MONGO_INITDB_ROOT_USERNAME={db_user}
+MONGO_INITDB_ROOT_PASSWORD={mongo_pass}
+MONGO_INITDB_DATABASE={db_name}
+PAYLOAD_SECRET={payload_secret}
+DATABASE_URI=mongodb://{db_user}:{mongo_pass}@mongodb:27017/{db_name}?authSource=admin
+"""
+    else:
+        # postgres (default)
+        pg_pass = secrets.token_hex(16)
+        return f"""POSTGRES_USER={db_user}
 POSTGRES_PASSWORD={pg_pass}
 POSTGRES_DB={db_name}
 PAYLOAD_SECRET={payload_secret}
@@ -70,8 +92,19 @@ def perform_env_regenerate(
         with env_file.open("w", encoding="utf-8") as f:
             f.write(content)
         db_name, db_user = _load_db_details()
+        adapter = "postgres"
+        if CONFIG_PATH.exists():
+            try:
+                with CONFIG_PATH.open(encoding="utf-8") as f:
+                    cfg = json.load(f)
+                adapter = str(cfg.get("dbAdapter", "postgres")).lower()
+            except Exception:
+                pass
         print_success(f"Generated fresh credentials in {env_file}")
-        print_info(f"  (POSTGRES_DB={db_name}, POSTGRES_USER={db_user})")
+        if adapter == "mongodb":
+            print_info(f"  (MONGO DB for {db_name})")
+        else:
+            print_info(f"  (POSTGRES_DB={db_name}, POSTGRES_USER={db_user})")
         return 0
     except Exception as e:
         print_warning(f"Failed to write {env_file}: {e}")

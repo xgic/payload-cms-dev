@@ -122,12 +122,17 @@ class DockerComposeController:
     ) -> None:
         """Start services in detached mode.
 
+        Always includes --profile based on the active dbAdapter from config
+        (postgres or mongodb). This enables the profile-tagged DB service
+        (see docker-compose.yml for 0.2.0+ multi-adapter support).
+
         If services is provided (list of service names), only those services
-        are started. This enables targeted handling (e.g. only "postgres")
-        during reset so the caller's own main dev container is not recreated
-        while the reset command is running inside it.
+        are started. This enables targeted handling (e.g. only the active DB
+        service) during reset so the caller's own main dev container is not
+        recreated while the reset command is running inside it.
         """
-        args = ["up", "-d"]
+        profile = self._get_db_profile()
+        args = ["--profile", profile, "up", "-d"]
         if build:
             args.append("--build")
         if services:
@@ -148,9 +153,10 @@ class DockerComposeController:
     ) -> None:
         """Best-effort compose rm for a single service.
 
-        Used by reset to stop/remove *only* the postgres container before
-        attempting to remove its named data volume (so the volume rm can
-        succeed). Matches the proven sequence from the legacy reset script.
+        Used by reset to stop/remove *only* the active DB container (postgres
+        or mongodb) before attempting to remove its named data volume (so the
+        volume rm can succeed). Matches the proven sequence from the legacy
+        reset script, generalized for 0.2.0+ multi-adapter.
         """
         args = ["rm"]
         if force:
@@ -244,26 +250,74 @@ class DockerComposeController:
         except Exception:
             return default_db, default_user
 
-    def db_ready(self) -> bool:
-        """Check if PostgreSQL is accepting connections using pg_isready.
+    def _get_db_profile(self) -> str:
+        """Return the compose profile for the active DB adapter.
 
-        Uses real db user from config (not hardcoded).
+        (postgres or mongodb). Reads from create-payload-config.json.
+        Defaults to postgres for backwards compat and stability. Key for
+        0.2.0+ multi-adapter support using profiles (no breaking change).
         """
-        _, db_user = self.get_db_config()
+        if not DEFAULT_CONFIG_FILE.exists():
+            return "postgres"
         try:
-            result = self._run_compose(
-                "exec",
-                "-T",
-                "postgres",
-                "pg_isready",
-                "-U",
-                db_user,
-                capture_output=True,
-                check=False,
-            )
-            return result.returncode == 0
+            with DEFAULT_CONFIG_FILE.open(encoding="utf-8") as f:
+                cfg: dict[str, Any] = json.load(f)
+            adapter = str(cfg.get("dbAdapter", "postgres")).lower()
+            if adapter == "mongodb":
+                return "mongodb"
+            return "postgres"
         except Exception:
-            return False
+            return "postgres"
+
+    def get_db_service(self) -> str:
+        """Return the compose service name for the active DB."""
+        return self._get_db_profile()
+
+    def get_db_volume_name(self) -> str:
+        """Return the named volume for the active DB data."""
+        service = self.get_db_service()
+        return f"{self.project_name}-{service}-data"
+
+    def db_ready(self) -> bool:
+        """Check if the active DB is accepting connections.
+
+        Adapter-aware for 0.2.0+ (profiles in compose). postgres: pg_isready;
+        mongodb: mongosh ping.
+        """
+        service = self.get_db_service()
+        if service == "mongodb":
+            try:
+                result = self._run_compose(
+                    "exec",
+                    "-T",
+                    service,
+                    "mongosh",
+                    "--quiet",
+                    "--eval",
+                    "db.runCommand({ping: 1})",
+                    capture_output=True,
+                    check=False,
+                )
+                return result.returncode == 0
+            except Exception:
+                return False
+        else:
+            # postgres (default for stability)
+            _, db_user = self.get_db_config()
+            try:
+                result = self._run_compose(
+                    "exec",
+                    "-T",
+                    "postgres",
+                    "pg_isready",
+                    "-U",
+                    db_user,
+                    capture_output=True,
+                    check=False,
+                )
+                return result.returncode == 0
+            except Exception:
+                return False
 
     def remove_volume(self, volume_name: str) -> bool:
         """Attempt to remove a Docker volume.

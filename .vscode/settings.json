@@ -1,46 +1,5 @@
 {
-  "cSpell.words": [
-    "bradlc",
-    "chsh",
-    "dbaeumer",
-    "dearmor",
-    "dpkg",
-    "eamodio",
-    "ecommerce",
-    "errorlens",
-    "esbenp",
-    "healthcheck",
-    "isready",
-    "keyrings",
-    "kohler",
-    "localedef",
-    "mtxr",
-    "nextjs",
-    "payloadcms",
-    "payloadtests",
-    "pgdg",
-    "PGPASSWORD",
-    "pnpx",
-    "psql",
-    "sqltools",
-    "tracepath",
-    "usermod",
-    "usernamehw",
-    "Vercel",
-    "worktrees"
+  "editor.rulers": [
+    80
   ],
-  "editor.rulers": [80, 100],
-  "sqltools.connections": [
-    {
-      "ssh": "Disabled",
-      "previewLimit": 50,
-      "server": "postgres",
-      "port": 5432,
-      "driver": "PostgreSQL",
-      "name": "postgres",
-      "database": "payload_db",
-      "username": "payload",
-      "password": "be78b0173f08d83e92bfac66a2396403"
-    }
-  ]
 }

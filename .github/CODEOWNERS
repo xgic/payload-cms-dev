@@ -1,0 +1,29 @@
+# CODEOWNERS for XGIC payload-cms-dev-containers
+#
+# These paths require review from the listed owners before changes can merge
+# to protected branches (main and active release/* branches).
+# See docs/branch-protection.md for the full policy and how this interacts
+# with Grok Build automation + mandatory human gates.
+
+# Core agent-optimized foundation and dev container experience
+/.devcontainer/                 @owner
+/src/xde/                       @owner
+/.github/                       @owner
+/docs/                          @owner
+
+# Configuration that drives project generation (single source of truth)
+/.devcontainer/create-payload-config.json   @owner
+/devcontainer/config/           @owner
+
+# High-value automation and release process
+/RELEASE_CHECKLIST.md           @owner
+/docs/releases/                 @owner
+
+# Start here for contributors and agents
+/.github/CONTRIBUTING.md        @owner
+/AGENTS.md                      @owner
+/GROK-TASKS.md                  @owner
+/README.md                      @owner
+
+# (Expand with real GitHub usernames or teams once the repo has collaborators.
+#  Example: @yourusername or @xgic/devcontainer-maintainers)

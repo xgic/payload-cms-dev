@@ -49,31 +49,40 @@ class TestDockerComposeController:
             mock_run.return_value = mock_result
             assert controller.services_running() is False
 
-    def test_up_calls_compose_with_detach(self, controller):
-        """up() should call docker compose up -d (and --build if requested)."""
-        with patch.object(controller, "_run_compose") as mock_run:
-            controller.up()
-            mock_run.assert_called_with("up", "-d")
-            controller.up(build=True)
-            mock_run.assert_called_with("up", "-d", "--build")
+    def test_up_calls_compose_with_detach(self, controller, tmp_path):
+        """up() calls compose with --profile (dbAdapter) + up -d."""
+        cfg = tmp_path / "cfg.json"
+        cfg.write_text('{"dbAdapter": "postgres"}')
+        with patch("xde.core.docker.DEFAULT_CONFIG_FILE", cfg):
+            with patch.object(controller, "_run_compose") as mock_run:
+                controller.up()
+                mock_run.assert_called_with("--profile", "postgres", "up", "-d")
+                controller.up(build=True)
+                # Long verification tuple is expected for exact call shape
+                mock_run.assert_called_with(  # noqa: E501
+                    "--profile", "postgres", "up", "-d", "--build"
+                )
 
     def test_down_calls_compose_down(self, controller):
         with patch.object(controller, "_run_compose") as mock_run:
             controller.down()
             mock_run.assert_called_with("down")
 
-    def test_db_ready_uses_pg_isready(self, controller):
-        """db_ready should exec pg_isready in postgres container."""
-        with patch.object(controller, "_run_compose") as mock_run:
-            mock_result = MagicMock()
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
-            assert controller.db_ready() is True
-            # Check it called exec -T postgres pg_isready ...
-            args = mock_run.call_args[0]
-            assert "exec" in args
-            assert "postgres" in args
-            assert "pg_isready" in args
+    def test_db_ready_uses_pg_isready(self, controller, tmp_path):
+        """db_ready execs adapter-appropriate tool (postgres path)."""
+        cfg = tmp_path / "cfg.json"
+        cfg.write_text('{"dbAdapter": "postgres"}')
+        with patch("xde.core.docker.DEFAULT_CONFIG_FILE", cfg):
+            with patch.object(controller, "_run_compose") as mock_run:
+                mock_result = MagicMock()
+                mock_result.returncode = 0
+                mock_run.return_value = mock_result
+                assert controller.db_ready() is True
+                # Check it called exec -T postgres pg_isready ...
+                args = mock_run.call_args[0]
+                assert "exec" in args
+                assert "postgres" in args
+                assert "pg_isready" in args
 
     def test_remove_volume_calls_docker_volume_rm(self, controller):
         """remove_volume must use top-level docker (not compose volume)."""
@@ -87,11 +96,17 @@ class TestDockerComposeController:
             assert called_cmd[0:4] == ["docker", "volume", "rm", "-f"]
             assert "test-volume" in called_cmd
 
-    def test_up_with_services_targets_only_those(self, controller):
-        """up(services=[...]) should pass the services to compose up."""
-        with patch.object(controller, "_run_compose") as mock_run:
-            controller.up(services=["postgres"])
-            mock_run.assert_called_with("up", "-d", "postgres")
+    def test_up_with_services_targets_only_those(self, controller, tmp_path):
+        """up(services=...) passes --profile + services list to compose."""
+        cfg = tmp_path / "cfg.json"
+        cfg.write_text('{"dbAdapter": "postgres"}')
+        with patch("xde.core.docker.DEFAULT_CONFIG_FILE", cfg):
+            with patch.object(controller, "_run_compose") as mock_run:
+                controller.up(services=["postgres"])
+                # Exact call includes the dynamic profile prefix (0.2.0+)
+                mock_run.assert_called_with(  # noqa: E501
+                    "--profile", "postgres", "up", "-d", "postgres"
+                )
 
     def test_rm_service_passes_expected_flags(self, controller):
         """rm_service should compose the rm flags and call through compose."""
@@ -129,15 +144,21 @@ class TestDockerComposeController:
 class TestEnvRegenerate:
     """Tests for the pure env regenerate helpers (step 2)."""
 
-    def test_generate_fresh_env_content_is_pure(self):
-        """Returns expected keys; different secrets prove pure/random."""
-        c1 = generate_fresh_env_content()
-        c2 = generate_fresh_env_content()
-        assert "POSTGRES_USER=" in c1
-        assert "PAYLOAD_SECRET=" in c1
-        assert "DATABASE_URI=" in c1
-        # Different runs produce different secrets (random)
-        assert c1 != c2
+    def test_generate_fresh_env_content_is_pure(self, tmp_path):
+        """Returns expected keys (postgres); secrets differ (pure/random).
+
+        Adapter-aware since 0.2.0; forces postgres config for these asserts.
+        """
+        cfg = tmp_path / "cfg.json"
+        cfg.write_text('{"dbAdapter": "postgres"}')
+        with patch("xde.commands.env.CONFIG_PATH", cfg):
+            c1 = generate_fresh_env_content()
+            c2 = generate_fresh_env_content()
+            assert "POSTGRES_USER=" in c1
+            assert "PAYLOAD_SECRET=" in c1
+            assert "DATABASE_URI=" in c1
+            # Different runs produce different secrets (random)
+            assert c1 != c2
 
     def test_perform_env_regenerate_dry_run(self, tmp_path):
         """Dry run does not write file."""
@@ -148,15 +169,18 @@ class TestEnvRegenerate:
 
     def test_perform_env_regenerate_writes_with_yes(self, tmp_path):
         """With --yes it writes the file (real but in tmp)."""
+        cfg = tmp_path / "cfg.json"
+        cfg.write_text('{"dbAdapter": "postgres"}')
         target = tmp_path / ".env-test"
-        rc = perform_env_regenerate(yes=True, env_file=target)
-        assert rc == 0
-        assert target.exists()
-        content = target.read_text()
-        assert "POSTGRES_PASSWORD=" in content
-        assert (
-            "payload_db" in content or "website" in content
-        )  # db from config or default
+        with patch("xde.commands.env.CONFIG_PATH", cfg):
+            rc = perform_env_regenerate(yes=True, env_file=target)
+            assert rc == 0
+            assert target.exists()
+            content = target.read_text()
+            assert "POSTGRES_PASSWORD=" in content
+            assert (
+                "payload_db" in content or "website" in content
+            )  # db from config or default
 
 
 def test_schema_command_is_callable():

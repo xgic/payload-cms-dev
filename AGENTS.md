@@ -121,11 +121,11 @@ This project has two layers:
 - Fast, safe reset capabilities
 
 **Layer 2: The Developer Experience**
-- `xde` is the **primary (and only) interface** (Makefile removed in 0.1.0).
+- `xde` is the **primary (and only) interface**.
 - The `create-payload-config.json` + schema system is the extensible configuration surface.
 - Everything should be optimized for both human developers *and* agents.
 
-**Key Principle**: The agent (me) should rarely need to understand low-level Docker, shell scripting, or Makefile quirks. I should operate through `xde` and the Python package in `src/xde/`.
+**Key Principle**: The agent (me) should rarely need to understand low-level Docker internals or shell scripting quirks. I should operate through `xde` and the Python package in `src/xde/`.
 
 ---
 
@@ -156,7 +156,7 @@ This project has two layers:
 ### Workflow C: Migrating logic from legacy scripts into `xde`
 
 The reset migration is complete:
-- `.devcontainer/scripts/reset-project.py` (and its dedicated fidelity tests under `tests/test_reset_project.py` + `tests/make/`) have been removed as deprecated/outdated.
+- `.devcontainer/scripts/reset-project.py` (and its dedicated fidelity tests) have been removed as deprecated/outdated.
 - Core behavior lives in `src/xde/commands/reset.py` + `src/xde/core/docker.py` (with targeted `up(services=...)` and `rm_service` helpers so reset can safely manage only the postgres volume without touching the caller's own container).
 
 Historical note (for future similar migrations):
@@ -188,7 +188,7 @@ Current / near-term commands (v1 surface, finalized per `docs/xde-v1-command-sur
 - `shell` / `logs` — Escape hatches.
 - `clean` — High danger. Must have very strong guardrails.
 
-(See `docs/development-workflow.md` for how these map to legacy Makefile targets during transition.)
+(See `DEV-JOURNAL.md` for historical transition details.)
 
 **Design rules for new commands**:
 - Default behavior should be the safe, common case.
@@ -225,7 +225,7 @@ When working with reset or clean functionality:
 Avoid these recurring traps that have caused issues for agents in the past:
 
 - **Context blindness**: Assuming you are inside the Dev Container. Always check via `EnvironmentContext.detect()` concepts or by running `xde check` / `xde env`.
-- **Legacy reflex**: Reaching for `make ...` (Makefile removed in 0.1.0) or old scripts when `xde` equivalents exist.
+- **Legacy reflex**: Reaching for old/deprecated scripts or direct low-level commands (e.g. raw `docker compose` or shell) instead of the `xde` equivalents.
 - **Credential rotation over-eagerness**: Rotating secrets (`--rotate-credentials`) without strong justification can lead to authentication issues between running containers and the `.env` file. Always use strong safeguards.
 - **Project folder confusion**: Forgetting that the generated Payload app lives in a sibling folder (e.g. `website/`) controlled by `create-payload-config.json`, not inside `.devcontainer`.
 - **Weak safety defaults**: Proposing destructive operations without first using `--dry-run` and clearly explaining impact.
@@ -272,7 +272,7 @@ See `GROK-TASKS.md` for the current prioritized list.
 ## Advanced / Reference Material
 
 - The `xg/` reference material (advanced console application patterns from the XG AIS project) lives on the `reference/xg-ais` branch. Some ideas (OOP command structure, rich environment detection, Textual TUI for complex debugging) may be inspirational but are **not** part of the active codebase on this branch.
-- The original Makefile contains a lot of hard-won knowledge about quoting, guards, and devcontainer lifecycle quirks. We are deliberately replacing it rather than copying it.
+- Early automation contained hard-won lessons about quoting, guards, and devcontainer lifecycle quirks. The current `xde` implementation was written cleanly rather than carrying everything forward.
 
 ---
 

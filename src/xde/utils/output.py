@@ -1,8 +1,7 @@
 """Rich-based output helpers.
 
 Proper runtime detection for colors and emoji (no fragile parse-time
-Makefile hacks). This permanently solves the emoji/TTY problems we had
-in the old Makefile.
+hacks). This permanently solves earlier TTY/emoji detection problems.
 """
 
 from __future__ import annotations

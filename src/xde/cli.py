@@ -57,7 +57,7 @@ def create_parser() -> argparse.ArgumentParser:
 Examples:
   xde dev          Smart start of Payload dev server (recommended daily command)
   xde up           Start all services
-  xde reset        Fast targeted reset (project folder + Postgres volume)
+  xde reset        Fast targeted reset (project folder + active DB volume)
   xde check        Health diagnostics
         """,
     )
@@ -91,7 +91,7 @@ Examples:
     # reset
     reset_parser = subparsers.add_parser(
         "reset",
-        help="Fast targeted reset (project folder + Postgres volume)",
+        help="Fast targeted reset (project folder + active DB volume)",
     )
     reset_parser.add_argument(
         "--yes", action="store_true", help="Skip confirmation prompt"
@@ -109,7 +109,7 @@ Examples:
     reset_parser.add_argument(
         "--compact",
         action="store_true",
-        help="Compact output (for make shims / scripting)",
+        help="Compact output (for scripting)",
     )
     reset_parser.set_defaults(func=run_reset)
 
@@ -125,7 +125,7 @@ Examples:
     )
     check_parser.set_defaults(func=run_check)
 
-    # build (with useful flags instead of many Makefile variants)
+    # build (with useful flags)
     build_parser = subparsers.add_parser(
         "build",
         help="Build or rebuild services (use --no-cache for clean build)",
