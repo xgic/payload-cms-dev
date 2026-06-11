@@ -90,6 +90,12 @@ $(lsb_release -cs)-pgdg main" \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
        postgresql-client-18 \
+    && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+       gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+    && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] http://repo.mongodb.org/apt/debian $(. /etc/os-release && echo $VERSION_CODENAME)/mongodb-org/7.0 main" | \
+       tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends mongodb-mongosh \
     && localedef -i en_US -c -f UTF-8 \
        -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*

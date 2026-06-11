@@ -57,7 +57,7 @@ def create_parser() -> argparse.ArgumentParser:
 Examples:
   xde dev          Smart start of Payload dev server (recommended daily command)
   xde up           Start all services
-  xde reset        Fast targeted reset (project folder + Postgres volume)
+  xde reset        Fast targeted reset (project folder + active DB volume)
   xde check        Health diagnostics
         """,
     )
@@ -91,7 +91,7 @@ Examples:
     # reset
     reset_parser = subparsers.add_parser(
         "reset",
-        help="Fast targeted reset (project folder + Postgres volume)",
+        help="Fast targeted reset (project folder + active DB volume)",
     )
     reset_parser.add_argument(
         "--yes", action="store_true", help="Skip confirmation prompt"

@@ -25,12 +25,26 @@ services:
     image: postgres:18.4 # Latest stable as of May 2026
     networks:
       - app-network
+    profiles:
+      - postgres
     volumes:
       - postgres-data:/var/lib/postgresql # Persistent volume (best practice)
+
+  mongodb:
+    container_name: xgic-payload-cms-dev-containers-mongodb
+    image: mongo:7.0
+    networks:
+      - app-network
+    profiles:
+      - mongodb
+    volumes:
+      - mongodb-data:/data/db
 
 volumes:
   postgres-data:
     name: xgic-payload-cms-dev-containers-postgres-data
+  mongodb-data:
+    name: xgic-payload-cms-dev-containers-mongodb-data
   vscode-srv-ext:
     name: xgic-payload-cms-dev-containers-vscode-srv-ext
 

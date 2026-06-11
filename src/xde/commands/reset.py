@@ -39,10 +39,11 @@ def run_reset(
     env: EnvironmentContext,
     docker: DockerComposeController,
 ) -> int:
-    """Fast targeted reset (project folder + Postgres volume).
+    """Fast targeted reset (project folder + active DB volume).
 
     This is the recommended safe reset for daily development.
     It deliberately does NOT touch the .env file by default.
+    Generalized for 0.2.0+ multi-adapter (postgres or mongodb via profiles).
     """
     dry_run = getattr(args, "dry_run", False)
     yes = getattr(args, "yes", False)
@@ -51,11 +52,12 @@ def run_reset(
 
     payload_project = docker.get_payload_project_name()
     project_path = Path(payload_project)
-    postgres_volume = f"{docker.project_name}-postgres-data"
+    db_service = docker.get_db_service()
+    db_volume = docker.get_db_volume_name()
 
     print_info("Planned actions for reset:")
     print_info(f"  - Delete directory: {project_path}")
-    print_info(f"  - Remove Docker volume: {postgres_volume}")
+    print_info(f"  - Remove Docker volume: {db_volume}")
     if rotate:
         print_warning("  - ALSO rotate database credentials (DANGEROUS)")
 
@@ -81,44 +83,52 @@ def run_reset(
     else:
         print_info(f"Project directory {project_path} did not exist.")
 
-    # Best-effort: stop/remove *only* the postgres service/container first.
-    # This releases the named volume so the subsequent docker volume rm
-    # can succeed (the volume is mounted by the postgres container).
-    # Sequence matches the (now-removed) historical legacy reset-project.py.
-    docker.rm_service("postgres", force=True, stop=True, remove_volumes=False)
+    # Best-effort: stop/remove *only* the active DB service/container first
+    # (postgres or mongodb). This releases the named volume so the subsequent
+    # docker volume rm can succeed (the volume is mounted by the DB container).
+    # Sequence generalized from the (now-removed) historical legacy
+    # reset-project.py for 0.2.0+ multi-adapter support (profiles).
+    docker.rm_service(db_service, force=True, stop=True, remove_volumes=False)
 
-    # Remove the postgres volume via docker
-    if docker.remove_volume(postgres_volume):
-        print_success(f"Removed volume: {postgres_volume}")
+    # Remove the DB volume via docker
+    if docker.remove_volume(db_volume):
+        print_success(f"Removed volume: {db_volume}")
     else:
         print_warning(
-            f"Could not remove volume {postgres_volume} "
-            "(may not exist or in use)"
+            f"Could not remove volume {db_volume} (may not exist or in use)"
         )
 
-    # Recreate *only* the postgres service (targeted) and ensure DB.
+    # Recreate *only* the active DB service (targeted) and ensure DB.
     # We use the public up(services=...) so that reset (which runs inside the
     # main dev container) does not attempt to recreate its own container.
-    # Pre-stop (above) + targeted up + IF NOT EXISTS wrapper give reliable,
-    # quiet volume + DB reset.
+    # Pre-stop (above) + targeted up give reliable, quiet volume + DB reset.
     db_name, db_user = docker.get_db_config()
     try:
-        docker.up(services=["postgres"])
-        print_info("Postgres service recreated.")
+        docker.up(services=[db_service])
+        print_info(f"{db_service.capitalize()} service recreated.")
 
-        # Optional: a short pg_isready wait here (like the legacy script)
-        # would make the CREATE step even more reliable after a fresh start.
-        # The 2>/dev/null || true wrapper below already protects us.
+        if db_service == "postgres":
+            # Optional: a short pg_isready wait here (like the legacy script)
+            # would make the CREATE step even more reliable after a fresh start.
+            # The 2>/dev/null || true wrapper below already protects us.
 
-        sql = f"CREATE DATABASE IF NOT EXISTS {db_name} OWNER {db_user};"
-        docker.exec(
-            "postgres",
-            "sh",
-            "-c",
-            f'psql -U {db_user} -d postgres -c "{sql}" 2>/dev/null || true',
-            check=False,
-        )
-        print_success(f"Ensured database '{db_name}' exists.")
+            sql = f"CREATE DATABASE IF NOT EXISTS {db_name} OWNER {db_user};"
+            docker.exec(
+                "postgres",
+                "sh",
+                "-c",
+                f'psql -U {db_user} -d postgres -c "{sql}" 2>/dev/null || true',
+                check=False,
+            )
+            print_success(f"Ensured database '{db_name}' exists.")
+        else:
+            # For mongodb, the DB is typically created on first connect by the
+            # Payload app (via create-payload-app or adapter). No explicit
+            # CREATE step needed.
+            print_info(
+                "MongoDB service recreated. DB will be initialized by the app "
+                "on first use."
+            )
 
         # Ensure the Payload project directory (recreate after the delete
         # performed at the start of reset). This was historically only done
@@ -128,7 +138,7 @@ def run_reset(
         ensure_payload_project()
     except Exception as e:
         print_warning(
-            f"Issue recreating postgres or DB: {e}. "
+            f"Issue recreating {db_service} or DB: {e}. "
             "Manual `xde up` may be needed."
         )
 
