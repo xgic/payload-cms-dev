@@ -105,7 +105,7 @@ Typical items:
 - [ ] Consider a lightweight blog post or social note highlighting the release + the external-sim process (reputation building).
 
 ## Historical Note (v0.1.0 Only)
-The original "history reset using `git checkout --orphan`" and one-time initial public commit process applied **only** to the very first public release of 0.1.0. They are no longer used. The current model (release branches + external simulation + `xde` + living guides) applies for all future releases.
+The original "history reset using `git checkout --orphan`" and one-time initial public commit process applied **only** to the very first public release of 0.1.0 (tagged at merge commit 671a8e5 on main). They are no longer used. The current model (release branches + external simulation + `xde` + living guides + annotated tag on the release merge commit) applies for all future releases (v0.2.0+).
 
 ---
 
