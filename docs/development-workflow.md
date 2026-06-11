@@ -74,7 +74,7 @@ with minimal impact.
 ## Branching and Pull Requests
 
 - Work on short-lived feature branches.
-- Keep the primary branch (`main` / `0.1.0`) in a releasable state at all times.
+- Keep the primary branch (`main`) in a releasable state at all times.
 - Open pull requests for review when work is complete and has passed the commit requirements above.
 
 ## Commands to Run Before Committing
