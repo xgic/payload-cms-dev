@@ -218,6 +218,38 @@ When working with reset or clean functionality:
 - When you discover a better pattern, propose it and explain why it helps both humans and future agents.
 - Keep `AGENTS.md` updated as the source of truth evolves.
 
+**Preferred workflow for refining issues, PRs, architectural docs, strategic concepts, and planning with Grok Build (codified for efficiency and exemplarity):**
+
+- **Early ideation and lightweight tracking**: Use `GROK-TASKS.md` for informal TODOs, ideas, reminders, and tasks that do not yet warrant formal GitHub issues. Record decisions, context, and collaboration history in `DEV-JOURNAL.md`. Use private session planning artifacts (e.g., the detailed plan document in the current Grok Build session) for complex, multi-phase reasoning and back-and-forth.
+
+- **When a concept is ready for structured sharing, refinement, or formal tracking**: Draft the complete, high-quality Markdown content (full issue/PR body, proposal, or doc section) in the chat or session plan. After your explicit review and LGTM in this conversation, Grok will create it as a **Draft GitHub Issue** (or Draft PR where appropriate) directly on the target repository using connected MCP tools. The created artifact will carry "ai-draft" labeling (or equivalent), explicit human-gate language in the body (e.g., "This was prepared with Grok Build assistance. Human review and explicit approval required before any implementation steps, code changes, or further remote actions"), and full context/links.
+
+- **Iteration and gates**: Refine the draft on GitHub itself (Grok can propose edits via tools or you edit directly). All remote actions (issue creation, updates, code pushes, etc.) remain under mandatory human/developer verification and approval gates, consistent with our external contributor simulation model.
+
+- **Promotion to committed work or documentation**: Once approved, convert the draft to a real issue/PR, or extract mature content into committed documentation (e.g., `docs/strategy/`, architecture decision records, updates to CONTRIBUTING.md or this file) via a normal, atomic pure GitHub Flow pull request that passes all checks and human review.
+
+- **For exemplary, forward-looking public repositories** (such as payload-cms-dev-container and future public repos): Strictly avoid temporary draft `.md` files or planning artifacts in the working tree. All design, strategic, and planning work surfaces as draft GitHub issues from the beginning. This ensures the collaboration method itself is clean, auditable, strictly forward-looking, and demonstrates 100% confidence in our processes with zero references to prior methodologies or transitions. Temporary files (if used during private ideation) must be cleaned before any port or bootstrap of a new repo.
+
+**Hard Security Rule for Private Repositories (enforced across all Grok Build work)**:
+
+**Zero exposure (absolute)**: No mentions, names, details, architectures, experiments, timelines, strategies, links, or any information that would reveal the existence, identity, or structure of any private repositories or private coordination hubs may ever be placed in any public XGIC repository (this repo, payload-cms-dev-container, or any other public one). This includes documentation, prompts, code, issues, PRs, READMEs, or any Grok output.
+
+This is a **hard, non-negotiable security rule**. It enforces least privilege and prevents information disclosure. Violations are treated as security incidents and must be corrected immediately (clean the public repo, reinforce prompts and templates).
+
+**Where private coordination lives**: All detailed repo coordination rules, multi-repo planning, internal orchestration playbooks, GitLab experiments, and anything involving private repos or sensitive strategy live *exclusively* in the authoritative private master AI orchestration repository. Public repositories and public sessions must remain completely silent on private details and structures.
+
+**Enforcement**:
+- Any prompt or context given to Grok for work that could touch multi-repo or strategy must restate this rule abstractly.
+- Public AGENTS.md, playbooks, and templates contain only this high-level boundary reminder.
+- The full living playbook (with exact commands, session patterns for GitLab primary, glab usage, multiple focused sessions, etc.) is maintained only in the private hub.
+- Human review of any proposed public content is required to prevent leakage.
+
+Public work uses GitHub (rich MCP + gh for external contributor simulations, living guides, exemplary OSS process). Private primary instance (your GitLab) hosts the real orchestration hub and most private repos. Grok sessions against the private hub use terminal + glab/git for all operations.
+
+This approach lets you leverage GitLab as the primary instance for your many private repos while still using GitHub where it adds the most value (public demonstration + powerful MCP automation).
+
+Update this guidance (and related sections in CONTRIBUTING.md, playbooks, etc.) whenever our collaboration patterns or standards evolve.
+
 ---
 
 ## Common Pitfalls Specific to This Project

@@ -4,7 +4,7 @@
   "template": "website",
   "example": null,
   "agent": "none",
-  "dbAdapter": "mongodb",
+  "dbAdapter": "postgres",
   "dbName": "payload_db",
   "dbUser": "payload",
   "dbUri": "mongodb://payload:<PASSWORD>@mongodb:27017/payload_db",
