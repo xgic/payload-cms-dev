@@ -43,7 +43,7 @@ PYTHONPATH=src python -m pytest tests/ -q --tb=line
 - [ ] Ruff passes (80-col for code files only; Markdown is exempt).
 - [ ] All relevant tests pass (focus on `src/xde/core/`, reset/setup flows, config handling, and any new 0.2.0+ logic).
 - [ ] New/changed behavior includes tests (prefer pure functions where possible — see `tests/test_project.py` patterns).
-- [ ] The commit also updates relevant documentation in the same atomic change (AGENTS, GROK-TASKS, living release guide, README Planned Extensions, TESTING.md, etc.).
+- [ ] The commit also updates relevant documentation in the same atomic change (AGENTS, platform issues and primary plan, living release guide, README Planned Extensions, TESTING.md, etc.).
 
 **Note**: Use the direct commands shown above (or `xde` where it provides environment validation).
 
@@ -65,7 +65,7 @@ Inside the container:
 - [ ] README.md "Planned Extensions (Post v1)" and "The xde CLI" table are current for the release.
 - [ ] The release-specific living guide (`docs/releases/0.2.0-...-external-contributor-guide.md`) accurately reflects scope, risks, success criteria, automation steps taken, and human gates.
 - [ ] CONTRIBUTING.md "Release Contributions & AI-Assisted Execution" section + Step-by-Step Guide are consistent with actual practice.
-- [ ] AGENTS.md, GROK-TASKS.md (Future Releases section), TESTING.md, and this checklist itself are updated if the process or philosophy changed.
+- [ ] AGENTS.md, the primary plan and platform issues/tasks (Future Releases section), TESTING.md, and this checklist itself are updated if the process or philosophy changed.
 - [ ] No stale references to retired automation, old scripts, or pre-`xde` workflows.
 - [ ] License section (README + LICENSE file) is correct (Apache 2.0 as of late 0.1.0/0.2.0 era).
 
@@ -78,7 +78,7 @@ Inside the container:
 - [ ] The full external-sim + Grok automation audit trail exists (issues with "ai-draft" + human gate language, draft PRs, branch, comments, MCP logs in session plan if used).
 
 **For the final release merge (when the release branch is *complete*)**:
-- [ ] Living guide, GROK-TASKS "Done" items, README Planned Extensions, and any changelogs/release notes are finalized.
+- [ ] Living guide, platform issues and primary plan "Done" items, README Planned Extensions, and any changelogs/release notes are finalized.
 - [ ] Open (or directly perform) the final PR/merge from `release/0.2.0` → `main`. (This is the key human gate / "PR approval" that the entire release scope is complete.)
 - [ ] **Standard automated tagging task (after the merge lands on main)**: Create an annotated tag on the *exact* merge commit. Grok proposes the command (preferably `gh release create` which creates both the annotated tag and the rich GitHub Release in one step; derive title/notes from the finalized living guide + this checklist). Human explicitly approves (LGTM/comment). Grok executes via terminal + pushes. Tag message must reference the release scope, living guide, and key artifacts.
   - Example (Grok will adapt): `gh release create v0.2.0 --target main --title "v0.2.0 — ..." --notes "..." `
@@ -100,7 +100,7 @@ Typical items:
 ## 7. Post-Release
 - [ ] GitHub Release created with links to the living guide, milestone, and major PRs.
 - [ ] Repo topics, description, and README badges reflect the new version if appropriate.
-- [ ] GROK-TASKS.md and the next release's planning artifacts (new living guide stub, milestone) are prepared.
+- [ ] The primary plan and platform issues/tasks and the next release's planning artifacts (new living guide stub, milestone) are prepared.
 - [ ] Any "hall of fame" / CONTRIBUTORS.md updates (if maintained) are done.
 - [ ] Consider a lightweight blog post or social note highlighting the release + the external-sim process (reputation building).
 

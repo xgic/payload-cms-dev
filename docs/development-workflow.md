@@ -20,7 +20,7 @@ These guidelines apply to both human contributors and AI-assisted development (G
   - Deliver the complete functionality being introduced or modified in that commit.
   - Pass linting (`ruff format` and `ruff check`).
   - Pass all relevant tests.
-  - Include updates to documentation (including `AGENTS.md`, `GROK-TASKS.md`, `DEV-JOURNAL.md`, and user-facing docs) when they are part of the work.
+  - Include updates to documentation (including `AGENTS.md`, primary plan, platform issues/tasks, and user-facing docs) when they are part of the work.
 
 ### Local vs Published History
 
@@ -59,7 +59,7 @@ Docker Python SDK, or a small Go helper binary) in the future.
 
 This decision is tracked in:
 - `src/xde/core/docker.py` (section "CURRENT STRATEGY & FUTURE CONSIDERATION")
-- `GROK-TASKS.md` (Docker/Compose Interface Strategy item)
+- The primary plan and platform issues/tasks (Docker/Compose Interface Strategy item)
 
 The public API should be kept stable to allow future backend changes
 with minimal impact.
@@ -67,8 +67,8 @@ with minimal impact.
 ## Working with AI Assistants (Grok Build, etc.)
 
 - Follow the [Collaboration Principles](AGENTS.md#how-we-work-together-collaboration-principles) defined in `AGENTS.md`.
-- Use `GROK-TASKS.md` for informal task tracking.
-- Keep `DEV-JOURNAL.md` updated with significant decisions and progress.
+- Use the primary plan and platform issues/tasks for informal task tracking.
+- Keep the primary plan and platform issues/tasks updated with significant decisions and progress.
 - All work must follow the commit discipline described in this document.
 
 ## Branching and Pull Requests

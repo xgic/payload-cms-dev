@@ -109,8 +109,8 @@ This configuration is also compatible with GitHub Codespaces.
 **Start here** (in this order for maximum effectiveness):
 1. [AGENTS.md](AGENTS.md) — Primary behavioral and philosophical guidance.
 2. [docs/grok-playbooks.md](docs/grok-playbooks.md) — Concrete step-by-step workflows and playbooks.
-3. [GROK-TASKS.md](GROK-TASKS.md) — Lightweight task tracking for informal TODOs and reminders.
-4. [DEV-JOURNAL.md](DEV-JOURNAL.md) — History of our collaboration and major decisions.
+3. The primary plan and platform issues/tasks — Lightweight tracking for informal TODOs and reminders.
+4. The primary plan and commit history — History of our collaboration and major decisions.
 5. [docs/architecture.md](docs/architecture.md) — Mental model.
 6. [docs/xde-reference.md](docs/xde-reference.md) — Command surface details.
 
@@ -134,14 +134,14 @@ All commands are designed to feel natural when working inside the Dev Container 
 
 ### Planned Extensions (Post v1) and Release Roadmap
 
-High-level planning for future releases is tracked in [GROK-TASKS.md](GROK-TASKS.md) (see new "Future Releases (0.2.0 and Beyond)" section) and the detailed living example in [docs/releases/0.2.0-mongodb-support-external-contributor-guide.md](docs/releases/0.2.0-mongodb-support-external-contributor-guide.md).
+High-level planning for future releases is tracked in the primary plan and platform issues/tasks (see new "Future Releases (0.2.0 and Beyond)" section) and the detailed living example in [docs/releases/0.2.0-mongodb-support-external-contributor-guide.md](docs/releases/0.2.0-mongodb-support-external-contributor-guide.md).
 
 All 0.2.0+ release work is executed and documented following the **external contributor simulation** (exact steps from [CONTRIBUTING.md](.github/CONTRIBUTING.md)) + heavy Grok Build GitHub MCP automation (draft issues/PRs, file pushes, etc.) **with mandatory human/developer verification and approval gates at every step**. This leads by example, provides clear artifacts for future contributors, demonstrates expertise, and elevates XGIC's professional reputation as an AI-first, contributor-friendly OSS project.
 
 Version-tagged capabilities under consideration:
 
-- **0.2.0: Official MongoDB / Multi-Adapter Support** (see the dedicated external contributor guide and GROK-TASKS for scope: config/schema, Docker (compose + Dockerfile), xde logic (leverage existing pure helpers), docs, tests/E2E for Mongo generated apps, release artifacts). Default remains Postgres for stability.
-- **0.3.0: AI-First Completeness & Polish** (context & agent ergonomics including improved detection from questions.md + more --json + `xde context`; library extraction with examples; testing roadmap advancement to real integration + full E2E for generated apps (HTTP + future Playwright); `stage` namespace; `xde validate`/`lint`; TUI exploration; ecosystem/CI templates; full multi-adapter maturity).
+- **0.2.0: Official MongoDB / Multi-Adapter Support** (see the dedicated external contributor guide and the primary plan and platform issues/tasks for scope: config/schema, Docker (compose + Dockerfile), xde logic (leverage existing pure helpers), docs, tests/E2E for Mongo generated apps, release artifacts). Default remains Postgres for stability.
+- **0.3.0: AI-First Completeness & Polish** (context & agent ergonomics including improved AI context detection + more --json + `xde context`; library extraction with examples; testing roadmap advancement to real integration + full E2E for generated apps (HTTP + future Playwright); `stage` namespace; `xde validate`/`lint`; TUI exploration; ecosystem/CI templates; full multi-adapter maturity).
 
 See the approved session plan.md for the full high-level vision, process, and Grok automation details. All work remains positive, 80-col for code, atomic commits with tests + docs, and aligned with the mission of being the #1 foundation for AI-assisted (Grok Build etc.) Payload CMS development.
 

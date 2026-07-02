@@ -21,7 +21,7 @@ This document gives AI agents (especially Grok Build) a clear mental model of th
 
 4. **Legacy Automation** (retired in 0.1.0)
    - Earlier shell/Python scripts in `.devcontainer/scripts/`.
-   - Migration to `xde` as the single, testable interface is complete. Historical context is preserved in `DEV-JOURNAL.md` and `GROK-TASKS.md`.
+   - Migration to `xde` as the single, testable interface is complete. Historical context is preserved in the primary plan and platform issues/tasks (and git history).
 
 ## Core Abstractions (Most Important for Agents)
 
@@ -59,7 +59,7 @@ Current responsibilities:
 - Basic health checks and volume management
 
 See the "CURRENT STRATEGY & FUTURE CONSIDERATION" section in
-`src/xde/core/docker.py` and the corresponding item in `GROK-TASKS.md`.
+`src/xde/core/docker.py` and the corresponding item in the primary plan and platform issues/tasks.
 
 ### Configuration System
 
