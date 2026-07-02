@@ -10,11 +10,11 @@ Read this file completely before starting any significant work in the repository
 
 These principles have been established to maximize effectiveness and maintain a positive, productive working relationship:
 
-- **Agent optimization is a first-class goal.** Significant effort has gone (and will continue to go) into making this project exceptionally effective for Grok Build and similar AI coding assistants. This includes rich context in `AGENTS.md`, `GROK-TASKS.md`, `DEV-JOURNAL.md`, and supporting playbooks.
+- **Agent optimization is a first-class goal.** Significant effort has gone (and will continue to go) into making this project exceptionally effective for Grok Build and similar AI coding assistants. This includes rich context in `AGENTS.md` and supporting playbooks. High-level distillation and informal tracking live in the primary plan and the platform issues/tasks.
 
 - **Tone and framing matter.** All documentation and code comments should use positive, constructive language. We do not criticize or use negative framing around the Payload CMS project or its setup process. Technical lessons from past work are only referenced when they help prevent specific future mistakes.
 
-- **GROK-TASKS.md is the lightweight task system.** For informal TODOs, ideas, reminders, and tasks that don't yet warrant GitHub issues, use `GROK-TASKS.md`. The user can add items simply by asking ("Add X to the Grok tasks"). I am responsible for keeping it organized and up to date.
+- **Platform-native tracking is preferred.** For informal TODOs, ideas, reminders, and tasks that do not yet warrant GitHub issues, use the primary plan and the platform issues/tasks (or lightweight local notes in `.xgic/` when appropriate). The user may request that items be tracked by asking directly. I am responsible for maintaining such coordination in an organized and current state.
 
 - **Git management is delegated with specific expectations.** I am expected to manage Git proactively following common GitHub and open source best practices. Key rules:
   - Commits should represent logical, atomic units of change. While larger commits that deliver complete features are often appropriate, smaller commits (including single-file changes) are encouraged when they improve reviewability and clarity.
@@ -27,8 +27,8 @@ These principles have been established to maximize effectiveness and maintain a 
   - I have full autonomy to stage, commit, and push following these guidelines.
 
 - **Long-term vision for xde**: Evolve `xde` beyond a CLI into a high-quality, importable Python library and framework. This enables deep API-level integration from other tools (Ansible, custom CI runners, other automation, etc.).
-  - Docker/Docker Compose interface: As of 2026 we are intentionally using a simple subprocess-based approach in `src/xde/core/docker.py`. We will keep this as long as it remains sufficient. We will periodically re-evaluate more advanced options (e.g. `python-on-whales`, the official Docker SDK, or a small Go helper binary) in the future. See the "CURRENT STRATEGY & FUTURE CONSIDERATION" section in `docker.py` and the corresponding item in `GROK-TASKS.md`.
-  - Release process as model: All 0.2.0+ release work (MongoDB support, AI-first features) is planned/executed/documented as an "external contributor simulation" (full GitHub Flow + fork/PR from CONTRIBUTING.md) + heavy Grok Build GitHub MCP automation (create_branch, issue_write, create_pull_request draft, push_files, etc.) **with mandatory human/developer verification and approval gates at every step**. This leads by example, produces clear living artifacts for contributors, and elevates reputation. See the approved session plan.md "Future Releases" section, the 0.2.0 external contributor guide, and updated GROK-TASKS/CONTRIBUTING for details. Update this vision when the process evolves.
+  - Docker/Docker Compose interface: As of 2026 we are intentionally using a simple subprocess-based approach in `src/xde/core/docker.py`. We will keep this as long as it remains sufficient. We will periodically re-evaluate more advanced options (e.g. `python-on-whales`, the official Docker SDK, or a small Go helper binary) in the future. See the "CURRENT STRATEGY & FUTURE CONSIDERATION" section in `docker.py` and the corresponding item in the primary plan and platform issues.
+  - Release process as model: All 0.2.0+ release work (MongoDB support, AI-first features) is planned/executed/documented as an "external contributor simulation" (full GitHub Flow + fork/PR from CONTRIBUTING.md) + heavy Grok Build GitHub MCP automation (create_branch, issue_write, create_pull_request draft, push_files, etc.) **with mandatory human/developer verification and approval gates at every step**. This leads by example, produces clear living artifacts for contributors, and elevates reputation. See the approved session plan.md "Future Releases" section, the 0.2.0 external contributor guide, and updated platform issues and primary plan/CONTRIBUTING for details. Update this vision when the process evolves.
 
 - **Testing & Automation Roadmap**: The major strategic direction is a progressive increase in test coverage and automation:
   - Unit tests → Integration tests → End-to-end tests (including the generated Payload apps)
@@ -188,7 +188,7 @@ Current / near-term commands (v1 surface, finalized per `docs/xde-v1-command-sur
 - `shell` / `logs` — Escape hatches.
 - `clean` — High danger. Must have very strong guardrails.
 
-(See `DEV-JOURNAL.md` for historical transition details.)
+(See the primary plan and platform issues/tasks for historical transition notes where relevant.)
 
 **Design rules for new commands**:
 - Default behavior should be the safe, common case.
@@ -220,7 +220,7 @@ When working with reset or clean functionality:
 
 **Preferred workflow for refining issues, PRs, architectural docs, strategic concepts, and planning with Grok Build (codified for efficiency and exemplarity):**
 
-- **Early ideation and lightweight tracking**: Use `GROK-TASKS.md` for informal TODOs, ideas, reminders, and tasks that do not yet warrant formal GitHub issues. Record decisions, context, and collaboration history in `DEV-JOURNAL.md`. Use private session planning artifacts (e.g., the detailed plan document in the current Grok Build session) for complex, multi-phase reasoning and back-and-forth.
+- **Early ideation and lightweight tracking**: Use the primary plan and platform issues/tasks for informal TODOs, ideas, reminders, and tasks that do not yet warrant formal GitHub issues. Record decisions, context, and collaboration history in the primary plan and platform issues/tasks. Use private session planning artifacts (e.g., the detailed plan document in the current Grok Build session) for complex, multi-phase reasoning and back-and-forth.
 
 - **When a concept is ready for structured sharing, refinement, or formal tracking**: Draft the complete, high-quality Markdown content (full issue/PR body, proposal, or doc section) in the chat or session plan. After your explicit review and LGTM in this conversation, Grok will create it as a **Draft GitHub Issue** (or Draft PR where appropriate) directly on the target repository using connected MCP tools. The created artifact will carry "ai-draft" labeling (or equivalent), explicit human-gate language in the body (e.g., "This was prepared with Grok Build assistance. Human review and explicit approval required before any implementation steps, code changes, or further remote actions"), and full context/links.
 
@@ -297,7 +297,7 @@ A major long-term priority is dramatically increasing test coverage and automati
 
 All testing and automation efforts should be approached in a positive, constructive spirit focused on reliability and excellent developer/agent experience.
 
-See `GROK-TASKS.md` for the current prioritized list.
+See the primary plan and platform issues/tasks for the current prioritized list.
 
 ---
 
@@ -337,9 +337,9 @@ xde dev
 
 **Additional high-value reading (in recommended order for maximum productivity):**
 1. `docs/grok-playbooks.md` — **Start here for specific tasks**.
-2. `GROK-TASKS.md` — Your lightweight task list and memory for informal TODOs.
+2. The primary plan and platform issues/tasks — For informal TODOs, high-level distillation, and coordination.
 3. `docs/xde-v1-command-surface-proposal.md` — Current proposal for the final minimal `xde` command surface (very important for alignment).
-4. `DEV-JOURNAL.md` — Living history of our collaboration.
+4. The commit history and primary plan — For the living history of collaboration and major decisions.
 5. `docs/architecture.md`
 6. `docs/xde-reference.md`
 7. `.github/CONTRIBUTING.md` (especially Coding Standards and the AI section).
@@ -348,15 +348,15 @@ xde dev
 
 ### Tracking Informal Tasks & Reminders
 
-Use the file **[GROK-TASKS.md](GROK-TASKS.md)** for any TODOs, ideas, or reminders the user wants to track without creating GitHub issues.
+Use the primary plan and platform issues/tasks for any TODOs, ideas, or reminders the user wants to track without creating GitHub issues.
 
 When the user says things like:
 - "Add 'Wire real logic for xde env' to the Grok tasks"
 - "Mark the command surface proposal as done in the tasks"
 
-You should immediately edit `GROK-TASKS.md` using the appropriate tool.
+Track them in the primary plan and platform issues/tasks (or lightweight local notes). 
 
-This file is the canonical lightweight memory for work that isn't ready for formal tracking yet. Keep it up to date.
+High-level distillation and coordination are maintained in the authoritative primary plan and GitHub/GitLab issues. Keep coordination up to date.
 
 ---
 

@@ -425,17 +425,17 @@ This is a deliberate, synergistic requirement:
 **The process (external contributor simulation + heavy Grok Build AI automation with human gates)**:
 - Follow the exact "Step-by-Step Guide: Initiating a New Feature Branch (GitHub Free Account)" above (fork simulation, clone, upstream, feature branch like `feat/0.2.0-mongodb-support`, Conventional Commits, full PR template, etc.).
 - Start every implementation/planning session with the AGENTS session startup (`xde --help; xde check; xde env`).
-- All commits: atomic, full functionality (code + tests + docs), ruff + relevant pytest green, 80-col for code, positive tone, update AGENTS/GROK-TASKS/playbooks where philosophy changes. Push regularly.
+- All commits: atomic, full functionality (code + tests + docs), ruff + relevant pytest green, 80-col for code, positive tone, update AGENTS.md, platform issues and primary plan, and playbooks where philosophy changes. Push regularly.
 - Grok Build (as the AI-first project) automates as much as possible using its GitHub MCP tools (`create_branch`, `issue_write`/`create_issue`, `create_pull_request` with `draft: true`, `push_files`/`create_or_update_file`, `add_issue_comment`, review tools, etc.) and `run_terminal_command` (gh CLI). 
   - Examples: Grok creates the feat branch, drafts the milestone + labeled "ai-draft" issues for sub-tasks (with bodies that explicitly instruct to follow this process), drafts the PR from the branch, applies file changes, etc.
   - **Mandatory human/developer verification and approval at every gate**: Review the tool output/draft (on GitHub or in session), approve/comment ("LGTM, proceed"), then Grok executes the remote action. Never bypass. Log everything for audit/reputation.
 - Use GitHub milestones (e.g., "0.2.0"), Projects, labels, and link everything ("Closes #xxx").
 - The full history + a dedicated narrative guide (see `docs/releases/0.2.0-...-external-contributor-guide.md`) becomes the reusable template for 0.3.0+ and a reputation asset.
-- Post-merge: Grok can help update "Done" in GROK-TASKS, CONTRIBUTORS.md, release notes, etc. (with human approval).
+- Post-merge: Grok can help update "Done" in platform issues and primary plan, CONTRIBUTORS.md, release notes, etc. (with human approval).
 
 See the approved high-level plan in the private session plan.md (and the living 0.2.0 guide) for the detailed vision, high-level scopes (Mongo for 0.2.0; context detection, library extraction, E2E, stage, TUI, etc. for 0.3.0), risks, success criteria, and Grok-specific automation examples. All release work must produce clear examples while advancing the mission of being the #1 agent-optimized foundation for Payload CMS.
 
-This section was added as part of the 0.2.0+ planning (see GROK-TASKS "Future Releases" and the external simulation requirement). It extends (does not replace) the existing contributor guide.
+This section was added as part of the 0.2.0+ planning (see platform issues and primary plan "Future Releases" and the external simulation requirement). It extends (does not replace) the existing contributor guide.
 
 ## For AI Coding Assistants
 

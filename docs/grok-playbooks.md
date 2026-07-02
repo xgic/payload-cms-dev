@@ -72,7 +72,7 @@ Steps:
 
 **When**: Any 0.2.0+ release work (MongoDB/multi-adapter in 0.2.0; context detection, library extraction, E2E, stage, TUI, etc. in 0.3.0). This is the living template for demonstrating expertise and providing clear examples (per the approved high-level plan).
 
-**Core principle**: Execute and document *exactly* as a new external contributor would (full steps from the "Step-by-Step Guide" in CONTRIBUTING.md + OSS best practices: GitHub Flow, fork/PR model, milestones, Conventional Commits, PR template, recognition, etc.) *plus* the project's internal AGENTS guidelines (session startup, atomic commits with full func + lint + tests + docs, 80-col, positive tone, update AGENTS/GROK-TASKS when philosophy changes, prefer xde, etc.).
+**Core principle**: Execute and document *exactly* as a new external contributor would (full steps from the "Step-by-Step Guide" in CONTRIBUTING.md + OSS best practices: GitHub Flow, fork/PR model, milestones, Conventional Commits, PR template, recognition, etc.) *plus* the project's internal AGENTS guidelines (session startup, atomic commits with full func + lint + tests + docs, 80-col, positive tone, update AGENTS.md, platform issues and primary plan when philosophy changes, prefer xde, etc.).
 
 **Grok Build AI automation (unique to this AI-first project)**: Grok heavily automates the mechanical/OSS tasks using its connected GitHub MCP tools (after `search_tool` for schema):
 - `grok_com_github__create_branch` (for the feat/ release branch – simulates the "create feature branch" after fork).
@@ -89,7 +89,7 @@ Steps:
 
 2. **Fork simulation + branch (Grok automates via MCP `create_branch` for `feat/0.2.0-xxx` on the repo; document as external fork simulation per CONTRIBUTING. Human approves the branch creation output before any further remote actions.)**
 
-3. **Create high-level + detailed plan** (this playbook + the release-specific guide in docs/releases/, plus update GROK-TASKS with 0.x section + automation sub-tasks). Human reviews/approves the plan.
+3. **Create high-level + detailed plan** (this playbook + the release-specific guide in docs/releases/, plus update platform issues and primary plan with 0.x section + automation sub-tasks). Human reviews/approves the plan.
 
 4. **Break into atomic, valuable slices** (small-first, per commit rules). For each:
    - Grok drafts the changes (code, tests, docs) + any OSS artifacts (issues, PR body).
@@ -101,7 +101,7 @@ Steps:
 
 5. **Address reviews** (Grok can draft responses via MCP review/comment tools; human approves before posting).
 
-6. **Merge** (human gate via MCP `merge_pull_request` or UI, after approval + checks). Grok automates post-merge (GROK-TASKS "Done", CONTRIBUTORS.md, release notes, etc. – with approval).
+6. **Merge** (human gate via MCP `merge_pull_request` or UI, after approval + checks). Grok automates post-merge (platform issues and primary plan "Done", CONTRIBUTORS.md, release notes, etc. – with approval).
 
 7. **Release artifacts + announcement**. The full GitHub history (issues with ai-draft labels, branch, draft PRs, clean commits) + this guide + the session plan become the "clear example for future contributors".
 
@@ -110,7 +110,7 @@ Steps:
 - "After human approval on the issue, use `push_files` on the feat branch with a full Conventional Commit message that includes the change + docs update + test results."
 - "Draft the PR with `create_pull_request` (draft: true, full template, Closes links). Log the URL for human review before any merge."
 
-**Documentation updates required in the same atomic commits as code**: See the "Updated Documentation Tasks" in the session plan.md (CONTRIBUTING, README, AGENTS, playbooks, PR template, new release guide artifact, GROK-TASKS, etc.). All must stay positive, scannable, and aligned with the mission.
+**Documentation updates required in the same atomic commits as code**: See the "Updated Documentation Tasks" in the session plan.md (CONTRIBUTING, README, AGENTS, playbooks, PR template, new release guide artifact, platform issues and primary plan, etc.). All must stay positive, scannable, and aligned with the mission.
 
 **Risks / Considerations** (document for transparency): Scope creep (stick to high-level + smallest valuable slices); human gates are mandatory (AI drafts are high-quality but not infallible); as owner, the "fork" is simulated for the example value – the public record still demonstrates the full external flow.
 

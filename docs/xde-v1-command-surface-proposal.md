@@ -4,7 +4,7 @@
 **Status**: Finalized for xde v1  
 **Goal**: Define the minimal, final command surface for `xde` v1 that is simple, powerful, and sufficient.
 
-**Decision**: This surface is now finalized. The CLI in `src/xde/cli.py` implements exactly these commands. All future xde v1 work targets this surface. See `docs/development-workflow.md` and `DEV-JOURNAL.md` for historical context.
+**Decision**: This surface is now finalized. The CLI in `src/xde/cli.py` implements exactly these commands. All future xde v1 work targets this surface. See `docs/development-workflow.md` and the primary plan and platform issues/tasks for historical context.
 
 ---
 
@@ -125,7 +125,7 @@ We still need distinct primitives for:
 
 ## Historical Note
 
-This proposal (finalized 2026) defined the locked v1 surface now implemented in `src/xde/cli.py`. The design deliberately favored a small, predictable command set over the broader surface of the prior automation approach. Historical details of the transition live in `DEV-JOURNAL.md`.
+This proposal (finalized 2026) defined the locked v1 surface now implemented in `src/xde/cli.py`. The design deliberately favored a small, predictable command set over the broader surface of the prior automation approach. Historical details of the transition live in the primary plan and platform issues/tasks (and git history).
 
 ---
 
@@ -145,7 +145,7 @@ I recommend we **agree on this surface** (or a close variant) before doing signi
 
 - Implement the `DockerComposeController` against a known interface.
 - Write consistent help text and behavior.
-- Update `AGENTS.md`, `docs/grok-playbooks.md`, and `DEV-JOURNAL.md` with confidence.
+- Update `AGENTS.md`, `docs/grok-playbooks.md`, and the primary plan and platform issues with confidence.
 - Move toward a clean, locked command surface (achieved).
 
 Once agreed, we can move quickly into implementation.

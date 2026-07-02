@@ -67,7 +67,7 @@ Integration/smoke behavior is exercised via:
 
 **AI assistants**: See (in priority order):
 1. [AGENTS.md](AGENTS.md) — testing philosophy + "good testability of the core logic" as a foundation.
-2. [GROK-TASKS.md](GROK-TASKS.md) — Testing & Automation Roadmap (unit for core xde logic → integration → E2E including generated Payload apps).
+2. Primary plan and platform issues/tasks — Testing & Automation Roadmap (unit for core xde logic → integration → E2E including generated Payload apps).
 3. [docs/grok-playbooks.md](docs/grok-playbooks.md)
 4. [docs/architecture.md](docs/architecture.md)
 
