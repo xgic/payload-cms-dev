@@ -8,7 +8,7 @@ version = "0.1.0"
 description = """XGIC Dev Environment CLI - reliable replacement for
 xde CLI + Docker Compose dev container orchestration for Payload CMS"""
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 license = {text = "Apache-2.0"}
 authors = [
     {name = "XGIC", email = "dev@xgic.net"}
@@ -23,8 +23,7 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Build Tools",
     "Topic :: System :: Systems Administration",
 ]
@@ -55,7 +54,7 @@ addopts = "-ra -q --strict-markers"
 
 [tool.ruff]
 line-length = 80
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "C4"]
@@ -64,7 +63,7 @@ select = ["E", "F", "I", "UP", "B", "C4"]
 # and justified exceptions (URLs, certain test data, generated schema strings, etc.).
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.14"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
