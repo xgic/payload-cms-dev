@@ -4,13 +4,10 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Python stage (clean installation via official image, pinned to a glibc version
-# compatible with the node:lts-slim / Debian 12 bookworm base used for the final
-# image. Python 3.12-bookworm is used for compatibility; 3.14 full support is
-# pending an official bookworm-based tag or alternative method such as the
-# devcontainers/features/python feature.)
+# Python stage (official slim image, pinned per ADR-0002 / XGIC Python 3.14
+# baseline). Bookworm-based tags align with node:lts-slim glibc expectations.
 # -----------------------------------------------------------------------------
-FROM python:3.12-slim-bookworm AS python
+FROM python:3.14.6-slim AS python
 
 # -----------------------------------------------------------------------------
 # Stage 1: Core base (changes very rarely)
