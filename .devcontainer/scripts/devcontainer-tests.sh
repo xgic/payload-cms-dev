@@ -8,9 +8,9 @@ if [ -f "$LOGGING_LIB" ]; then
   source "$LOGGING_LIB"
 else
   # Minimal fallback so scripts still work
-  log_info()  { echo "[$1] $2"; }
+  log_info() { echo "[$1] $2"; }
   log_success() { echo "[$1] $2"; }
-  log_warn()  { echo "[$1] $2" >&2; }
+  log_warn() { echo "[$1] $2" >&2; }
   log_error() { echo "[$1] $2" >&2; }
   log_debug() { :; }
 fi
@@ -38,15 +38,20 @@ DB_NAME="payload_db"
 DB_USER="${POSTGRES_USER:-payload}"
 
 if [ -f "$CONFIG_FILE" ] && command -v jq >/dev/null 2>&1; then
-    CONFIG_DB_NAME=$(jq -r '.dbName // empty' "$CONFIG_FILE" 2>/dev/null || true)
-    CONFIG_DB_USER=$(jq -r '.dbUser // empty' "$CONFIG_FILE" 2>/dev/null || true)
+  CONFIG_DB_NAME=$(jq -r '.dbName // empty' "$CONFIG_FILE" 2>/dev/null || true)
+  CONFIG_DB_USER=$(jq -r '.dbUser // empty' "$CONFIG_FILE" 2>/dev/null || true)
 
-    [ -n "$CONFIG_DB_NAME" ] && DB_NAME="$CONFIG_DB_NAME"
-    [ -n "$CONFIG_DB_USER" ] && DB_USER="$CONFIG_DB_USER"
+  [ -n "$CONFIG_DB_NAME" ] && DB_NAME="$CONFIG_DB_NAME"
+  [ -n "$CONFIG_DB_USER" ] && DB_USER="$CONFIG_DB_USER"
 fi
 
-PGHOST=${PGHOST:-postgres} \
-PGPASSWORD=${POSTGRES_PASSWORD} psql -U "${DB_USER}" \
+# Env is provided by the devcontainer compose stack (.env). Defaults keep CI/lint clean.
+PGHOST="${PGHOST:-postgres}"
+# shellcheck disable=SC2154 # POSTGRES_PASSWORD is injected by the environment at runtime
+PGPASSWORD="${POSTGRES_PASSWORD:-}"
+export PGHOST PGPASSWORD
+
+psql -U "${DB_USER}" \
   -d "$DB_NAME" -c "\l" --no-password -h "${PGHOST}"
 
 echo "Check Docker CLI (best practice test)."

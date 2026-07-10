@@ -31,21 +31,24 @@ jobs:
         run: shellcheck --version || echo "ShellCheck not available yet"
 
       # 1. Reviewdog for excellent PR feedback + strict enforcement
-      #    Pinned to a specific commit for supply-chain security (best practice).
+      #    Pinned to release commit SHA for supply-chain security (best practice).
       #    Update the SHA periodically via Dependabot.
       - name: Run ShellCheck via reviewdog (warnings fail + PR annotations)
-        uses: reviewdog/action-shellcheck@e6c4e0e6f6e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2  # v1.XX (pinned commit example)
+        uses: reviewdog/action-shellcheck@4c07458293ac342d477251099501a718ae5ef86e # v1.32.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           level: warning                # Fail on warnings (very strict)
-          fail_on_error: true
+          fail_level: warning
           shellcheck_flags: >-
             --severity=warning
             --external-sources
             --enable=all
 
       # 2. Explicit run as defense-in-depth (guarantees job failure status)
+      - name: Install ShellCheck (for local verification steps)
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
       - name: Strict ShellCheck verification (fail on any warning+)
         run: |
           echo "::group::Strict ShellCheck"
@@ -58,17 +61,33 @@ jobs:
         shell: bash
 
       # 3. Generate and upload SARIF for GitHub Code Scanning (Security tab)
+      #    Apt ShellCheck may not support --format=sarif; skip upload when unavailable.
       - name: Generate SARIF from ShellCheck
+        id: sarif
         run: |
-          shellcheck \
-            --severity=warning \
-            --external-sources \
-            --enable=all \
-            --format sarif \
-            .devcontainer/scripts/*.sh > shellcheck-results.sarif || true
+          set +e
+          if shellcheck --help 2>&1 | grep -q sarif; then
+            shellcheck \
+              --severity=warning \
+              --external-sources \
+              --enable=all \
+              --format=sarif \
+              .devcontainer/scripts/*.sh > shellcheck-results.sarif
+            sc_rc=$?
+            if [ -s shellcheck-results.sarif ] && python3 -c "import json; json.load(open('shellcheck-results.sarif'))" 2>/dev/null; then
+              echo "generated=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "ShellCheck SARIF output missing or invalid (exit $sc_rc); skipping upload"
+          else
+            echo "This ShellCheck build does not support SARIF; skipping upload"
+          fi
+          echo "generated=false" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Upload SARIF to GitHub (Code Scanning)
+        if: steps.sarif.outputs.generated == 'true'
+        continue-on-error: true
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: shellcheck-results.sarif
@@ -77,23 +96,28 @@ jobs:
   # ============================================
   # Matrix: Test against multiple ShellCheck versions
   # ============================================
+  # Note: matrix expressions are not allowed in `uses:` (including docker://).
+  # Run the image via docker CLI so version can come from the matrix.
   shellcheck-matrix:
     name: ShellCheck (Matrix)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        version: ['latest', '0.9.0']   # Test current + a known stable older version
+        # Docker Hub tags for koalaman/shellcheck (not bare version numbers)
+        version: ['latest', 'stable']
     steps:
       - uses: actions/checkout@v7
 
       - name: Run ShellCheck ${{ matrix.version }}
-        uses: docker://koalaman/shellcheck:${{ matrix.version }}
-        with:
-          args: >-
-            --severity=warning
-            --external-sources
-            --enable=all
+        run: |
+          docker run --rm \
+            -v "$PWD:/mnt" \
+            -w /mnt \
+            "koalaman/shellcheck:${{ matrix.version }}" \
+            --severity=warning \
+            --external-sources \
+            --enable=all \
             .devcontainer/scripts/*.sh
 
   # ============================================
@@ -110,7 +134,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           level: warning
-          fail_on_error: true
+          fail_level: any
 
   shfmt:
     name: shfmt (shell formatting)

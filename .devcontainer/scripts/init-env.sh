@@ -18,9 +18,9 @@ if [ -f "$LOGGING_LIB" ]; then
   source "$LOGGING_LIB"
 else
   # Minimal fallback so scripts still work
-  log_info()  { echo "[$1] $2"; }
+  log_info() { echo "[$1] $2"; }
   log_success() { echo "[$1] $2"; }
-  log_warn()  { echo "[$1] $2" >&2; }
+  log_warn() { echo "[$1] $2" >&2; }
   log_error() { echo "[$1] $2" >&2; }
   log_debug() { :; }
 fi
@@ -30,7 +30,7 @@ ENV_FILE=".devcontainer/.env"
 # Idempotency guard: do not overwrite an existing .env file.
 # On normal devcontainer startup/rebuilds we stay completely silent when nothing needs to be done.
 if [ -f "$ENV_FILE" ]; then
-    exit 0
+  exit 0
 fi
 
 log_info "init-env" "Generating secure environment configuration..."
@@ -45,23 +45,23 @@ PAYLOAD_SECRET=${PAYLOAD_SECRET:-$(openssl rand -hex 32)}
 # Read database name and user from create-payload-config.json when available (preferred)
 CONFIG_FILE=".devcontainer/create-payload-config.json"
 if [ -f "$CONFIG_FILE" ] && command -v jq >/dev/null 2>&1; then
-    CONFIG_DB_NAME=$(jq -r '.dbName // empty' "$CONFIG_FILE" 2>/dev/null || true)
-    CONFIG_DB_USER=$(jq -r '.dbUser // empty' "$CONFIG_FILE" 2>/dev/null || true)
+  CONFIG_DB_NAME=$(jq -r '.dbName // empty' "$CONFIG_FILE" 2>/dev/null || true)
+  CONFIG_DB_USER=$(jq -r '.dbUser // empty' "$CONFIG_FILE" 2>/dev/null || true)
 
-    if [ -n "$CONFIG_DB_NAME" ]; then
-        DB_NAME="$CONFIG_DB_NAME"
-    else
-        DB_NAME="payload_db"
-    fi
-
-    if [ -n "$CONFIG_DB_USER" ]; then
-        PG_USER="$CONFIG_DB_USER"
-    fi
-else
+  if [ -n "$CONFIG_DB_NAME" ]; then
+    DB_NAME="$CONFIG_DB_NAME"
+  else
     DB_NAME="payload_db"
+  fi
+
+  if [ -n "$CONFIG_DB_USER" ]; then
+    PG_USER="$CONFIG_DB_USER"
+  fi
+else
+  DB_NAME="payload_db"
 fi
 
-cat > "$ENV_FILE" << EOF
+cat >"$ENV_FILE" <<EOF
 POSTGRES_USER=${PG_USER}
 POSTGRES_PASSWORD=${PG_PASSWORD}
 POSTGRES_DB=${DB_NAME}
