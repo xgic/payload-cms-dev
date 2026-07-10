@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # =============================================
 # Shared logging utilities for devcontainer scripts
 # =============================================
@@ -9,14 +10,12 @@ if [ -t 1 ] && [ -z "${NO_COLOR:-}" ] && [ "${TERM:-}" != "dumb" ]; then
   COLOR_GREEN='\033[0;32m'
   COLOR_YELLOW='\033[0;33m'
   COLOR_CYAN='\033[0;36m'
-  COLOR_BOLD='\033[1m'
 else
   COLOR_RESET=''
   COLOR_RED=''
   COLOR_GREEN=''
   COLOR_YELLOW=''
   COLOR_CYAN=''
-  COLOR_BOLD=''
 fi
 
 # =============================================
