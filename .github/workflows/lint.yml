@@ -39,7 +39,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           level: warning                # Fail on warnings (very strict)
-          fail_on_error: true
+          fail_level: warning
           shellcheck_flags: >-
             --severity=warning
             --external-sources
@@ -80,6 +80,8 @@ jobs:
   # ============================================
   # Matrix: Test against multiple ShellCheck versions
   # ============================================
+  # Note: matrix expressions are not allowed in `uses:` (including docker://).
+  # Run the image via docker CLI so version can come from the matrix.
   shellcheck-matrix:
     name: ShellCheck (Matrix)
     runs-on: ubuntu-latest
@@ -91,12 +93,14 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Run ShellCheck ${{ matrix.version }}
-        uses: docker://koalaman/shellcheck:${{ matrix.version }}
-        with:
-          args: >-
-            --severity=warning
-            --external-sources
-            --enable=all
+        run: |
+          docker run --rm \
+            -v "$PWD:/mnt" \
+            -w /mnt \
+            "koalaman/shellcheck:${{ matrix.version }}" \
+            --severity=warning \
+            --external-sources \
+            --enable=all \
             .devcontainer/scripts/*.sh
 
   # ============================================
@@ -113,7 +117,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           level: warning
-          fail_on_error: true
+          fail_level: any
 
   shfmt:
     name: shfmt (shell formatting)
