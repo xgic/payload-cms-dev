@@ -88,7 +88,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['latest', '0.9.0']   # Test current + a known stable older version
+        # Docker Hub tags for koalaman/shellcheck (not bare version numbers)
+        version: ['latest', 'stable']
     steps:
       - uses: actions/checkout@v7
 
