@@ -61,17 +61,33 @@ jobs:
         shell: bash
 
       # 3. Generate and upload SARIF for GitHub Code Scanning (Security tab)
+      #    Apt ShellCheck may not support --format=sarif; skip upload when unavailable.
       - name: Generate SARIF from ShellCheck
+        id: sarif
         run: |
-          shellcheck \
-            --severity=warning \
-            --external-sources \
-            --enable=all \
-            --format sarif \
-            .devcontainer/scripts/*.sh > shellcheck-results.sarif || true
+          set +e
+          if shellcheck --help 2>&1 | grep -q sarif; then
+            shellcheck \
+              --severity=warning \
+              --external-sources \
+              --enable=all \
+              --format=sarif \
+              .devcontainer/scripts/*.sh > shellcheck-results.sarif
+            sc_rc=$?
+            if [ -s shellcheck-results.sarif ] && python3 -c "import json; json.load(open('shellcheck-results.sarif'))" 2>/dev/null; then
+              echo "generated=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "ShellCheck SARIF output missing or invalid (exit $sc_rc); skipping upload"
+          else
+            echo "This ShellCheck build does not support SARIF; skipping upload"
+          fi
+          echo "generated=false" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Upload SARIF to GitHub (Code Scanning)
+        if: steps.sarif.outputs.generated == 'true'
+        continue-on-error: true
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: shellcheck-results.sarif
