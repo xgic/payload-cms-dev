@@ -38,7 +38,7 @@ This section outlines the standards that apply specifically to **this repository
 
 **Start here**: See the [Code Style Quick Reference](#code-style-quick-reference) for the most important rules at a glance. The most important formatting rule is the [80-character line length limit for code files](#line-length-80-characters).
 
-**AI assistants**: Read [AGENTS.md](../../AGENTS.md) **first**. It is the primary context document for Grok Build and other agents. Also see `docs/architecture.md` and `docs/xde-reference.md`.
+**AI assistants**: Read [AGENTS.md](AGENTS.md) **first**. It is the primary context document for Grok Build and other agents. Also see `docs/architecture.md` and `docs/xde-reference.md`.
 
 ### Repository Focus
 Contributions to this repo typically involve:
@@ -441,7 +441,7 @@ This section was added as part of the 0.2.0+ planning (see platform issues and p
 
 If you are an AI coding assistant (Grok Build, Claude, Cursor, etc.), please read the following in order **before** making changes:
 
-1. [AGENTS.md](../../AGENTS.md) — Primary context document (most important)
+1. [AGENTS.md](AGENTS.md) — Primary context document (most important)
 2. [docs/grok-playbooks.md](../../docs/grok-playbooks.md) — Concrete workflows and playbooks
 3. [docs/architecture.md](../../docs/architecture.md)
 4. [docs/xde-reference.md](../../docs/xde-reference.md) (as it evolves)
@@ -463,3 +463,8 @@ This project is explicitly designed to become one of the best possible foundatio
 
 Questions? Open an issue or reach out to the maintainers via Discussions.  
 Last updated: [current – added Release Contributions & AI-Assisted Execution section per 0.2.0+ external simulation plan]
+
+## Multi-repo standards
+
+Portfolio standards and community health: https://github.com/xgic/ai (https://github.com/xgic/ai/blob/main/docs/community-health.md).
+
