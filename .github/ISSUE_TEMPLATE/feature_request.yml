@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose an improvement to Dev Containers, xde, or documentation
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public safety
+      options:
+        - label: This request does not require publishing private coordination details
+          required: true

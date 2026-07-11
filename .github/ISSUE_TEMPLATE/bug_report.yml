@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a problem with Dev Containers, xde, Compose, or docs
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Questions belong in [Discussions](https://github.com/xgic/payload-cms-dev-containers/discussions).
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Docker, VS Code, Payload version if relevant
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public safety
+      options:
+        - label: This report does not include private hosts, private tracker IDs, internal paths, or secrets
+          required: true
