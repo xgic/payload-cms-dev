@@ -48,7 +48,7 @@ This repository includes a [VS Code Dev Container](https://code.visualstudio.com
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/XGIC/payload-cms-dev-containers.git
+   git clone https://github.com/xgic/payload-cms-dev-containers.git
    cd payload-cms-dev-containers
    ```
 
@@ -136,7 +136,7 @@ All commands are designed to feel natural when working inside the Dev Container 
 
 High-level planning for future releases is tracked in the primary plan and platform issues/tasks (see new "Future Releases (0.2.0 and Beyond)" section) and the detailed living example in [docs/releases/0.2.0-mongodb-support-external-contributor-guide.md](docs/releases/0.2.0-mongodb-support-external-contributor-guide.md).
 
-All 0.2.0+ release work is executed and documented following the **external contributor simulation** (exact steps from [CONTRIBUTING.md](.github/CONTRIBUTING.md)) + heavy Grok Build GitHub MCP automation (draft issues/PRs, file pushes, etc.) **with mandatory human/developer verification and approval gates at every step**. This leads by example, provides clear artifacts for future contributors, demonstrates expertise, and elevates XGIC's professional reputation as an AI-first, contributor-friendly OSS project.
+All 0.2.0+ release work is executed and documented following the **external contributor simulation** (exact steps from [CONTRIBUTING.md](CONTRIBUTING.md)) + heavy Grok Build GitHub MCP automation (draft issues/PRs, file pushes, etc.) **with mandatory human/developer verification and approval gates at every step**. This leads by example, provides clear artifacts for future contributors, demonstrates expertise, and elevates XGIC's professional reputation as an AI-first, contributor-friendly OSS project.
 
 Version-tagged capabilities under consideration:
 
@@ -246,13 +246,16 @@ This will discard cached layers and recreate the container from scratch.
 
 ## Next Steps
 
-- Review [CONTRIBUTING.md](.github/CONTRIBUTING.md) — start with the [Code Style Quick Reference](.github/CONTRIBUTING.md#code-style-quick-reference).
+- Review [CONTRIBUTING.md](CONTRIBUTING.md) — start with the [Code Style Quick Reference](CONTRIBUTING.md#code-style-quick-reference).
 - **AI assistants**: Read [AGENTS.md](AGENTS.md) first for project-specific guidance.
 - The `xde` CLI source and full documentation live alongside this README (implementation in progress).
 
 ## License
 
-Apache 2.0 © 2026 [XGIC](https://xgic.net). See [LICENSE](LICENSE) file for details.
+Copyright 2026 XGIC.  
+Licensed under the [Apache License, Version 2.0](LICENSE).  
+See [NOTICE](NOTICE).
+
 
 ---
 
