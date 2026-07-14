@@ -250,6 +250,16 @@ This will discard cached layers and recreate the container from scratch.
 - **AI assistants**: Read [AGENTS.md](AGENTS.md) first for project-specific guidance.
 - The `xde` CLI source and full documentation live alongside this README (implementation in progress).
 
+
+## Multi-repo standards
+
+Portfolio standards, ADRs, and community health:
+
+- https://github.com/xgic/ai
+- [Community health](https://github.com/xgic/ai/blob/main/docs/community-health.md)
+- [BASE-STANDARDS](https://github.com/xgic/ai/blob/main/docs/BASE-STANDARDS-FOR-ORCHESTRATED-REPOS.md)
+- [Platform overview (Docker Compose first)](https://github.com/xgic/ai/blob/main/docs/platform/overview.md)
+
 ## License
 
 Copyright 2026 XGIC.  
