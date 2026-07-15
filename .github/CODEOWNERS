@@ -6,24 +6,25 @@
 # with Grok Build automation + mandatory human gates.
 
 # Core agent-optimized foundation and dev container experience
-/.devcontainer/                 @owner
-/src/xde/                       @owner
-/.github/                       @owner
-/docs/                          @owner
+/.devcontainer/                 @xgic
+/src/xde/                       @xgic
+/.github/                       @xgic
+/docs/                          @xgic
 
 # Configuration that drives project generation (single source of truth)
-/.devcontainer/create-payload-config.json   @owner
-/devcontainer/config/           @owner
+/.devcontainer/create-payload-config.json   @xgic
+/devcontainer/config/           @xgic
 
 # High-value automation and release process
-/RELEASE_CHECKLIST.md           @owner
-/docs/releases/                 @owner
+/RELEASE_CHECKLIST.md           @xgic
+/docs/releases/                 @xgic
 
 # Start here for contributors and agents
-/.github/CONTRIBUTING.md        @owner
-/AGENTS.md                      @owner
-/GROK-TASKS.md                  @owner
-/README.md                      @owner
+/.github/CONTRIBUTING.md        @xgic
+/AGENTS.md                      @xgic
+/GROK-TASKS.md                  @xgic
+/README.md                      @xgic
 
 # (Expand with real GitHub usernames or teams once the repo has collaborators.
 #  Example: @yourusername or @xgic/devcontainer-maintainers)
+
