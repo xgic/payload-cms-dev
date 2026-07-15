@@ -1,0 +1,11 @@
+# CODEOWNERS — repository root (XGIC standard)
+# Public org owner; path-scoped rules optional below catch-all.
+* @xgic
+/CODEOWNERS @xgic
+/AGENTS.md @xgic
+/docs/ @xgic
+/.devcontainer/ @xgic
+/src/xde/ @xgic
+/.github/ @xgic
+/RELEASE_CHECKLIST.md @xgic
+/README.md @xgic
