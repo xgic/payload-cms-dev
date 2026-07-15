@@ -1,6 +1,6 @@
 """E2E harness skeleton for validating generated Payload apps (rec6).
 
-Long-term goal per GROK-TASKS: after `xde reset --yes; xde dev`
+Long-term goal (testing roadmap in AGENTS.md / docs): after `xde reset --yes; xde dev`
 (or setup), validate the produced app (HTTP on :3000, admin
 reachability; later full Playwright browser flows for the
 Payload frontend/admin).

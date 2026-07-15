@@ -37,7 +37,7 @@ jobs:
       - name: Run tests with coverage (baseline from verification; soft floor)
         run: |
           # Baseline established during test coverage verification on 0.1.0
-          # (see plan + GROK-TASKS). Focus on the real xde core (legacy scripts retired).
+          # (see AGENTS.md and testing docs). Focus on the real xde core (legacy scripts retired).
           # Adjust threshold gradually as unit coverage on src/xde increases.
           python -m pytest \
             --cov=src/xde \
@@ -52,3 +52,4 @@ jobs:
           name: coverage-report
           path: htmlcov/
           retention-days: 14
+

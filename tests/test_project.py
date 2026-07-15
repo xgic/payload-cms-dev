@@ -9,7 +9,7 @@ postStart hook) without requiring full side-effecting E2E.
 Includes direct imports of core classes to reinforce the "importable
 library/framework" vision (rec7).
 
-See AGENTS.md and GROK-TASKS.md for the testing roadmap (unit for
+See AGENTS.md and docs for the testing roadmap (unit for
 core/project setup + library testability).
 """
 

@@ -35,8 +35,8 @@ The public API of this module should be kept high-level and stable
 so that the underlying implementation can evolve with minimal
 breaking changes for callers.
 
-See `GROK-TASKS.md` (section on Docker/Compose Interface Strategy)
-for the current long-term tracking of this item.
+See AGENTS.md and BASE-STANDARDS for Docker/Compose interface strategy
+and long-term tracking of this item on the platform.
 ================================================================================
 
 Current implementation note:

@@ -15,7 +15,7 @@ for the most common form of environment corruption.
 Critical agent guidance:
 - Always use `--dry-run` first.
 - Be extremely conservative with `--rotate-credentials`.
-- See `DEV-JOURNAL.md` for credential handling history.
+- Credential handling history lives in platform issues and primary plan distillation.
 
 See also:
 - `docs/grok-playbooks.md` → Migration and debugging playbooks
@@ -154,3 +154,5 @@ def run_reset(
         "Reset complete. Project ensured. Next: `xde dev` (or `xde up`)."
     )
     return 0
+
+
