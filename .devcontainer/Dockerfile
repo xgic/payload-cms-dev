@@ -163,14 +163,18 @@ WORKDIR ${WORKSPACE}
 # Copy source code as late as possible
 COPY --chown=${APP_USER}:${APP_USER} . .
 
-# Install modular XGIC CLI packages (public Git until first PyPI stack release).
+# Install modular XGIC CLI from PyPI (standard consumer path).
+# See https://github.com/xgic/ai/blob/main/docs/python-package-release.md
 # Template is a consumer only — no in-tree CLI package (ADR-0005 B5 cutover).
-RUN /opt/venv/bin/pip install --no-cache-dir --root-user-action=ignore \
-        "git+https://github.com/xgic/cli.git@main" \
-        "git+https://github.com/xgic/dev-cli.git@main" \
-        "git+https://github.com/xgic/payload-cms-cli.git@main" \
-    && /opt/venv/bin/pip install --no-cache-dir --root-user-action=ignore -e . \
-    && rm -rf /root/.cache/pip
+# Use uv for install (XGIC standard toolchain).
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+RUN uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
+        "xgic-cli>=0.2.0,<0.3" \
+        "xgic-dev-cli>=0.2.0,<0.3" \
+        "xgic-payload-cms-cli>=0.2.0,<0.3" \
+    && uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
+        -e . \
+    && rm -rf /root/.cache/uv /root/.cache/pip
 
 USER ${APP_USER}
 

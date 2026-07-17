@@ -5,19 +5,19 @@ build-backend = "hatchling.build"
 [project]
 name = "xgic-payload-cms-dev-containers"
 version = "0.3.0"
-description = "XGIC Payload CMS Dev Containers template — consumes modular XGIC CLI packages."
+description = "XGIC Payload CMS Dev Containers template — consumes modular XGIC CLI packages from PyPI."
 readme = "README.md"
 requires-python = ">=3.14"
 license = { text = "Apache-2.0" }
 authors = [
     { name = "XGIC" }
 ]
-# Thin consumer: no in-tree CLI. Install modular XGIC CLI from public Git
-# until first coordinated PyPI release (hub python-package-release.md).
+# Thin consumer: no in-tree CLI. Install modular XGIC CLI from PyPI only
+# (https://github.com/xgic/ai/blob/main/docs/python-package-release.md).
 dependencies = [
-    "xgic-cli @ git+https://github.com/xgic/cli.git@main",
-    "xgic-dev-cli @ git+https://github.com/xgic/dev-cli.git@main",
-    "xgic-payload-cms-cli @ git+https://github.com/xgic/payload-cms-cli.git@main",
+    "xgic-cli>=0.2.0,<0.3",
+    "xgic-dev-cli>=0.2.0,<0.3",
+    "xgic-payload-cms-cli>=0.2.0,<0.3",
     "rich>=13.7",
     "pydantic>=2.7",
     "email-validator>=2.0",
@@ -46,9 +46,6 @@ dev = [
 Homepage = "https://github.com/xgic/payload-cms-dev-containers"
 Repository = "https://github.com/xgic/payload-cms-dev-containers"
 Issues = "https://github.com/xgic/payload-cms-dev-containers/issues"
-
-[tool.hatch.metadata]
-allow-direct-references = true
 
 # No Python packages in this template (CLI lives in modular public repos).
 [tool.hatch.build.targets.wheel]

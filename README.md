@@ -146,16 +146,20 @@ xgic payload reset --yes
 
 ### Optional host install
 
-Prefer working **inside** the Dev Container. For host-side diagnostics, install the modular packages from public Git (or PyPI after the first coordinated release — see [python-package-release.md](https://github.com/xgic/ai/blob/main/docs/python-package-release.md)):
+Prefer working **inside** the Dev Container. For host-side diagnostics, install the modular packages from **PyPI** with [uv](https://docs.astral.sh/uv/) (see [python-package-release.md](https://github.com/xgic/ai/blob/main/docs/python-package-release.md)):
 
 ```bash
-pip install \
-  "git+https://github.com/xgic/cli.git@main" \
-  "git+https://github.com/xgic/dev-cli.git@main" \
-  "git+https://github.com/xgic/payload-cms-cli.git@main"
+# One-time: install uv if needed — https://docs.astral.sh/uv/getting-started/installation/
+uv venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+uv pip install \
+  "xgic-cli>=0.2.0,<0.3" \
+  "xgic-dev-cli>=0.2.0,<0.3" \
+  "xgic-payload-cms-cli>=0.2.0,<0.3"
+xgic --version
+xgic payload --help
 ```
 
-CLI source changes belong in those modular repositories—not in this template.
+CLI source changes belong in the modular repositories—not in this template.
 
 ## Working with AI assistants
 

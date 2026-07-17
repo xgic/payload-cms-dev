@@ -16,6 +16,8 @@ It does **not** own the CLI implementation.
 
 **Brand:** **XGIC CLI** only in living docs. No supported `xde` entrypoint (hard cutover complete for this template).
 
+**Install source:** consumers install **from PyPI** with version pins (`uv pip install xgic-cli…`), not from live Git `main`. See [python-package-release.md](https://github.com/xgic/ai/blob/main/docs/python-package-release.md).
+
 ## Session startup
 
 Inside the Dev Container (`xgic` is on PATH):
