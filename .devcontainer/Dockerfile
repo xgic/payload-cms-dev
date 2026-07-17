@@ -5,9 +5,11 @@
 
 # -----------------------------------------------------------------------------
 # Python stage (official slim image, pinned per ADR-0002 / XGIC Python 3.14
-# baseline). Bookworm-based tags align with node:lts-slim glibc expectations.
+# baseline). Must share the same Debian generation as node:lts-slim so the
+# multi-stage COPY of /usr/local has a matching glibc (bookworm = 2.36).
+# Default python:3.14-slim tracks trixie (glibc 2.38+) and breaks node:lts-slim.
 # -----------------------------------------------------------------------------
-FROM python:3.14.6-slim AS python
+FROM python:3.14.6-slim-bookworm AS python
 
 # -----------------------------------------------------------------------------
 # Stage 1: Core base (changes very rarely)
@@ -121,8 +123,8 @@ FROM user-setup AS dev-tools
 RUN corepack enable && corepack use pnpm@10
 
 # Bring in clean Python installation (multi-stage copy for reproducibility
-# and to avoid PPA fragility). This is the recommended future-proof approach
-# when the primary runtime is Node but you need a modern Python for tooling.
+# and to avoid PPA fragility). Source stage is slim-bookworm so glibc matches
+# node:lts-slim (see python stage comment above).
 COPY --from=python /usr/local /usr/local
 
 # Ensure the new Python is early in PATH (before any system python3)
