@@ -45,3 +45,20 @@ jobs:
         run: |
           uv run xgic --version
           uv run xgic payload --help
+
+  # ------------------------------------------------------------------
+  # Required ruleset gate (stable check name: "Test")
+  # GitHub required_status_checks match job names, not workflow paths.
+  # ------------------------------------------------------------------
+  test:
+    name: Test
+    if: always()
+    needs:
+      - python-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all test jobs succeeded
+        run: |
+          set -euo pipefail
+          test "${{ needs.python-tests.result }}" = "success"
+          echo "Test gate passed"
