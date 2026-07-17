@@ -1,10 +1,21 @@
 name: Release Validation
 
+# Runs on PRs (required gate), main pushes, tags, and manual dispatch.
+# Stable consolidating check name for rulesets: "Release Validation"
+# (GitHub required_status_checks match job names, not workflow file paths.)
 on:
-  workflow_dispatch:   # Manual trigger before cutting a release
+  workflow_dispatch:
+  pull_request:
+    branches: [main, master]
   push:
+    branches: [main, master]
     tags:
       - 'v*'
+
+# Cancel in-progress runs on new pushes (saves CI minutes)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -14,40 +25,82 @@ jobs:
     name: Validate Dev Container Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-      - name: Build devcontainer image
-        run: |
-          docker compose -f .devcontainer/docker-compose.yml build --no-cache
+      - name: Prepare host paths for compose mounts
+        run: mkdir -p "$HOME/.ssh"
 
-      - name: Basic smoke test of the container
-        run: |
-          docker compose -f .devcontainer/docker-compose.yml up -d
-          sleep 10
-          docker compose -f .devcontainer/docker-compose.yml exec -T xgic-payload-cms-dev-containers \
-            bash -c "node --version && pnpm --version && psql --version"
+      - name: Generate .devcontainer/.env (idempotent)
+        run: bash .devcontainer/scripts/init-env.sh
 
-      - name: Run devcontainer validation script (if present)
+      - name: Build dev container image
         run: |
-          docker compose -f .devcontainer/docker-compose.yml exec -T xgic-payload-cms-dev-containers \
+          docker compose -f .devcontainer/docker-compose.yml build
+
+      - name: Start primary service
+        run: |
+          docker compose -f .devcontainer/docker-compose.yml \
+            up -d xgic-payload-cms-dev-containers
+          # Wait until the primary service accepts exec
+          for _ in $(seq 1 30); do
+            if docker compose -f .devcontainer/docker-compose.yml \
+              exec -T xgic-payload-cms-dev-containers true 2>/dev/null; then
+              echo "Primary service is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Primary service did not become ready in time" >&2
+          docker compose -f .devcontainer/docker-compose.yml ps || true
+          docker compose -f .devcontainer/docker-compose.yml logs \
+            --no-color --tail=100 xgic-payload-cms-dev-containers || true
+          exit 1
+
+      - name: Smoke-test container tooling + modular XGIC CLI
+        run: |
+          docker compose -f .devcontainer/docker-compose.yml \
+            exec -T xgic-payload-cms-dev-containers bash -c '
+              set -euo pipefail
+              echo "::group::Tool versions"
+              node --version
+              pnpm --version
+              psql --version
+              python3 --version
+              echo "::endgroup::"
+              echo "::group::XGIC CLI smoke"
+              xgic --version
+              xgic payload --help
+              xgic info || true
+              echo "::endgroup::"
+            '
+
+      - name: Run devcontainer validation script
+        run: |
+          # Script covers node/pnpm/psql client checks; DB connectivity
+          # may soft-fail when postgres profile is not started (expected).
+          docker compose -f .devcontainer/docker-compose.yml \
+            exec -T xgic-payload-cms-dev-containers \
             bash .devcontainer/scripts/devcontainer-tests.sh || true
 
-  run-full-validation:
-    name: Run xde-based validation inside container
-    runs-on: ubuntu-latest
-    needs: validate-devcontainer
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Install devcontainer CLI
-        run: npm install -g @devcontainers/cli
-
-      - name: Run full validation using devcontainer (xde primary)
+      - name: Tear down compose stack
+        if: always()
         run: |
-          devcontainer up --workspace-folder .
-          devcontainer exec --workspace-folder . -- bash -c '
-            xde check || true
-            xde schema || python3 .devcontainer/config/generate_schema.py || true
-            python3 -m pytest tests/test_environment.py tests/test_docker.py -q || true
-            echo "xde + core tests + schema validation complete"
-          '
+          docker compose -f .devcontainer/docker-compose.yml \
+            down --remove-orphans || true
+
+  # ------------------------------------------------------------------
+  # Required ruleset gate (stable check name: "Release Validation")
+  # ------------------------------------------------------------------
+  release-validation:
+    name: Release Validation
+    if: always()
+    needs:
+      - validate-devcontainer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require release validation jobs succeeded
+        run: |
+          set -euo pipefail
+          test "${{ needs.validate-devcontainer.result }}" = "success"
+          echo "Release Validation gate passed"

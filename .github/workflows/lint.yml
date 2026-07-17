@@ -166,4 +166,27 @@ jobs:
               line-length: disable
               truthy: disable
 
-  # Legacy automation linting retired. xde + ruff/pytest are the current source of truth for dev/CI commands.
+  # ------------------------------------------------------------------
+  # Required ruleset gate (stable check name: "Lint")
+  # GitHub required_status_checks match job names, not workflow paths.
+  # ------------------------------------------------------------------
+  lint:
+    name: Lint
+    if: always()
+    needs:
+      - shellcheck
+      - shellcheck-matrix
+      - actionlint
+      - shfmt
+      - yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all lint jobs succeeded
+        run: |
+          set -euo pipefail
+          test "${{ needs.shellcheck.result }}" = "success"
+          test "${{ needs.shellcheck-matrix.result }}" = "success"
+          test "${{ needs.actionlint.result }}" = "success"
+          test "${{ needs.shfmt.result }}" = "success"
+          test "${{ needs.yamllint.result }}" = "success"
+          echo "Lint gate passed"

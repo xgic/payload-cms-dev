@@ -32,11 +32,12 @@ Use **Repository rulesets** (modern, flexible, fnmatch targets, bypass lists, ea
   - Require status checks to pass (see below) + "Require branches to be up to date before merging"
   - Require signed commits (recommended for auditability and professional signal)
 
-- **Status checks to require** (add the actual job names from your workflows; they run on PRs to the protected branch):
-  - Lint jobs from `.github/workflows/lint.yml` (shellcheck, actionlint, shfmt, yamllint, etc.)
-  - Test / pytest jobs from `.github/workflows/test.yml`
-  - Dev container / release validation jobs from `.github/workflows/release-validation.yml` when relevant
-  - Any future aggregate "validate" or "ci" job
+- **Status checks to require** (use the **job `name:` values**, not workflow file paths —
+  GitHub rulesets match check-run names, and path-shaped contexts never complete):
+  - `Lint` — consolidating gate in `.github/workflows/lint.yml` (depends on ShellCheck, matrix, actionlint, shfmt, yamllint)
+  - `Test` — consolidating gate in `.github/workflows/test.yml` (depends on Python unit tests + XGIC smoke)
+  - `Release Validation` — consolidating gate in `.github/workflows/release-validation.yml` (dev container build + tooling/CLI smoke)
+  - Add further aggregate gates only when they report a stable job name on every PR to the protected branch
 
 ### For active release branches (e.g. during 0.2.0 development)
 Create a parallel ruleset (or one ruleset with multiple targets) for `release/*` (fnmatch `release/*` or specific `release/0.2.0` while it is active).
@@ -63,14 +64,10 @@ Example starter (adjust to your team):
 
 ```
 # Critical infrastructure and agent-optimized foundations
-/.devcontainer/         @owner
-/src/xde/               @owner
-/.github/workflows/     @owner
-/docs/                  @owner
-/.github/CONTRIBUTING.md @owner
+*                       @xgic
 ```
 
-This is especially valuable for the dev container definition, the `xde` CLI (the single source of truth), and automation.
+This is especially valuable for the dev container definition, workflows, and modular XGIC CLI consumer wiring (PyPI packages; no in-tree CLI after B5).
 
 ## Setup / Maintenance Notes
 
@@ -91,6 +88,6 @@ The actual rules live in GitHub settings (not in this repo as executable code). 
 
 ---
 
-**Last updated**: 2026 (aligned to `release/0.2.0` model, xde as primary interface, current CI, and Grok + human-gate automation patterns).
+**Last updated**: 2026-07 (required checks map to stable gate job names `Lint`, `Test`, `Release Validation`; modular XGIC CLI consumer; Grok + human-gate automation patterns).
 
 This policy helps keep the project the best possible foundation for building serious Payload CMS apps with Grok Build and similar tools.

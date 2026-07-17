@@ -10,6 +10,6 @@ This directory contains the canonical definition of the devcontainer configurati
 
 - The main configuration file lives at the project root: `.devcontainer/create-payload-config.json`.
 - It references the generated schema for rich VS Code IntelliSense and validation.
-- After modifying `types.ts`, run `python -m xde schema` (or execute `.devcontainer/config/generate_schema.py` directly) to update the schema.
+- After modifying `types.ts`, run `xgic payload schema` (or execute `.devcontainer/config/generate_schema.py` directly) to update the schema.
 
 This approach keeps configuration simple (JSON for end users) while maintaining strong typing and excellent editor support.

@@ -5,9 +5,11 @@
 
 # -----------------------------------------------------------------------------
 # Python stage (official slim image, pinned per ADR-0002 / XGIC Python 3.14
-# baseline). Bookworm-based tags align with node:lts-slim glibc expectations.
+# baseline). Must share the same Debian generation as node:lts-slim so the
+# multi-stage COPY of /usr/local has a matching glibc (bookworm = 2.36).
+# Default python:3.14-slim tracks trixie (glibc 2.38+) and breaks node:lts-slim.
 # -----------------------------------------------------------------------------
-FROM python:3.14.6-slim AS python
+FROM python:3.14.6-slim-bookworm AS python
 
 # -----------------------------------------------------------------------------
 # Stage 1: Core base (changes very rarely)
@@ -121,14 +123,14 @@ FROM user-setup AS dev-tools
 RUN corepack enable && corepack use pnpm@10
 
 # Bring in clean Python installation (multi-stage copy for reproducibility
-# and to avoid PPA fragility). This is the recommended future-proof approach
-# when the primary runtime is Node but you need a modern Python for tooling.
+# and to avoid PPA fragility). Source stage is slim-bookworm so glibc matches
+# node:lts-slim (see python stage comment above).
 COPY --from=python /usr/local /usr/local
 
 # Ensure the new Python is early in PATH (before any system python3)
 ENV PATH="/usr/local/bin:${PATH}"
 
-# Create isolated Python venv (for devcontainer scripting, xde CLI, and testing).
+# Create isolated Python venv (for modular XGIC CLI + template scripts).
 # The base image is chosen for glibc compatibility with node:lts-slim.
 ENV PYTHON_VENV=/opt/venv
 RUN /usr/local/bin/python3 -m venv ${PYTHON_VENV} \
@@ -139,10 +141,13 @@ RUN /usr/local/bin/python3 -m venv ${PYTHON_VENV} \
 # Make venv tools available globally in the container (takes precedence)
 ENV PATH="${PYTHON_VENV}/bin:${PATH}"
 
+# Default Compose identity for this template (product-agnostic xgic CLI flags/env).
+ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
+    XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev-containers \
+    XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev-containers
+
 # Allow the app user (node) to install additional packages into the venv
-# during postCreateCommand (e.g. editable install of xde for the in-container CLI).
-# This is required because the venv is created as root but postCreate runs as the
-# remoteUser.
+# when needed. Venv is created as root but the remoteUser is node.
 RUN chown -R ${APP_USER}:${APP_USER} ${PYTHON_VENV}
 
 # -----------------------------------------------------------------------------
@@ -160,12 +165,18 @@ WORKDIR ${WORKSPACE}
 # Copy source code as late as possible
 COPY --chown=${APP_USER}:${APP_USER} . .
 
-# Install the xde package (editable) into the venv so the `xde` CLI is
-# available inside the container by default. This is done at image build
-# time (rather than via postCreateCommand) to avoid the VS Code
-# "Running the postCreateCommand..." header and the "Done. Press any key
-# to close the terminal." prompt during first container creation.
-RUN /opt/venv/bin/pip install -e . --quiet --root-user-action=ignore
+# Install modular XGIC CLI from PyPI (standard consumer path).
+# See https://github.com/xgic/ai/blob/main/docs/python-package-release.md
+# Template is a consumer only — no in-tree CLI package (ADR-0005 B5 cutover).
+# Use uv for install (XGIC standard toolchain).
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+RUN uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
+        "xgic-cli>=0.2.0,<0.3" \
+        "xgic-dev-cli>=0.2.0,<0.3" \
+        "xgic-payload-cms-cli>=0.2.0,<0.3" \
+    && uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
+        -e . \
+    && rm -rf /root/.cache/uv /root/.cache/pip
 
 USER ${APP_USER}
 

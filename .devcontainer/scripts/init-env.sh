@@ -8,8 +8,8 @@ set -e
 # `docker compose up`, or manual invocations will not rotate secrets
 # and invalidate existing database data.
 #
-# To explicitly rotate credentials, use `xde reset --rotate-credentials`
-# (preferred for full reset) or edit the .env and inspect with `xde env`.
+# To explicitly rotate credentials, use `xgic payload reset --rotate-credentials`
+# (preferred for full reset) or inspect with `xgic payload env`.
 
 # Source shared logging (with graceful fallback if the lib is missing, e.g. after a hard clean)
 LOGGING_LIB="$(dirname "$0")/lib/logging.sh"
