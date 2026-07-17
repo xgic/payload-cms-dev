@@ -32,20 +32,17 @@ jobs:
         run: |
           # Consumer template: install from PyPI pins via uv
           # https://github.com/xgic/ai/blob/main/docs/python-package-release.md
-          uv venv .venv
-          source .venv/bin/activate
-          uv pip install --upgrade pip
-          uv pip install -e ".[dev]"
+          # setup-uv already provides the Python env; do not recreate .venv.
+          uv pip install --system --upgrade pip
+          uv pip install --system -e ".[dev]"
 
       - name: Run tests
         run: |
-          source .venv/bin/activate
           # Template is a CLI consumer (no in-tree src/xde). Smoke tests verify
           # modular packages import; CLI unit coverage lives in xgic/*-cli repos.
           python -m pytest -q
 
       - name: Smoke xgic CLI entrypoint
         run: |
-          source .venv/bin/activate
           xgic --version
           xgic payload --help
