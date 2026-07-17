@@ -128,7 +128,7 @@ COPY --from=python /usr/local /usr/local
 # Ensure the new Python is early in PATH (before any system python3)
 ENV PATH="/usr/local/bin:${PATH}"
 
-# Create isolated Python venv (for devcontainer scripting, xde CLI, and testing).
+# Create isolated Python venv (for modular XGIC CLI + template scripts).
 # The base image is chosen for glibc compatibility with node:lts-slim.
 ENV PYTHON_VENV=/opt/venv
 RUN /usr/local/bin/python3 -m venv ${PYTHON_VENV} \
@@ -139,10 +139,13 @@ RUN /usr/local/bin/python3 -m venv ${PYTHON_VENV} \
 # Make venv tools available globally in the container (takes precedence)
 ENV PATH="${PYTHON_VENV}/bin:${PATH}"
 
+# Default Compose identity for this template (product-agnostic xgic CLI flags/env).
+ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
+    XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev-containers \
+    XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev-containers
+
 # Allow the app user (node) to install additional packages into the venv
-# during postCreateCommand (e.g. editable install of xde for the in-container CLI).
-# This is required because the venv is created as root but postCreate runs as the
-# remoteUser.
+# when needed. Venv is created as root but the remoteUser is node.
 RUN chown -R ${APP_USER}:${APP_USER} ${PYTHON_VENV}
 
 # -----------------------------------------------------------------------------
@@ -160,12 +163,14 @@ WORKDIR ${WORKSPACE}
 # Copy source code as late as possible
 COPY --chown=${APP_USER}:${APP_USER} . .
 
-# Install the xde package (editable) into the venv so the `xde` CLI is
-# available inside the container by default. This is done at image build
-# time (rather than via postCreateCommand) to avoid the VS Code
-# "Running the postCreateCommand..." header and the "Done. Press any key
-# to close the terminal." prompt during first container creation.
-RUN /opt/venv/bin/pip install -e . --quiet --root-user-action=ignore
+# Install modular XGIC CLI packages (public Git until first PyPI stack release).
+# Template is a consumer only — no in-tree CLI package (ADR-0005 B5 cutover).
+RUN /opt/venv/bin/pip install --no-cache-dir --root-user-action=ignore \
+        "git+https://github.com/xgic/cli.git@main" \
+        "git+https://github.com/xgic/dev-cli.git@main" \
+        "git+https://github.com/xgic/payload-cms-cli.git@main" \
+    && /opt/venv/bin/pip install --no-cache-dir --root-user-action=ignore -e . \
+    && rm -rf /root/.cache/pip
 
 USER ${APP_USER}
 

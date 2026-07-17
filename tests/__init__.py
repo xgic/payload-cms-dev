@@ -1,5 +1,4 @@
-"""Test package for xgic-create-payload-app.
+"""Tests for the Payload CMS Dev Containers template (consumer of modular XGIC CLI).
 
-Contains tests for the xde implementation (legacy test harnesses under
-tests/make/ have been removed).
+CLI unit tests live in xgic/cli, xgic/dev-cli, and xgic/payload-cms-cli.
 """

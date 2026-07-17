@@ -58,10 +58,20 @@ This repository includes a [VS Code Dev Container](https://code.visualstudio.com
 
    This is the recommended command for the initial container setup.
 
-The container will build on first use (this may take several minutes). Once ready, you will have a pre-configured environment with Node.js, pnpm, recommended VS Code extensions, and Payload CMS development tools already set up. The `xde` CLI is pre-installed and available in your PATH inside the container.
+The container will build on first use (this may take several minutes). Once ready, you will have a pre-configured environment with Node.js, pnpm, recommended VS Code extensions, and Payload CMS development tools already set up. The modular **XGIC CLI** (`xgic`) is pre-installed and available on your PATH inside the container.
+
+**Daily commands (inside the container)**
+
+```bash
+xgic check
+xgic payload env
+xgic payload dev
+```
+
+See [AGENTS.md](AGENTS.md) for the full command map. Lifecycle helpers: `xgic up` / `xgic down` / `xgic payload reset`.
 
 **What to expect during first container creation**
-VS Code will show "Running the initializeCommand..." and "Running the postStartCommand..." headers (these come from the Dev Containers extension whenever hooks are defined in devcontainer.json). Our scripts are intentionally minimal and silent on repeat runs (idempotent). The `postCreateCommand` hook has been removed (xde install is baked into the image) to avoid the "Running the postCreateCommand..." header and the "Done. Press any key to close the terminal." prompt. A one-time pnpm "build scripts" warning for a dependency is suppressed via `pnpm approve-builds` during setup.
+VS Code will show "Running the initializeCommand..." and "Running the postStartCommand..." headers (these come from the Dev Containers extension whenever hooks are defined in devcontainer.json). Our scripts are intentionally minimal and silent on repeat runs (idempotent). Modular XGIC CLI packages are installed at image build time. A one-time pnpm "build scripts" warning for a dependency is suppressed via `pnpm approve-builds` during setup.
 
 For full details on how Dev Containers work, see the official documentation:
 
@@ -85,13 +95,14 @@ This configuration is also compatible with GitHub Codespaces.
 │       ├── setup-payload.sh            # Main project creation logic (postStartCommand)
 │       ├── devcontainer-tests.sh
 │       └── init-env.sh
-│   (reset-project.py and its dedicated fidelity tests were removed after full migration to xde)
 ├── .dockerignore
 ├── .github/
-│   └── CONTRIBUTING.md
 ├── LICENSE
+├── AGENTS.md
 └── README.md
 ```
+
+CLI implementation lives in modular public packages ([xgic/cli](https://github.com/xgic/cli), [xgic/dev-cli](https://github.com/xgic/dev-cli), [xgic/payload-cms-cli](https://github.com/xgic/payload-cms-cli)) — this template is a **consumer** only ([ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md)).
 
 ## Architecture
 
@@ -99,131 +110,60 @@ This configuration is also compatible with GitHub Codespaces.
 - Docker Compose orchestration for app + postgres services
 - Isolated bridge network + named volumes for data persistence
 - Delegated bind mounts for optimal performance
+- Modular **XGIC CLI** installed into the image Python venv
 
-## The `xde` CLI
+## XGIC CLI (primary interface)
 
-`xde` (XGIC Dev Environment) is the primary command-line tool for managing the development environment. It provides a reliable, testable, and developer-friendly replacement for the previous automation targets.
+**Brand:** XGIC CLI (`xgic`). Living docs use this brand only (no supported dual brand).
 
-**AI coding assistants** (Grok Build, Claude, Cursor, etc.): 
+**AI coding assistants:** start with [AGENTS.md](AGENTS.md), then [docs/architecture.md](docs/architecture.md) and multi-repo standards at [xgic/ai](https://github.com/xgic/ai).
 
-**Start here** (in this order for maximum effectiveness):
-1. [AGENTS.md](AGENTS.md) — Primary behavioral and philosophical guidance.
-2. [docs/grok-playbooks.md](docs/grok-playbooks.md) — Concrete step-by-step workflows and playbooks.
-3. The primary plan and platform issues/tasks — Lightweight tracking for informal TODOs and reminders.
-4. The primary plan and commit history — History of our collaboration and major decisions.
-5. [docs/architecture.md](docs/architecture.md) — Mental model.
-6. [docs/xde-reference.md](docs/xde-reference.md) — Command surface details.
+### Quick reference
 
-These documents are deliberately written to make Grok Build (and similar agents) dramatically more productive when working on Payload CMS projects with this template.
+| Command | Description |
+|---------|-------------|
+| `xgic --help` | Top-level help |
+| `xgic payload dev` | **Primary daily command** — smart Payload CMS app start |
+| `xgic up` / `xgic down` | Compose lifecycle (use `--profile postgres` when needed) |
+| `xgic check` | Environment / services diagnostic |
+| `xgic payload env` | Payload CMS env status; `--regenerate --yes` for new secrets |
+| `xgic payload setup` | Ensure project directory (also run by postStart) |
+| `xgic payload schema` | Regenerate create-payload-config JSON schema |
+| `xgic payload reset` | Targeted reset: project folder + DB volume (`--dry-run` / `--yes`) |
 
-All commands are designed to feel natural when working inside the Dev Container (the default context is development). The only explicit non-development environment is `stage` (for testing code that mirrors production).
-
-### Quick Reference
-
-| Command                  | Description                                                                 |
-|--------------------------|-----------------------------------------------------------------------------|
-| `xde` or `xde help`      | Show short, scannable usage information (level-1 help).                     |
-| `xde dev`                | **Primary daily command.** Starts the Payload development server (direct inside container for clean Ctrl+C handling; Docker only for cross-service or host orchestration). Performs a DB readiness check first. |
-| `xde up`                 | Start all development services (Docker Compose).                            |
-| `xde down`               | Stop containers (volumes are preserved).                                    |
-| `xde reset`              | Fast targeted reset: removes the generated Payload project folder and resets the Postgres data volume (stable credentials). |
-| `xde check`              | Diagnostic: verify that PostgreSQL and required services are reachable.     |
-| `xde logs`               | Follow logs for all services.                                               |
-| `xde shell`              | Open an interactive shell in the main service container.                    |
-| `xde setup payloadcms`   | Ensure the Payload CMS project dir is created/configured (idempotent; also run automatically by reset and the devcontainer hook). |
-
-### Planned Extensions (Post v1) and Release Roadmap
-
-High-level planning for future releases is tracked in the primary plan and platform issues/tasks (see new "Future Releases (0.2.0 and Beyond)" section) and the detailed living example in [docs/releases/0.2.0-mongodb-support-external-contributor-guide.md](docs/releases/0.2.0-mongodb-support-external-contributor-guide.md).
-
-All 0.2.0+ release work is executed and documented following the **external contributor simulation** (exact steps from [CONTRIBUTING.md](CONTRIBUTING.md)) + heavy Grok Build GitHub MCP automation (draft issues/PRs, file pushes, etc.) **with mandatory human/developer verification and approval gates at every step**. This leads by example, provides clear artifacts for future contributors, demonstrates expertise, and elevates XGIC's professional reputation as an AI-first, contributor-friendly OSS project.
-
-Version-tagged capabilities under consideration:
-
-- **0.2.0: Official MongoDB / Multi-Adapter Support** (see the dedicated external contributor guide and the primary plan and platform issues/tasks for scope: config/schema, Docker (compose + Dockerfile), xde logic (leverage existing pure helpers), docs, tests/E2E for Mongo generated apps, release artifacts). Default remains Postgres for stability.
-- **0.3.0: AI-First Completeness & Polish** (context & agent ergonomics including improved AI context detection + more --json + `xde context`; library extraction with examples; testing roadmap advancement to real integration + full E2E for generated apps (HTTP + future Playwright); `stage` namespace; `xde validate`/`lint`; TUI exploration; ecosystem/CI templates; full multi-adapter maturity).
-
-See the approved session plan.md for the full high-level vision, process, and Grok automation details. All work remains positive, 80-col for code, atomic commits with tests + docs, and aligned with the mission of being the #1 foundation for AI-assisted (Grok Build etc.) Payload CMS development.
-
-These features are not part of the initial v1 command surface.
-
-### Usage Examples
+### Usage examples
 
 ```bash
-# Start developing (recommended)
-xde dev
+xgic payload dev
 
-# Full environment lifecycle
-xde up
+xgic up --profile postgres
 # ... work ...
-xde down
+xgic down
 
-# Safe reset before a fresh test run
-xde reset --yes
-
-# Test against a production-like database and services
-xde stage up
-xde stage dev
+xgic payload reset --dry-run
+xgic payload reset --yes
 ```
 
-### Development Note
+### Optional host install
 
-The `xde` CLI is installed by default inside the Dev Container (the primary environment where the vast majority of development work happens). You do not need to install anything extra on your host for normal daily use.
-
-If you are actively developing the `xde` CLI itself, or need the commands on the host before the container is running (advanced / power-user scenarios), see the "Advanced: Installing xde on the Host (Optional)" section below. A proper console script entry point is provided by the `pyproject.toml`.
-
-## Advanced: Installing xde on the Host (Optional)
-
-The `xde` CLI is pre-installed and available inside the Dev Container by default (via the container's Python venv and postCreateCommand). This is the recommended and primary experience — users do most of their work inside the container.
-
-Host installation is entirely optional and intended only for advanced / power-user cases such as:
-- Running `xde check`, `xde env`, or `xde reset` from the host *before* the container is open.
-- Host-only scripting or CI that cannot easily use the dev container.
-- Actively developing changes to the xde source code on the host machine.
-- Using xde in environments outside a dev container (e.g., certain GitHub Actions runners).
-
-**Recommended modern tooling: uv**
-
-We prefer `uv tool install -e .` (from Astral) for isolated, fast, editable tool installs. It is actively maintained and generally faster than older alternatives.
-
-**macOS and Linux**
+Prefer working **inside** the Dev Container. For host-side diagnostics, install the modular packages from public Git (or PyPI after the first coordinated release — see [python-package-release.md](https://github.com/xgic/ai/blob/main/docs/python-package-release.md)):
 
 ```bash
-# One-time setup: install uv (if you do not already have it)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# From the root of this repository:
-uv tool install -e .
+pip install \
+  "git+https://github.com/xgic/cli.git@main" \
+  "git+https://github.com/xgic/dev-cli.git@main" \
+  "git+https://github.com/xgic/payload-cms-cli.git@main"
 ```
 
-After installation, the `xde` command should be available in your shell (you may need to open a new terminal or ensure `~/.local/bin` is on your PATH — uv usually configures this for you).
+CLI source changes belong in those modular repositories—not in this template.
 
-**Windows (PowerShell)**
+## Working with AI assistants
 
-```powershell
-# One-time setup: install uv (if you do not already have it)
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+Ask tools to use **XGIC CLI** (`xgic` / `xgic payload …`) for environment operations. Example prompts:
 
-# From the root of this repository (in PowerShell):
-uv tool install -e .
-```
-
-**Platform notes and caveats**
-- Editable installs (`-e`) mean that local changes to the xde source are reflected immediately when you run `xde` (very useful when developing the CLI).
-- PATH differences: The exact location uv places tools varies by platform and shell. Common locations include `~/.local/bin` (Unix) or the uv tools directory on Windows. Restart your terminal after install if `xde` is not found.
-- To upgrade a tool install: `uv tool upgrade xde`
-- To remove: `uv tool uninstall xde`
-- This section is deliberately separated from the main Quick Start because most users (and all first-time container users) never need it.
-
-## Working with AI Assistants (Grok, etc.)
-
-Ask AI tools to use the `xde` CLI for environment operations. Example prompts:
-
-- "Run `xde dev` and tell me if the database is ready."
-- "Use `xde reset --yes` then start the dev server."
-- "Run `xde validate` and summarize any issues."
-
-During the transition period some legacy automation targets may still exist for compatibility, but the canonical interface is `xde`.
+- "Run `xgic payload dev` and tell me if the database is ready."
+- "Use `xgic payload reset --dry-run` then `--yes` if the plan looks safe."
+- "Run `xgic check` and summarize any issues."
 
 ## Troubleshooting
 
