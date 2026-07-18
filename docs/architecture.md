@@ -1,108 +1,54 @@
 # Architecture Overview
 
-This document gives AI agents (especially Grok Build) a clear mental model of the system.
+Mental model for humans and AI agents working on this **template**.
 
-## High-Level Layers
+Multi-repo standards: https://github.com/xgic/ai  
+CLI architecture: [ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md)
 
-1. **Host Machine**
-   - Where the developer (and sometimes the agent) runs `xde` commands directly.
-   - Can perform host-only operations (Docker Compose control, file system changes to the generated Payload project, etc.).
+## High-level layers
 
-2. **Dev Container** (the primary development environment)
-   - Runs as the `node` user.
-   - Has the full Payload project mounted at `/workspace/<projectName>`.
-   - Contains the generated Payload app + its dependencies.
-   - PostgreSQL runs as a sibling container on an isolated network.
+1. **Host machine**
+   - Docker Desktop / Engine, VS Code, Dev Containers extension.
+   - Optional host install of modular XGIC CLI packages from **PyPI** (prefer working inside the container).
 
-3. **xde CLI** (`src/xde/`)
-   - The **strategic direction** of the project.
-   - Single, clean, testable interface for all environment operations.
-   - Designed to be excellent for both humans and agents.
+2. **Dev Container** (primary development environment)
+   - Service defined in `.devcontainer/docker-compose.yml`.
+   - Multi-stage `.devcontainer/Dockerfile` installs Node, tooling, and modular XGIC CLI into a Python venv.
+   - Workspace bind-mounted; Payload project generated under the workspace when setup runs.
+   - Database services (Postgres / Mongo) as compose profiles when needed.
 
-4. **Legacy Automation** (retired in 0.1.0)
-   - Earlier shell/Python scripts in `.devcontainer/scripts/`.
-   - Migration to `xde` as the single, testable interface is complete. Historical context is preserved in the primary plan and platform issues/tasks (and git history).
+3. **Modular XGIC CLI** (not implemented in this repo)
+   - Console entry: `xgic`
+   - Core framework: [xgic/cli](https://github.com/xgic/cli) (`xgic.cli`)
+   - Docker Compose lifecycle: [xgic/dev-cli](https://github.com/xgic/dev-cli) (`xgic.cli.dev`)
+   - Payload CMS product commands: [xgic/payload-cms-cli](https://github.com/xgic/payload-cms-cli) (`xgic.cli.payload`)
 
-## Core Abstractions (Most Important for Agents)
+4. **Thin template scripts**
+   - `.devcontainer/scripts/init-env.sh` — host-side env bootstrap
+   - `.devcontainer/scripts/setup-payload.sh` — thin `exec xgic payload setup`
+   - `.devcontainer/scripts/devcontainer-tests.sh` — environment smoke checks
 
-### EnvironmentContext (`src/xde/core/environment.py`)
+## What this repo owns
 
-Tells you where you are running:
-- `HOST`
-- `DEV_CONTAINER`
-- `GENERIC_CONTAINER`
+| Asset | Role |
+|-------|------|
+| `.devcontainer/*` | Image, compose, Dev Container config |
+| `create-payload-config.json` (+ schema) | Template config / IntelliSense |
+| Thin bash shims | Delegate to `xgic` |
+| Consumer `pyproject.toml` | PyPI pins for modular CLI + smoke tests |
+| Docs / CI | Template quality gates |
 
-This replaces fragile environment-guard patterns from earlier automation.
+## What this repo does **not** own
 
-**Always** start by understanding the environment context when reasoning about a task.
+- CLI command implementations or libraries under `src/xde/` (removed at B5 cutover)
+- A long-term `xde` entrypoint or alias
+- Unit-test ownership for DockerComposeController / payload command logic (lives in modular packages)
 
-### DockerComposeController (`src/xde/core/docker.py`)
+## Agent tip
 
-The single place that talks to Docker and Docker Compose.
+At the start of a non-trivial task, state whether you are changing:
 
-**Current strategy (as of 2026):**
-We are deliberately using a simple subprocess-based implementation
-(calling the `docker` and `docker compose` CLI). The operations we
-perform today are relatively straightforward, so we do not need
-additional complexity at this stage.
+1. **Template infrastructure** (Dockerfile, compose, scripts, CI) — work here, or  
+2. **CLI behavior** — open a PR in the appropriate modular package repo instead.
 
-**Future consideration:**
-We will periodically re-evaluate this module and may rewrite it in the
-future to use a more advanced interface (e.g. `python-on-whales`, the
-official Docker Python SDK, or a small Go helper binary using Docker's
-official Go Docker Compose SDK) once our requirements grow more complex.
-
-Current responsibilities:
-- Start/stop/build services
-- Query service status
-- Execute commands inside containers
-- Basic health checks and volume management
-
-See the "CURRENT STRATEGY & FUTURE CONSIDERATION" section in
-`src/xde/core/docker.py` and the corresponding item in the primary plan and platform issues/tasks.
-
-### Configuration System
-
-- `create-payload-config.json` + JSON Schema = **single source of truth** for how a new Payload project should be generated.
-- `types.ts` (in `.devcontainer/config/`) is the TypeScript source of truth.
-- `generate_schema.py` turns the model into the schema consumed by editors and validation.
-
-Agents should prefer reading/writing this config over hardcoding values.
-
-## Data Flow for a Typical "Start Working" Session
-
-1. Human clones repo.
-2. Opens in VS Code → Dev Container rebuild.
-3. `initializeCommand` → `init-env.sh` (generates `.env` with secrets on the **host**).
-4. Container starts.
-5. `postStartCommand` → `setup-payload.sh` (creates the Payload project if missing, using config + live secrets).
-6. Agent/Human runs `xde dev`.
-7. `xde` checks if services are up → calls `up` if needed.
-8. `xde` performs DB readiness check.
-9. `xde` changes into the generated project directory and runs `pnpm dev`.
-
-The goal is for step 6 (`xde dev`) to become the only thing a human or agent needs to remember.
-
-## Migration Philosophy (Historical)
-
-The implementation deliberately did not port the entire earlier automation approach 1:1.
-
-Instead the approach was:
-- Identifying the *valuable outcomes* the earlier automation delivered.
-- Re-implementing them in a cleaner, more testable, more agent-friendly way inside `xde`.
-- Adding strong guardrails and better UX along the way.
-
-Destructive operations in particular (now `xde reset`) are given strong guardrails, targeted postgres handling, and clean UX (no self-recreate of the caller's container when running reset from inside the dev container). This was a major improvement over the earlier automation era.
-
-## Key Invariants Agents Must Respect
-
-- Never assume you're inside the container unless `EnvironmentContext` says so.
-- Prefer `xde` commands over direct `docker compose` or shell scripts.
-- Treat `create-payload-config.json` as the source of truth for project generation parameters.
-- Be extremely careful with anything that touches the generated Payload project folder or the PostgreSQL data volume.
-
-**Agent Tip**: At the start of any non-trivial task, explicitly state which layer you believe you are operating in and which abstraction (`EnvironmentContext`, `DockerComposeController`, config, etc.) you will use. This reduces errors.
-
----
-
-This architecture exists to make both human developers and AI agents dramatically more productive when building serious Payload CMS applications.
+Command map: [AGENTS.md](../AGENTS.md).
