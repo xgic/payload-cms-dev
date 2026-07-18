@@ -1,10 +1,13 @@
-# xde v1 Command Surface Proposal
+# xde v1 Command Surface Proposal (HISTORICAL)
+
+> **Archived.** Supported `xde` was retired at B5 hard cutover. Living brand: **XGIC CLI** (`xgic`).  
+> Current command map: [AGENTS.md](../AGENTS.md). See [ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md).
 
 **Date**: June 2026  
-**Status**: Finalized for xde v1  
-**Goal**: Define the minimal, final command surface for `xde` v1 that is simple, powerful, and sufficient.
+**Status**: Historical proposal (pre-modular extraction)  
+**Goal** (original): Define the minimal command surface for transitional `xde` v1.
 
-**Decision**: This surface is now finalized. The CLI in `src/xde/cli.py` implements exactly these commands. All future xde v1 work targets this surface. See `docs/development-workflow.md` and the primary plan and platform issues/tasks for historical context.
+**Decision (historical):** This surface guided the pre-cutover in-tree CLI. Post-B5, commands ship as modular `xgic` / `xgic payload` packages — not `src/xde/`.
 
 ---
 

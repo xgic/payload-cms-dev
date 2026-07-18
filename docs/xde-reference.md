@@ -1,8 +1,10 @@
-# xde Command Reference (For Agents)
+# xde Command Reference (HISTORICAL)
 
-This document is intended to be a living, detailed reference for the `xde` command surface.
+> **Archived.** Supported `xde` was retired at B5 hard cutover. Living brand: **XGIC CLI** (`xgic`).  
+> Current command map: [AGENTS.md](../AGENTS.md). Modular packages: [xgic/cli](https://github.com/xgic/cli), [xgic/dev-cli](https://github.com/xgic/dev-cli), [xgic/payload-cms-cli](https://github.com/xgic/payload-cms-cli).  
+> Architecture: [ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md).
 
-**Status**: This document is being aligned with the current design proposal in `docs/xde-v1-command-surface-proposal.md`. Many commands are still being implemented.
+This document is retained only as a historical snapshot of the pre-cutover `xde` surface.
 
 ## Design Principles
 

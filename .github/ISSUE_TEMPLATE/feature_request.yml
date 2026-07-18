@@ -1,5 +1,5 @@
 name: Feature request
-description: Propose an improvement to Dev Containers, xde, or documentation
+description: Propose an improvement to Dev Containers, XGIC CLI, or documentation
 title: "feat: "
 labels: ["enhancement"]
 body:

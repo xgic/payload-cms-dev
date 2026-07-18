@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a problem with Dev Containers, xde, Compose, or docs
+description: Report a problem with Dev Containers, XGIC CLI, Docker Compose, or docs
 title: "bug: "
 labels: ["bug"]
 body:

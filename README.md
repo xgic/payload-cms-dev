@@ -192,7 +192,7 @@ This will discard cached layers and recreate the container from scratch.
 
 - Review [CONTRIBUTING.md](CONTRIBUTING.md) — start with the [Code Style Quick Reference](CONTRIBUTING.md#code-style-quick-reference).
 - **AI assistants**: Read [AGENTS.md](AGENTS.md) first for project-specific guidance.
-- The `xde` CLI source and full documentation live alongside this README (implementation in progress).
+- CLI implementation: modular packages ([xgic/cli](https://github.com/xgic/cli), [xgic/dev-cli](https://github.com/xgic/dev-cli), [xgic/payload-cms-cli](https://github.com/xgic/payload-cms-cli)) — this template is a **consumer** only.
 
 
 ## Multi-repo standards

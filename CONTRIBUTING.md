@@ -38,34 +38,35 @@ This section outlines the standards that apply specifically to **this repository
 
 **Start here**: See the [Code Style Quick Reference](#code-style-quick-reference) for the most important rules at a glance. The most important formatting rule is the [80-character line length limit for code files](#line-length-80-characters).
 
-**AI assistants**: Read [AGENTS.md](AGENTS.md) **first**. It is the primary context document for Grok Build and other agents. Also see `docs/architecture.md` and `docs/xde-reference.md`.
+**AI assistants**: Read [AGENTS.md](AGENTS.md) **first**. Also see `docs/architecture.md` and multi-repo standards at https://github.com/xgic/ai. CLI implementation lives in modular packages — not in this template ([ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md)).
 
-### Repository Focus
+### Repository focus
 Contributions to this repo typically involve:
 - Dockerfiles and Docker Compose files
-- Shell scripts (Bash)
-- Python automation in `src/xde/` (the primary interface; see `xde --help`)
+- Thin shell scripts (Bash) that delegate to **XGIC CLI** (`xgic`)
 - YAML configuration (Dev Container, GitHub Actions, Dependabot)
-- Documentation (README, CONTRIBUTING, etc.)
+- Template smoke tests and documentation
+- **Not** new CLI libraries or an in-tree `xde` package (contribute those to [xgic/cli](https://github.com/xgic/cli), [xgic/dev-cli](https://github.com/xgic/dev-cli), or [xgic/payload-cms-cli](https://github.com/xgic/payload-cms-cli))
 
-### Required Standards
+### Required standards
 
-- **Dev Containers**: All development work should be done inside the provided Dev Container when possible. Changes must be tested inside the container before opening a PR.
+- **Dev Containers**: Prefer working inside the provided Dev Container. Test changes inside the container before opening a PR.
 - **Docker**: Follow official [Docker Best Practices](https://docs.docker.com/build/building/best-practices/). Prefer multi-stage builds and minimize image size where reasonable.
-- **Shell Scripts**:
+- **Shell scripts**:
   - All `.sh` files must pass `shellcheck`.
   - Prefer POSIX-compliant syntax when practical. Use `set -euo pipefail` (or `set -e`) appropriately.
-  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers (e.g. thin shims calling `xde`). Complex logic belongs in Python under `src/xde/`.
-- **Python**: Follow PEP 8 with type hints where it improves clarity. Core logic lives in `src/xde/core/` and commands; keep it well-documented and testable.
-- **YAML & GitHub Actions**: Use consistent indentation (2 spaces). Validate workflows with `actionlint` when making changes to `.github/workflows/`.
-- **Documentation**: 
+  - Scripts in `.devcontainer/scripts/` should remain thin orchestration layers (e.g. `exec xgic payload setup`). Complex CLI logic belongs in modular packages.
+- **Python**: Template consumer tests only; follow PEP 8 / project ruff config. Install modular CLI from **PyPI** pins via `uv`.
+- **YAML & GitHub Actions**: Use consistent indentation (2 spaces). Validate workflows with `actionlint` when changing `.github/workflows/`.
+- **Documentation**:
   - Update `README.md` when user-facing behavior changes.
-  - Update this file (`CONTRIBUTING.md`) when contribution processes or standards change.
+  - Update this file when contribution processes change.
+  - Living docs use **XGIC CLI** only (no dual brand).
 
-### Recommended Practices
-- Keep the thin bash wrappers (`setup-payload.sh`, etc.) minimal — they should typically just `exec xde ...`.
-- Prefer configuration via `create-payload-config.json` (which has rich JSON Schema support for VS Code IntelliSense) over hardcoding values in scripts.
-- Test changes with direct commands: `ruff format . && ruff check .`, `PYTHONPATH=src python -m pytest ...`, plus manual `xde check / xde env / xde reset --dry-run / xde dev` flows inside the container.
+### Recommended practices
+- Keep thin bash wrappers (`setup-payload.sh`, etc.) minimal — typically `exec xgic …`.
+- Prefer configuration via `create-payload-config.json` (JSON Schema IntelliSense) over hardcoding values in scripts.
+- Test with: `uv pip install -e ".[dev]" && uv run pytest -q`, plus manual `xgic check` / `xgic payload env` / `xgic payload reset --dry-run` / `xgic payload dev` inside the container.
 
 All contributors are expected to review this document before submitting code.
 
@@ -192,78 +193,55 @@ The project itself is designed to be self-hosting. We strongly recommend using t
    ```
 5. The Payload CMS instance will be available at `http://localhost:3000`.
 
-### Local Development Commands
+### Local development commands
 
-After entering the Dev Container, use `xde` (the primary interface) and direct tools:
+After entering the Dev Container, use **XGIC CLI** (`xgic`) and direct tools:
 
-| Command                  | Purpose                                           |
-|--------------------------|---------------------------------------------------|
-| `xde --help`             | Show all available commands                       |
-| `xde check`              | Health diagnostics (services, DB, project dir)    |
-| `xde env`                | Inspect generated `.env` and configuration        |
-| `xde dev`                | Recommended daily command: start Payload dev server |
-| `xde reset --dry-run`    | Preview impact of targeted reset (project + volume) |
-| `xde setup payloadcms`   | Ensure / recreate the Payload project (idempotent)|
-| `ruff format . && ruff check .` | Format + lint Python (enforces 80-col)       |
-| `PYTHONPATH=src python -m pytest ...` | Run Python tests                           |
+| Command | Purpose |
+|---------|---------|
+| `xgic --help` / `xgic --version` | Top-level help / version |
+| `xgic check` | Health diagnostics (services / environment) |
+| `xgic env` | Generic environment status |
+| `xgic payload env` | Payload CMS env status; `--regenerate --yes` for secrets |
+| `xgic payload dev` | Recommended daily command: smart Payload app start |
+| `xgic payload reset --dry-run` | Preview targeted reset (project + volume) |
+| `xgic payload setup` | Ensure / recreate the Payload project (idempotent) |
+| `uv pip install -e ".[dev]" && uv run pytest -q` | Template smoke tests |
 
-See `xde --help`, `TESTING.md`, and `docs/xde-reference.md` for details. The prior automation layer (including its targets) was retired in 0.1.0.
+See [AGENTS.md](AGENTS.md) and [TESTING.md](TESTING.md). CLI implementation docs live in the modular package repos.
 
-### Debugging & Logging
+### Debugging & logging
 
-You can control the verbosity of the setup scripts using the `LOG_LEVEL` environment variable.
-
-Supported values (case-insensitive):
-- `DEBUG` — Most verbose (shows debug messages)
-- `INFO` — Default level
-- `WARN` (or `WARNING`) — Warnings and errors only
-- `ERROR` — Errors only
-
-Examples inside the Dev Container (direct execution; thin scripts now delegate to `xde`):
+Control verbosity of setup scripts with `LOG_LEVEL` (`DEBUG`, `INFO`, `WARN`, `ERROR`):
 
 ```bash
-# Run the post-start hook directly (thin wrapper around `xde setup payloadcms`)
+# postStart hook (thin wrapper: exec xgic payload setup)
 LOG_LEVEL=DEBUG bash .devcontainer/scripts/setup-payload.sh
 
-# Only show warnings and errors from init-env
 LOG_LEVEL=warn bash .devcontainer/scripts/init-env.sh
 ```
 
-The `xde` commands and thin scripts respect `LOG_LEVEL` via the shared logging patterns.
+### Contributing to automation
 
-This is particularly useful when debugging issues with the automated Payload project creation or environment setup.
+- `setup-payload.sh` → thin `exec xgic payload setup`.
+- Payload project ensure / reset / Docker Compose lifecycle → modular packages (payload-cms-cli, dev-cli), not this tree.
+- Prefer extending `create-payload-config.json` (+ schema) over hardcoding behavior.
+- Keep bash scripts thin; test with `uv run pytest` + manual `xgic payload reset --dry-run` / `xgic payload dev` flows.
 
-### Contributing to the Automation Logic
+### Linting & quality
 
-Payload project creation and environment management are driven by `xde` (primary) with thin orchestration shims:
+- **Shell**: `shellcheck`, `shfmt` (CI)
+- **Workflows**: `actionlint` (CI)
+- **YAML**: `yamllint` (CI)
+- **Python tests**: `uv run pytest` (template smoke; see TESTING.md)
+- **Release Validation**: Dev Container image build + XGIC CLI smoke (CI)
 
-- `setup-payload.sh` (invoked by `postStartCommand`) is now a thin `exec xde setup payloadcms`.
-- Core logic for project ensure, reset, env, Docker orchestration lives in `src/xde/core/` and `src/xde/commands/`.
-
-When working in this area:
-- Prefer extending `create-payload-config.json` support (and its JSON Schema) over hardcoding behavior.
-- The canonical model lives in `.devcontainer/config/types.ts`. Run `python -m xde schema` (or the generate script) after changing it.
-- Keep the bash scripts in `.devcontainer/scripts/` as thin, readable shims that delegate to `xde`.
-- Complex logic belongs in Python under `src/xde/` (pure functions first, then commands).
-- Test changes locally with direct `ruff` + `pytest` + manual `xde reset --dry-run ; xde dev` flows inside the container.
-- Update relevant documentation (README, AGENTS.md, script comments, this file) when user-visible behavior changes.
-
-### Linting & Quality
-
-This repository uses several tools to maintain code quality:
-
-- **Shell scripts**: `shellcheck` (pre-installed in the Dev Container; run manually or via CI).
-- **GitHub Actions workflows**: `actionlint` (run via CI).
-- **Shell formatting**: `shfmt` (enforced in CI).
-- **Python formatting & linting**: Ruff (80-character line length enforced for code files — see the [Line Length rule](#line-length-80-characters) above).
-- **Python tests**: `pytest` + coverage (direct; see TESTING.md). Test dependencies are installed on first use from `.devcontainer/requirements-dev.txt`.
-
-The full lint + test suite runs automatically on every pull request. You can run the core gates locally with:
+Local smoke:
 
 ```bash
-ruff format .
-ruff check . --fix
-PYTHONPATH=src python -m pytest -q
+uv pip install -e ".[dev]"
+uv run pytest -q
+uv run xgic --version
 ```
 
 ## Branching Strategy and Protected Branches (0.2.0+)
@@ -424,7 +402,7 @@ This is a deliberate, synergistic requirement:
 
 **The process (external contributor simulation + heavy Grok Build AI automation with human gates)**:
 - Follow the exact "Step-by-Step Guide: Initiating a New Feature Branch (GitHub Free Account)" above (fork simulation, clone, upstream, feature branch like `feat/0.2.0-mongodb-support`, Conventional Commits, full PR template, etc.).
-- Start every implementation/planning session with the AGENTS session startup (`xde --help; xde check; xde env`).
+- Start every implementation/planning session with the AGENTS session startup (`xgic --help; xgic check; xgic payload env`).
 - All commits: atomic, full functionality (code + tests + docs), ruff + relevant pytest green, 80-col for code, positive tone, update AGENTS.md, platform issues and primary plan, and playbooks where philosophy changes. Push regularly.
 - Grok Build (as the AI-first project) automates as much as possible using its GitHub MCP tools (`create_branch`, `issue_write`/`create_issue`, `create_pull_request` with `draft: true`, `push_files`/`create_or_update_file`, `add_issue_comment`, review tools, etc.) and `run_terminal_command` (gh CLI). 
   - Examples: Grok creates the feat branch, drafts the milestone + labeled "ai-draft" issues for sub-tasks (with bodies that explicitly instruct to follow this process), drafts the PR from the branch, applies file changes, etc.
@@ -442,16 +420,16 @@ This section was added as part of the 0.2.0+ planning (see platform issues and p
 If you are an AI coding assistant (Grok Build, Claude, Cursor, etc.), please read the following in order **before** making changes:
 
 1. [AGENTS.md](AGENTS.md) — Primary context document (most important)
-2. [docs/grok-playbooks.md](../../docs/grok-playbooks.md) — Concrete workflows and playbooks
-3. [docs/architecture.md](../../docs/architecture.md)
-4. [docs/xde-reference.md](../../docs/xde-reference.md) (as it evolves)
+2. [docs/grok-playbooks.md](docs/grok-playbooks.md) — Concrete workflows and playbooks
+3. [docs/architecture.md](docs/architecture.md)
+4. Multi-repo standards: https://github.com/xgic/ai (including [ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md))
 
 `AGENTS.md` contains:
-- Project philosophy and migration direction
+- Template consumer model (modular XGIC CLI only)
 - How to think and operate effectively as an agent here
 - Recommended workflows and command usage
 - Safety guidance
-- How to help evolve the project to be even more agent-friendly
+- Where CLI implementation work belongs (modular package repos)
 
 **For release work (0.2.0+)**: Additionally follow the "Release Contributions & AI-Assisted Execution" section above + the external contributor simulation in the 0.2.0 living guide. Grok Build will heavily use its GitHub MCP tools for automation (branch, draft issues/PRs with "ai-draft" labels, file pushes, comments) **but every remote action requires explicit human/developer verification and approval before execution**. This is non-negotiable for auditability, correctness, and to demonstrate the AI-first + professional OSS leadership that elevates the project and XGIC.
 
