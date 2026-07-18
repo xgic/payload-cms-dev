@@ -10,7 +10,7 @@
 
 - **Node.js LTS Slim** + **pnpm 10** (pinned for maximum Payload CMS compatibility)
 - **PostgreSQL 18** server + client with persistent data volume
-- Docker-in-Docker + Buildx + Compose support
+- Docker-in-Docker + Buildx + Docker Compose support
 - Non-root `node` user and security-hardened VS Code Dev Container image
 - Automated environment validation via `devcontainer-tests.sh`
 - Automated/semi-automated Payload CMS project creation during devcontainer startup
@@ -124,7 +124,7 @@ CLI implementation lives in modular public packages ([xgic/cli](https://github.c
 |---------|-------------|
 | `xgic --help` | Top-level help |
 | `xgic payload dev` | **Primary daily command** — smart Payload CMS app start |
-| `xgic up` / `xgic down` | Compose lifecycle (use `--profile postgres` when needed) |
+| `xgic up` / `xgic down` | Docker Compose lifecycle (use `--profile postgres` when needed) |
 | `xgic check` | Environment / services diagnostic |
 | `xgic payload env` | Payload CMS env status; `--regenerate --yes` for new secrets |
 | `xgic payload setup` | Ensure project directory (also run by postStart) |

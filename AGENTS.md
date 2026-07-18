@@ -11,7 +11,7 @@ It does **not** own the CLI implementation.
 | Concern | Package | Repository |
 |---------|---------|------------|
 | CLI framework | `xgic.cli` | https://github.com/xgic/cli |
-| Compose / lifecycle | `xgic.cli.dev` | https://github.com/xgic/dev-cli |
+| Docker Compose / lifecycle | `xgic.cli.dev` | https://github.com/xgic/dev-cli |
 | Payload CMS commands | `xgic.cli.payload` | https://github.com/xgic/payload-cms-cli |
 
 **Brand:** **XGIC CLI** only in living docs. No supported `xde` entrypoint (hard cutover complete for this template).
@@ -33,7 +33,7 @@ Inside the Dev Container (`xgic` is on PATH):
 | Action | Command |
 |--------|---------|
 | Help / version | `xgic --help` / `xgic --version` |
-| Compose up / down | `xgic up` / `xgic down` (set profile if needed: `--profile postgres`) |
+| Docker Compose up / down | `xgic up` / `xgic down` (set profile if needed: `--profile postgres`) |
 | Health | `xgic check` |
 | Generic env status | `xgic env` |
 | Payload env / regenerate | `xgic payload env` / `xgic payload env --regenerate --yes` |
