@@ -59,7 +59,7 @@ Docker Python SDK, or a small Go helper binary) in the future.
 
 This decision is tracked in:
 - `src/xde/core/docker.py` (section "CURRENT STRATEGY & FUTURE CONSIDERATION")
-- The primary plan and platform issues/tasks (Docker/Compose Interface Strategy item)
+- The primary plan and platform issues/tasks (Docker / Docker Compose Interface Strategy item)
 
 The public API should be kept stable to allow future backend changes
 with minimal impact.
