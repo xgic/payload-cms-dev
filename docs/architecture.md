@@ -50,7 +50,7 @@ additional complexity at this stage.
 We will periodically re-evaluate this module and may rewrite it in the
 future to use a more advanced interface (e.g. `python-on-whales`, the
 official Docker Python SDK, or a small Go helper binary using Docker's
-official Go Compose SDK) once our requirements grow more complex.
+official Go Docker Compose SDK) once our requirements grow more complex.
 
 Current responsibilities:
 - Start/stop/build services

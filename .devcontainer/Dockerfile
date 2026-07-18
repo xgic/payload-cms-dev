@@ -141,7 +141,7 @@ RUN /usr/local/bin/python3 -m venv ${PYTHON_VENV} \
 # Make venv tools available globally in the container (takes precedence)
 ENV PATH="${PYTHON_VENV}/bin:${PATH}"
 
-# Default Compose identity for this template (product-agnostic xgic CLI flags/env).
+# Default Docker Compose identity for this template (product-agnostic xgic CLI flags/env).
 ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
     XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev-containers \
     XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev-containers
