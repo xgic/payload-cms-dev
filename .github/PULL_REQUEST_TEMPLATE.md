@@ -28,7 +28,9 @@
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix/feature works
 - [ ] New and existing unit tests pass locally
+- [ ] **Public-safe:** no private hosts, private tracker IDs/paths, or internal URLs in this PR body, commits, or docs
+- [ ] Labels applied
 
 ## Related Issues
 
-<!-- Link any related issues here (e.g. Fixes #123) -->
+<!-- Public GitHub issues only (e.g. Fixes #123). Never link private trackers. -->
