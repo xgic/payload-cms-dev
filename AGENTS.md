@@ -50,6 +50,8 @@ Defaults for this template (also set in the image):
 
 ## Rules
 
+
+**Public GitHub writes:** Before `gh issue create|edit`, `gh pr create|edit`, or any public comment on this repository, complete the **mandatory public-safe draft gate** in https://github.com/xgic/ai/blob/main/docs/BASE-STANDARDS-FOR-ORCHESTRATED-REPOS.md (fictional placeholders only; never name private hosts, private projects, or private tracker IDs). Optional helper from the hub clone: `python scripts/public-safe-scan.py path/to/draft.md`.
 - Public-safe content only (no private hosts, private tracker IDs, internal paths).  
 - Human UI review before merge to `main`.  
 - Dedicated issue-number branches; Conventional Commits; **labels required**.  
@@ -61,3 +63,4 @@ Defaults for this template (also set in the image):
 ## Local memory
 
 Temporary status reports only under `.xgic/` (gitignored). Never commit `.xgic/`.
+
