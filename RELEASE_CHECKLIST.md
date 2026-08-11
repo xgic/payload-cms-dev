@@ -1,6 +1,6 @@
-# XGIC Payload CMS Dev Containers — Release Checklist
+# XGIC Payload CMS Dev (`payload-cms-dev`) — Release Checklist
 
-Checklist for preparing and shipping template releases. This repository is a **consumer** of modular XGIC CLI packages from PyPI ([ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md)).
+Checklist for shipping the **Dev Container image producer**. This repository installs modular **XGIC CLI** packages from PyPI ([ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md)) and publishes **`ghcr.io/xgic/payload-cms-dev`**. End-user template: [xgic/payload-cms](https://github.com/xgic/payload-cms).
 
 ## Session & environment health (every time)
 
@@ -46,6 +46,12 @@ uv run xgic payload --help
 - [ ] AGENTS.md command map is current
 - [ ] CONTRIBUTING / TESTING match consumer model (no living `src/xde` instructions)
 - [ ] Historical `xde` material is clearly archived, not presented as current
+
+## GHCR image
+
+- [ ] **Publish GHCR** workflow green on `main` and/or `v*` tag
+- [ ] Image pull works: `docker pull ghcr.io/xgic/payload-cms-dev:latest` (or semver tag)
+- [ ] End-user template [payload-cms](https://github.com/xgic/payload-cms) `devcontainer.json` pin updated when cutting a release tag
 
 ## Git hygiene
 
