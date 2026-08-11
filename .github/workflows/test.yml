@@ -30,15 +30,17 @@ jobs:
 
       - name: Install package and test deps (PyPI modular CLI)
         run: |
-          # Consumer template: install from PyPI pins via uv
+          # Consumer producer: install from PyPI pins via uv
           # https://github.com/xgic/ai/blob/main/docs/python-package-release.md
-          # setup-uv provides VIRTUAL_ENV (.venv); install into that env.
+          # setup-uv@v7 installs uv + Python but does not create a project
+          # venv; uv pip install requires an explicit environment.
+          uv venv
           uv pip install -e ".[dev]"
 
       - name: Run tests
         run: |
-          # Template is a CLI consumer (no in-tree src/xde). Smoke tests verify
-          # modular packages import; CLI unit coverage lives in xgic/*-cli repos.
+          # Template is a CLI consumer (no in-tree CLI package). Smoke tests
+          # verify modular packages import; unit coverage lives in xgic/*-cli.
           uv run pytest -q
 
       - name: Smoke xgic CLI entrypoint
