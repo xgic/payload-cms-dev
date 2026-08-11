@@ -1,4 +1,16 @@
-# XGIC Payload CMS VS Code Dev Containers
+# XGIC Payload CMS Dev Container (producer)
+
+
+## Repository role
+
+This repository is the **Dev Container image producer** (`*-dev`, [ADR-0001](https://github.com/xgic/ai/blob/main/docs/adr/0001-xgic-gitlab-architecture-and-repository-naming.md)).
+
+- **Image (target):** `ghcr.io/xgic/payload-cms-dev`
+- **End-user template:** [xgic/payload-cms](https://github.com/xgic/payload-cms) (consumes the published image)
+- **CLI packages:** modular XGIC CLI from PyPI ([ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md))
+
+Formerly published as `payload-cms-dev-containers` (GitHub redirects from the old name).
+
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Payload CMS](https://img.shields.io/badge/Payload%20CMS-3.x+-000000?logo=payloadcms&logoColor=white)](https://payloadcms.com)
@@ -48,8 +60,8 @@ This repository includes a [VS Code Dev Container](https://code.visualstudio.com
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/xgic/payload-cms-dev-containers.git
-   cd payload-cms-dev-containers
+   git clone https://github.com/xgic/payload-cms-dev.git
+   cd payload-cms-dev
    ```
 
 2. Open the folder in Visual Studio Code.
