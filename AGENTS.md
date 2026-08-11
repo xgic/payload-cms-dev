@@ -45,8 +45,8 @@ Inside the Dev Container (`xgic` is on PATH):
 Defaults for this template (also set in the image):
 
 - `XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml`  
-- `XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev-containers`  
-- `XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev-containers`  
+- `XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev`  
+- `XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev`  
 
 ## Rules
 

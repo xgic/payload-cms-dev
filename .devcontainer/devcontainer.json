@@ -1,7 +1,7 @@
 {
   "name": "XGIC Payload CMS Dev Containers",
   "dockerComposeFile": "./docker-compose.yml",
-  "service": "xgic-payload-cms-dev-containers",
+  "service": "xgic-payload-cms-dev",
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
   ],

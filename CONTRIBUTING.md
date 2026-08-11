@@ -1,6 +1,6 @@
-# Contributing to `payload-cms-dev-containers`
+# Contributing to `payload-cms-dev`
 
-**Project**: [XGIC/payload-cms-dev-containers](https://github.com/XGIC/payload-cms-dev-containers)  
+**Project**: [XGIC/payload-cms-dev](https://github.com/xgic/payload-cms-dev)  
 **Purpose**: A production-grade, open-source toolkit that enables the rapid creation and setup of highly optimized **Payload CMS** development environments using **Visual Studio Code Dev Containers** orchestrated via **Docker Compose**.  
 
 We welcome contributions from the open-source community. Whether you are fixing a bug, adding support for a new Payload CMS version, improving Docker performance, enhancing documentation, or proposing architectural improvements, your work directly advances developer productivity across the Payload CMS ecosystem.
@@ -265,26 +265,26 @@ Protected branch rules (enforced via repository settings / rulesets) require pas
 
 ## Step-by-Step Guide: Initiating Work as an External Contributor (GitHub Free Account)
 
-GitHub Free accounts do **not** grant direct push access to organization repositories. Therefore, all external contributors **must** use the **Fork + Pull Request** workflow. The following guide is tailored specifically for contributors to `XGIC/payload-cms-dev-containers` and adheres to GitHub’s official best practices, the fork model, and Conventional Commits.
+GitHub Free accounts do **not** grant direct push access to organization repositories. Therefore, all external contributors **must** use the **Fork + Pull Request** workflow. The following guide is tailored specifically for contributors to `XGIC/payload-cms-dev` and adheres to GitHub’s official best practices, the fork model, and Conventional Commits.
 
 During an active release the base branch for your PRs will be the current `release/0.X.0` (see the release-specific living guide). For general/small contributions it will be `main` or the tip of the active release branch.
 
 ### Step 1: Fork the Repository
-1. Navigate to [https://github.com/XGIC/payload-cms-dev-containers](https://github.com/XGIC/payload-cms-dev-containers) in your browser.
+1. Navigate to [https://github.com/xgic/payload-cms-dev](https://github.com/xgic/payload-cms-dev) in your browser.
 2. Click the **Fork** button in the top-right corner.
 3. Select your personal GitHub Free account as the destination.
-4. Once the fork completes, you will be redirected to `https://github.com/YOUR-USERNAME/payload-cms-dev-containers`.
+4. Once the fork completes, you will be redirected to `https://github.com/YOUR-USERNAME/payload-cms-dev`.
 
 ### Step 2: Clone Your Fork Locally
 ```bash
-git clone https://github.com/YOUR-USERNAME/payload-cms-dev-containers.git
-cd payload-cms-dev-containers
+git clone https://github.com/YOUR-USERNAME/payload-cms-dev.git
+cd payload-cms-dev
 ```
 
 ### Step 3: Add the Upstream Remote
 This allows you to keep your fork synchronized with the official repository:
 ```bash
-git remote add upstream https://github.com/XGIC/payload-cms-dev-containers.git
+git remote add upstream https://github.com/xgic/payload-cms-dev.git
 git remote -v   # verify remotes
 ```
 
@@ -325,7 +325,7 @@ git push origin feat/descriptive-feature-name
 ### Step 8: Open a Pull Request
 1. Go to your fork on GitHub.
 2. Click **Compare & pull request**.
-3. Ensure the base repository is `XGIC/payload-cms-dev-containers` and the **base branch** is the current target (`main` or the active `release/0.X.0` as documented in the release living guide or RELEASE_CHECKLIST.md).
+3. Ensure the base repository is `XGIC/payload-cms-dev` and the **base branch** is the current target (`main` or the active `release/0.X.0` as documented in the release living guide or RELEASE_CHECKLIST.md).
 4. Fill out the PR template completely.
 5. Link any related issues using `Closes #123` or `Resolves #123`.
 

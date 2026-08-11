@@ -3,9 +3,9 @@ requires = ["hatchling>=1.27.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "xgic-payload-cms-dev-containers"
+name = "xgic-payload-cms-dev"
 version = "0.3.0"
-description = "XGIC Payload CMS Dev Containers template — consumes modular XGIC CLI packages from PyPI."
+description = "XGIC Payload CMS Dev Container producer (image + compose) — consumes modular XGIC CLI packages from PyPI."
 readme = "README.md"
 requires-python = ">=3.14"
 license = { text = "Apache-2.0" }
@@ -43,9 +43,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/xgic/payload-cms-dev-containers"
-Repository = "https://github.com/xgic/payload-cms-dev-containers"
-Issues = "https://github.com/xgic/payload-cms-dev-containers/issues"
+Homepage = "https://github.com/xgic/payload-cms-dev"
+Repository = "https://github.com/xgic/payload-cms-dev"
+Issues = "https://github.com/xgic/payload-cms-dev/issues"
 
 # No Python packages in this template (CLI lives in modular public repos).
 [tool.hatch.build.targets.wheel]

@@ -143,8 +143,8 @@ ENV PATH="${PYTHON_VENV}/bin:${PATH}"
 
 # Default Docker Compose identity for this template (product-agnostic xgic CLI flags/env).
 ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
-    XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev-containers \
-    XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev-containers
+    XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev \
+    XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev
 
 # Allow the app user (node) to install additional packages into the venv
 # when needed. Venv is created as root but the remoteUser is node.

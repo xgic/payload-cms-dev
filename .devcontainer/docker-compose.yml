@@ -1,14 +1,14 @@
-name: xgic-payload-cms-dev-containers
+name: xgic-payload-cms-dev
 services:
-  xgic-payload-cms-dev-containers:
+  xgic-payload-cms-dev:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile
       target: dev
     command: tail -f /dev/null
-    container_name: xgic-payload-cms-dev-containers
+    container_name: xgic-payload-cms-dev
     env_file: .env
-    image: xgic-payload-cms-dev-containers
+    image: xgic-payload-cms-dev
     networks:
       - app-network
     ports:
@@ -20,7 +20,7 @@ services:
       - vscode-srv-ext:/home/node/.vscode-server/extensions
 
   postgres:
-    container_name: xgic-payload-cms-dev-containers-postgres
+    container_name: xgic-payload-cms-dev-postgres
     env_file: .env
     image: postgres:18.4 # Latest stable as of May 2026
     networks:
@@ -31,7 +31,7 @@ services:
       - postgres-data:/var/lib/postgresql # Persistent volume (best practice)
 
   mongodb:
-    container_name: xgic-payload-cms-dev-containers-mongodb
+    container_name: xgic-payload-cms-dev-mongodb
     image: mongo:7.0
     networks:
       - app-network
@@ -42,13 +42,13 @@ services:
 
 volumes:
   postgres-data:
-    name: xgic-payload-cms-dev-containers-postgres-data
+    name: xgic-payload-cms-dev-postgres-data
   mongodb-data:
-    name: xgic-payload-cms-dev-containers-mongodb-data
+    name: xgic-payload-cms-dev-mongodb-data
   vscode-srv-ext:
-    name: xgic-payload-cms-dev-containers-vscode-srv-ext
+    name: xgic-payload-cms-dev-vscode-srv-ext
 
 networks:
   app-network:
     driver: bridge # Isolated network
-    name: xgic-payload-cms-dev-containers
+    name: xgic-payload-cms-dev
