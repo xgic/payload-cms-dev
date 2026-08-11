@@ -1,0 +1,99 @@
+# Publish Dev Container image to GHCR (producer image for xgic/payload-cms).
+# Uses the workflow GITHUB_TOKEN (short-lived; packages:write).
+# Does not push on pull_request — PRs use release-validation.yml build-only.
+name: Publish GHCR
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-ghcr-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  # Product image name (org namespace), not ghcr.io/<owner>/<repo> path nesting.
+  IMAGE_NAME: xgic/payload-cms-dev
+
+jobs:
+  publish:
+    name: publish-ghcr
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-,format=short
+            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
+          labels: |
+            org.opencontainers.image.title=payload-cms-dev
+            org.opencontainers.image.description=XGIC Payload CMS VS Code Dev Container producer image (modular XGIC CLI; compose + Postgres tooling). Consumed by https://github.com/xgic/payload-cms
+            org.opencontainers.image.url=https://github.com/xgic/payload-cms-dev
+            org.opencontainers.image.documentation=https://github.com/xgic/payload-cms-dev#readme
+            org.opencontainers.image.source=https://github.com/xgic/payload-cms-dev
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.vendor=XGIC
+
+      - name: Build and push Dev Container image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          target: dev
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Primary desktop targets; expand platforms only if CI budget allows.
+          platforms: linux/amd64,linux/arm64
+          provenance: true
+          sbom: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summary
+        run: |
+          {
+            echo "## Publish GHCR"
+            echo ""
+            echo "- Image: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`"
+            echo "- Dockerfile target: \`dev\`"
+            echo "- Platforms: \`linux/amd64\`, \`linux/arm64\`"
+            echo "- Tags:"
+            echo '```'
+            echo "${{ steps.meta.outputs.tags }}"
+            echo '```'
+            echo ""
+            echo "End-user template: https://github.com/xgic/payload-cms"
+          } >> "$GITHUB_STEP_SUMMARY"

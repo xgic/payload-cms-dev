@@ -41,11 +41,11 @@ jobs:
       - name: Start primary service
         run: |
           docker compose -f .devcontainer/docker-compose.yml \
-            up -d xgic-payload-cms-dev-containers
+            up -d xgic-payload-cms-dev
           # Wait until the primary service accepts exec
           for _ in $(seq 1 30); do
             if docker compose -f .devcontainer/docker-compose.yml \
-              exec -T xgic-payload-cms-dev-containers true 2>/dev/null; then
+              exec -T xgic-payload-cms-dev true 2>/dev/null; then
               echo "Primary service is ready"
               exit 0
             fi
@@ -54,13 +54,13 @@ jobs:
           echo "Primary service did not become ready in time" >&2
           docker compose -f .devcontainer/docker-compose.yml ps || true
           docker compose -f .devcontainer/docker-compose.yml logs \
-            --no-color --tail=100 xgic-payload-cms-dev-containers || true
+            --no-color --tail=100 xgic-payload-cms-dev || true
           exit 1
 
       - name: Smoke-test container tooling + modular XGIC CLI
         run: |
           docker compose -f .devcontainer/docker-compose.yml \
-            exec -T xgic-payload-cms-dev-containers bash -c '
+            exec -T xgic-payload-cms-dev bash -c '
               set -euo pipefail
               echo "::group::Tool versions"
               node --version
@@ -80,7 +80,7 @@ jobs:
           # Script covers node/pnpm/psql client checks; DB connectivity
           # may soft-fail when postgres profile is not started (expected).
           docker compose -f .devcontainer/docker-compose.yml \
-            exec -T xgic-payload-cms-dev-containers \
+            exec -T xgic-payload-cms-dev \
             bash .devcontainer/scripts/devcontainer-tests.sh || true
 
       - name: Tear down compose stack

@@ -5,11 +5,20 @@
 
 This repository is the **Dev Container image producer** (`*-dev`, [ADR-0001](https://github.com/xgic/ai/blob/main/docs/adr/0001-xgic-gitlab-architecture-and-repository-naming.md)).
 
-- **Image (target):** `ghcr.io/xgic/payload-cms-dev`
+- **Image:** `ghcr.io/xgic/payload-cms-dev` (published on `main` / `v*` via **Publish GHCR** workflow)
 - **End-user template:** [xgic/payload-cms](https://github.com/xgic/payload-cms) (consumes the published image)
 - **CLI packages:** modular XGIC CLI from PyPI ([ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md))
 
 Formerly published as `payload-cms-dev-containers` (GitHub redirects from the old name).
+
+### Pull the published image
+
+```bash
+docker pull ghcr.io/xgic/payload-cms-dev:latest
+# Prefer a semver tag after a release: ghcr.io/xgic/payload-cms-dev:0.3.0
+```
+
+Package visibility may require a GitHub login for private packages; public packages pull anonymously once published.
 
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
