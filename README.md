@@ -150,26 +150,37 @@ Full command map: [AGENTS.md](AGENTS.md). Architecture notes: [docs/architecture
 
 ### Daily XGIC CLI reference (inside the container)
 
+This repository is the **image producer**. Day-to-day **application** work should use the end-user template ([payload-cms](https://github.com/xgic/payload-cms)). The commands below apply when you are **inside a producer Dev Container** (contributing to the image, Compose, or scaffold tooling).
+
 | Command | Purpose |
 |---------|---------|
 | `xgic --help` / `xgic --version` | Discoverability |
-| `xgic payload dev` | **Primary daily command** — smart Payload app start |
-| `xgic up` / `xgic down` | Compose lifecycle (`--profile postgres` when needed) |
 | `xgic check` | Environment / services diagnostic |
+| `xgic up` / `xgic down` | Compose lifecycle (`--profile postgres` when needed) |
 | `xgic payload env` | Product env status; `--regenerate --yes` for new local secrets |
-| `xgic payload setup` | Ensure project tree (also used by postStart) |
-| `xgic payload schema` | Regenerate create-payload-config JSON schema |
-| `xgic payload reset` | Targeted reset (`--dry-run` first, then `--yes`) |
+| `xgic payload dev` | Smart Payload app start (smoke the image like an app workspace) |
+| `xgic payload schema` | Regenerate create-payload-config JSON schema after config model changes |
+| `xgic payload reset` | Targeted reset for **testing** clean re-scaffold (`--dry-run` first, then `--yes`) |
+
+#### `xgic payload setup` — automatic vs manual
+
+| Mode | When |
+|------|------|
+| **Automatic** | Producer `devcontainer.json` still runs `.devcontainer/scripts/setup-payload.sh` on **postStart**, which is a thin wrapper around `xgic payload setup` (idempotent; quiet when the project already exists). |
+| **Manual / testing** | Run yourself after `xgic payload reset --yes`, when validating scaffold/`create-payload-config.json` changes, or in CI-style smoke—not as a routine “open the editor every morning” step for app teams. |
+
+**Recommendation:** Treat **setup** as **infrastructure + validation**, not a primary daily app command. App developers should not need to memorize it; the template + image postStart (or an explicit smoke script) covers the happy path. Prefer documenting **`xgic payload dev`**, **`xgic check`**, and **`xgic up` / `down`** as the day-to-day surface.
 
 ```bash
 xgic up --profile postgres
 xgic payload dev
-# ... develop ...
+# ... contribute to image tooling or smoke the app path ...
 xgic down
 
+# Validation after intentional reset (not daily):
 xgic payload reset --dry-run
-# review blast radius, then:
 xgic payload reset --yes
+xgic payload setup          # optional manual re-ensure; postStart will also ensure
 ```
 
 ### Optional host-side CLI (diagnostics only)
