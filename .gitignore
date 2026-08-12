@@ -199,6 +199,9 @@ Pipfile.lock
 # poetry
 poetry.lock
 
+# uv (local lock not used by image install; pin via pyproject ranges)
+uv.lock
+
 # pdm
 .pdm.toml
 .pdm-python
