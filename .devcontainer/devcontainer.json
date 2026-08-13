@@ -7,9 +7,9 @@
   ],
   "workspaceFolder": "/workspace",
   "remoteUser": "node",
-  // Lifecycle: do not use host initializeCommand (requires host bash on Windows)
-  // or auto postStart setup. Inside the container run explicitly:
-  //   xgic payload env --regenerate --yes   # if .devcontainer/.env missing
+  // Lifecycle: prefer explicit XGIC CLI over host initializeCommand /
+  // automatic postStart project setup. First run inside the container:
+  //   xgic payload env --regenerate --yes   # if .devcontainer/.env is missing
   //   xgic payload setup
   //   xgic payload dev
   "customizations": {
