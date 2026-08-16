@@ -162,25 +162,23 @@ This repository is the **image producer**. Day-to-day **application** work shoul
 | `xgic payload schema` | Regenerate create-payload-config JSON schema after config model changes |
 | `xgic payload reset` | Targeted reset for **testing** clean re-scaffold (`--dry-run` first, then `--yes`) |
 
-#### `xgic payload setup` — automatic vs manual
+#### `xgic payload setup` — explicit first-run / validation
 
-| Mode | When |
-|------|------|
-| **Automatic** | Producer `devcontainer.json` still runs `.devcontainer/scripts/setup-payload.sh` on **postStart**, which is a thin wrapper around `xgic payload setup` (idempotent; quiet when the project already exists). |
-| **Manual / testing** | Run yourself after `xgic payload reset --yes`, when validating scaffold/`create-payload-config.json` changes, or in CI-style smoke—not as a routine “open the editor every morning” step for app teams. |
-
-**Recommendation:** Treat **setup** as **infrastructure + validation**, not a primary daily app command. App developers should not need to memorize it; the template + image postStart (or an explicit smoke script) covers the happy path. Prefer documenting **`xgic payload dev`**, **`xgic check`**, and **`xgic up` / `down`** as the day-to-day surface.
+Setup is **explicit** (not automatic on Dev Container start). Run it after a fresh workspace, after `xgic payload reset --yes`, when validating `create-payload-config.json`, or in CI-style smoke. Day-to-day work prefers **`xgic payload dev`**, **`xgic check`**, and **`xgic up` / `down`**.
 
 ```bash
+# First session (or after reset):
+xgic payload env --regenerate --yes   # if .devcontainer/.env is missing
+xgic payload setup
 xgic up --profile postgres
 xgic payload dev
 # ... contribute to image tooling or smoke the app path ...
 xgic down
 
-# Validation after intentional reset (not daily):
+# Validation after intentional reset:
 xgic payload reset --dry-run
 xgic payload reset --yes
-xgic payload setup          # optional manual re-ensure; postStart will also ensure
+xgic payload setup
 ```
 
 ### Optional host-side CLI (diagnostics only)

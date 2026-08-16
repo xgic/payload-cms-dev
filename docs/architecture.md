@@ -23,9 +23,9 @@ CLI architecture: [ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-
    - Docker Compose lifecycle: [xgic/dev-cli](https://github.com/xgic/dev-cli) (`xgic.cli.dev`)
    - Payload CMS product commands: [xgic/payload-cms-cli](https://github.com/xgic/payload-cms-cli) (`xgic.cli.payload`)
 
-4. **Thin template scripts**
-   - `.devcontainer/scripts/init-env.sh` — host-side env bootstrap
-   - `.devcontainer/scripts/setup-payload.sh` — thin `exec xgic payload setup`
+4. **Optional scripts + explicit CLI**
+   - Prefer **`xgic payload env` / `setup` / `dev`** from the modular CLI (no Dev Container host lifecycle hooks)
+   - `.devcontainer/scripts/*` may remain as thin helpers for tests or migration; not required on container start
    - `.devcontainer/scripts/devcontainer-tests.sh` — environment smoke checks
 
 ## What this repo owns

@@ -33,7 +33,7 @@ uv run xgic payload --help
 
 ## Manual high-value flows
 
-- [ ] `xgic payload setup` (or postStart hook) is idempotent
+- [ ] `xgic payload setup` is idempotent when run explicitly
 - [ ] Optional: `xgic payload reset --yes` then `xgic payload setup` / `xgic payload dev` for a clean project path (only after dry-run)
 - [ ] Target DB adapter path for the release still works (Postgres default; Mongo if in scope)
 - [ ] `create-payload-config.json` + schema still provide good editor IntelliSense

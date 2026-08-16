@@ -7,15 +7,11 @@
   ],
   "workspaceFolder": "/workspace",
   "remoteUser": "node",
-  // === LIFECYCLE HOOKS ===
-  // initializeCommand runs on the host before the container is created.
-  // It is intentionally kept minimal and silent when possible.
-  "initializeCommand": "bash .devcontainer/scripts/init-env.sh",
-
-  // postStartCommand runs every time the container starts.
-  // Because setup-payload.sh is idempotent and produces no output when
-  // the project already exists, this is the best place for it.
-  "postStartCommand": "bash .devcontainer/scripts/setup-payload.sh",
+  // Lifecycle: prefer explicit XGIC CLI over host initializeCommand /
+  // automatic postStart project setup. First run inside the container:
+  //   xgic payload env --regenerate --yes   # if .devcontainer/.env is missing
+  //   xgic payload setup
+  //   xgic payload dev
   "customizations": {
     "vscode": {
       "extensions": [
