@@ -37,12 +37,12 @@
   "description": "Configuration for the XGIC Payload CMS Dev Container. Controls project name, template, database settings, and optional agent integration. This file has rich JSON Schema support for excellent VS Code IntelliSense.",
   "properties": {
     "projectName": {
-      "description": "The folder name for the generated Payload project (lowercase, numbers, and hyphens only)",
+      "description": "Folder name for the generated Payload project and Docker Compose project name (Compose-safe: start with letter/digit; then [a-z0-9_-], max 63 chars)",
       "examples": [
         "website",
         "my-payload-cms"
       ],
-      "pattern": "^[a-z0-9-]+$",
+      "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
       "title": "Projectname",
       "type": "string"
     },
@@ -134,5 +134,5 @@
   "title": "XGIC Create Payload Config",
   "type": "object",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/XGIC/payload-cms-dev-containers/main/.devcontainer/create-payload-config.schema.json"
+  "$id": "https://raw.githubusercontent.com/xgic/payload-cms-dev/main/.devcontainer/create-payload-config.schema.json"
 }

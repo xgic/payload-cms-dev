@@ -7,7 +7,7 @@
   "dbAdapter": "postgres",
   "dbName": "payload_db",
   "dbUser": "payload",
-  "dbUri": "mongodb://payload:<PASSWORD>@mongodb:27017/payload_db",
+  "dbUri": "",
   "adminEmail": "admin@example.com",
   "telemetry": false
 }
