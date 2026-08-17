@@ -173,7 +173,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 RUN uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
         "xgic-cli>=0.2.0,<0.3" \
         "xgic-dev-cli>=0.2.0,<0.3" \
-        "xgic-payload-cms-cli>=0.2.0,<0.3" \
+        "xgic-payload-cms-cli>=0.2.1,<0.3" \
     && uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
         -e . \
     && rm -rf /root/.cache/uv /root/.cache/pip
@@ -197,3 +197,4 @@ COPY --chown=${APP_USER}:${APP_USER} . .
 USER ${APP_USER}
 
 CMD ["tail", "-f", "/dev/null"]
+
