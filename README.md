@@ -137,14 +137,20 @@ cd payload-cms-dev
 
 1. Open the folder in VS Code.  
 2. **Dev Containers: Reopen in Container** (first open may build locally; several minutes is normal).  
-3. Inside the container:
+3. Inside the container (explicit CLI — no host Bash lifecycle hooks):
 
 ```bash
 xgic --version
 xgic check
-xgic payload env
-xgic payload dev
+xgic payload env --regenerate --yes   # once: write .devcontainer/.env
+xgic payload setup                    # scaffolds under app/ (gitignored)
+xgic up --profile postgres            # DB only if not already up via setup
+xgic payload dev                      # requires setup first
 ```
+
+**Layout:** this producer never scaffolds at the workspace root. Generated Payload apps live under **`app/`** (`projectDir` in `.devcontainer/create-payload-config.json`) and are **gitignored**. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
+
+**Git inside the container:** prefer HTTPS + VS Code credential helper. SSH host bind-mounts are not used (Windows `HOME` often empty). A writable named volume is mounted at `~/.ssh` if you install keys manually.
 
 Full command map: [AGENTS.md](AGENTS.md). Architecture notes: [docs/architecture.md](docs/architecture.md).
 

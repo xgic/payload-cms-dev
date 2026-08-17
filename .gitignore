@@ -20,11 +20,14 @@ node_modules/
 **/node_modules/
 
 # =============================================
-# Generated Payload apps
+# Generated Payload apps (never commit into the image producer)
 # =============================================
-# create-payload-app creates its own .gitignore inside the generated
-# subdirectory (e.g. my-payload-cms/). The patterns below are kept here
-# only for convenience if someone runs commands at the root.
+# Stable scaffold path (CLI projectDir default for producers)
+/app/
+# Legacy create-payload-app folders (projectName-based)
+/website/
+/my-payload-cms/
+# create-payload-app also creates its own .gitignore inside the app tree.
 .next/
 out/
 dist/

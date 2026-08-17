@@ -34,16 +34,36 @@
       "type": "string"
     }
   },
-  "description": "Configuration for the XGIC Payload CMS Dev Container. Controls project name, template, database settings, and optional agent integration. This file has rich JSON Schema support for excellent VS Code IntelliSense.",
+  "description": "Configuration for XGIC Payload setup via `xgic payload setup`. projectName is identity; projectDir is the filesystem path (producer default app/).",
   "properties": {
     "projectName": {
-      "description": "Folder name for the generated Payload project and Docker Compose project name (Compose-safe: start with letter/digit; then [a-z0-9_-], max 63 chars)",
+      "description": "Payload/npm project identity (Compose-safe characters). Not necessarily the directory path — see projectDir.",
       "examples": [
-        "website",
-        "my-payload-cms"
+        "my-payload-cms",
+        "website"
       ],
       "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$",
       "title": "Projectname",
+      "type": "string"
+    },
+    "projectDir": {
+      "description": "Relative directory for the generated Payload app. Producers should use a stable path such as 'app' (gitignored). Use '.' only for pure application repositories (app-root layout).",
+      "examples": [
+        "app",
+        "."
+      ],
+      "title": "Projectdir",
+      "type": "string"
+    },
+    "layout": {
+      "description": "auto = detect producer vs app repo; app-root = workspace root; subdir = use projectDir (default app for producers).",
+      "enum": [
+        "auto",
+        "app-root",
+        "subdir"
+      ],
+      "default": "auto",
+      "title": "Layout",
       "type": "string"
     },
     "template": {
