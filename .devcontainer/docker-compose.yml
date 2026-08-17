@@ -15,7 +15,10 @@ services:
       - "3000:3000"
     volumes:
       - ..:/workspace:delegated # Bind-mount source for live reload
-      - $HOME/.ssh:/home/node/.ssh
+      # Do not bind-mount $HOME/.ssh — on Windows Docker, HOME is often unset
+      # and expands to /.ssh (not writable). Use a named volume + optional keys,
+      # or HTTPS + VS Code git credential helper instead.
+      - ssh-home:/home/node/.ssh
       - /var/run/docker.sock:/var/run/docker.sock
       - vscode-srv-ext:/home/node/.vscode-server/extensions
 
@@ -47,6 +50,8 @@ volumes:
     name: xgic-payload-cms-dev-mongodb-data
   vscode-srv-ext:
     name: xgic-payload-cms-dev-vscode-srv-ext
+  ssh-home:
+    name: xgic-payload-cms-dev-ssh-home
 
 networks:
   app-network:

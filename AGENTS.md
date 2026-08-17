@@ -5,8 +5,8 @@ Architecture: [ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modu
 
 ## Product
 
-This repository is a **Payload CMS Dev Container template / consumer**.  
-It does **not** own the CLI implementation.
+This repository is the **Payload CMS Dev Container image producer** (`ghcr.io/xgic/payload-cms-dev`).  
+It does **not** own the CLI implementation. End-user apps start from https://github.com/xgic/payload-cms.
 
 | Concern | Package | Repository |
 |---------|---------|------------|
@@ -24,9 +24,12 @@ Inside the Dev Container (`xgic` is on PATH):
 
 1. `xgic --help`  
 2. `xgic check`  
-3. `xgic payload env`  
-4. Daily work: `xgic payload dev`  
-5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
+3. `xgic payload env --regenerate --yes` when `.devcontainer/.env` is missing  
+4. `xgic payload setup` — scaffolds under **`app/`** (gitignored; never commit)  
+5. Daily work: `xgic payload dev` (requires setup first)  
+6. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
+
+Do **not** reintroduce host `initializeCommand` Bash hooks.
 
 ## Command map (for agents)
 
