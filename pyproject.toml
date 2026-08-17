@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "xgic-payload-cms-dev"
-version = "0.3.1"
+version = "0.3.2"
 description = "XGIC Payload CMS Dev Container producer (image + compose) — consumes modular XGIC CLI packages from PyPI."
 readme = "README.md"
 requires-python = ">=3.14"
@@ -17,7 +17,7 @@ authors = [
 dependencies = [
     "xgic-cli>=0.2.0,<0.3",
     "xgic-dev-cli>=0.2.0,<0.3",
-    "xgic-payload-cms-cli>=0.2.0,<0.3",
+    "xgic-payload-cms-cli>=0.2.2,<0.3",
     "rich>=13.7",
     "pydantic>=2.7",
     "email-validator>=2.0",

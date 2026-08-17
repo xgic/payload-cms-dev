@@ -198,7 +198,7 @@ uv venv .venv
 uv pip install \
   "xgic-cli>=0.2.0,<0.3" \
   "xgic-dev-cli>=0.2.0,<0.3" \
-  "xgic-payload-cms-cli>=0.2.0,<0.3"
+  "xgic-payload-cms-cli>=0.2.2,<0.3"
 xgic --version
 xgic payload --help
 ```
