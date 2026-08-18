@@ -1,3 +1,8 @@
+# Producer exemplar for the Docker Compose-first consumer contract.
+# Consumers (thin template) attach via dockerComposeFile + service and pin
+# ghcr.io/xgic/payload-cms-dev on this primary service—not standalone image:.
+# Keep name:, container/volume/network names, XGIC_COMPOSE_PROJECT, and
+# composeProjectName aligned when renaming.
 name: xgic-payload-cms-dev
 services:
   xgic-payload-cms-dev:
@@ -15,7 +20,7 @@ services:
       - "3000:3000"
     volumes:
       - ..:/workspace:delegated # Bind-mount source for live reload
-      # Do not bind-mount $HOME/.ssh — on Windows Docker, HOME is often unset
+      # Do not bind-mount $HOME/.ssh — under Docker, host HOME is often unset
       # and expands to /.ssh (not writable). Use a named volume + optional keys,
       # or HTTPS + VS Code git credential helper instead.
       - ssh-home:/home/node/.ssh
