@@ -1,7 +1,5 @@
 {
   "name": "XGIC Payload CMS Dev Containers",
-  // Producer exemplar: Docker Compose attach (not standalone image:).
-  // Consumer contract: docs/architecture.md + AGENTS.md + README.
   "dockerComposeFile": "./docker-compose.yml",
   "service": "xgic-payload-cms-dev",
   "mounts": [

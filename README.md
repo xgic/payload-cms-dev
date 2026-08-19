@@ -43,7 +43,7 @@ XGIC designs this stack as **production-minded developer infrastructure**: Docke
 | Repository | Role | You use it when… |
 |------------|------|------------------|
 | **This repo** — [payload-cms-dev](https://github.com/xgic/payload-cms-dev) | `*-dev` **producer**: Dockerfile, Compose, GHCR publish, infra extensions | You improve the image, CI, or container tooling |
-| [payload-cms](https://github.com/xgic/payload-cms) | Clean **end-user template**: Docker Compose–first `devcontainer.json` + app-focused extensions | You **start or develop a Payload application** |
+| [payload-cms](https://github.com/xgic/payload-cms) | Clean **end-user template**: thin `devcontainer.json` + app-focused extensions | You **start or develop a Payload application** |
 
 ```text
   PyPI: xgic-cli · xgic-dev-cli · xgic-payload-cms-cli
@@ -53,42 +53,15 @@ XGIC designs this stack as **production-minded developer infrastructure**: Docke
   │  xgic/payload-cms-dev       │ ─────────────────► │ ghcr.io/xgic/             │
   │  (this repository)          │                    │   payload-cms-dev         │
   └─────────────────────────────┘                    └────────────┬─────────────┘
-                                                                  │ Docker Compose
-                                                                  │ service image:
+                                                                  │ image:
                                                                   ▼
                                                      ┌──────────────────────────┐
                                                      │  xgic/payload-cms        │
-                                                     │  (dockerComposeFile +    │
-                                                     │   service; not standalone│
-                                                     │   image: reopen)         │
+                                                     │  (application template)  │
                                                      └──────────────────────────┘
 ```
 
 **Do not** reintroduce an in-tree CLI package here. Command implementations live in modular packages ([xgic/cli](https://github.com/xgic/cli), [xgic/dev-cli](https://github.com/xgic/dev-cli), [xgic/payload-cms-cli](https://github.com/xgic/payload-cms-cli)).
-
-### Consumer contract (Docker Compose–first)
-
-Application templates and downstream apps **must** reopen via **Docker Compose**
-attached to the pinned GHCR image service. Standalone `image:` reopen in
-`devcontainer.json` is **not supported**.
-
-| Supported | Not supported |
-|-----------|---------------|
-| `dockerComposeFile` + `service` | Standalone `"image": "ghcr.io/xgic/…"` reopen |
-| Image pin on the Docker Compose primary service | Random `adjective_noun` container names from image-only attach |
-| Stable Docker Compose `name:` + matching `XGIC_COMPOSE_*` / `composeProjectName` | DB outside the IDE Docker Compose project |
-| DB in the same Docker Compose project as the IDE attach | CLI / `composeProjectName` drift |
-
-This repository’s `.devcontainer/` is the **reference implementation** (local
-Dockerfile build for producer work). The thin template pins
-`ghcr.io/xgic/payload-cms-dev` on the same service pattern
-([payload-cms#10](https://github.com/xgic/payload-cms/issues/10) /
-[PR #11](https://github.com/xgic/payload-cms/pull/11)).
-
-Full contract: [docs/architecture.md](docs/architecture.md#consumer-contract-docker-compose-first).  
-Bind-mount performance / optional named-volume bridge: [docs/dev-performance.md](docs/dev-performance.md).  
-Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26) (env sync),
-[#49](https://github.com/xgic/payload-cms-dev/issues/49) (host-conditional Git DX).
 
 ---
 
@@ -141,10 +114,7 @@ Releases: [github.com/xgic/payload-cms-dev/releases](https://github.com/xgic/pay
 2. Use **Use this template** → create your repository  
 3. Follow the step-by-step guide in that README (Dev Containers + XGIC CLI)
 
-That template attaches via **Docker Compose** (`dockerComposeFile` + service),
-pins the published image on the Compose primary service, and keeps application
-git history free of image-build noise. Do not copy an image-only
-`devcontainer.json` reopen into forks.
+That template pins a published image and keeps application git history free of image-build noise.
 
 ---
 
@@ -180,16 +150,9 @@ xgic payload dev                      # requires setup first
 
 **Layout:** this producer never scaffolds at the workspace root. Generated Payload apps live under **`app/`** (`projectDir` in `.devcontainer/create-payload-config.json`) and are **gitignored**. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
 
-**Git inside the container:** prefer HTTPS + VS Code credential helper. SSH host bind-mounts are not used (host `HOME` is often unset under Docker). A writable named volume is mounted at `~/.ssh` if you install keys manually.
+**Git inside the container:** prefer HTTPS + VS Code credential helper. SSH host bind-mounts are not used (Windows `HOME` often empty). A writable named volume is mounted at `~/.ssh` if you install keys manually.
 
-**Bind-mount performance:** large `node_modules` / `.next` graphs can be slow on
-any Docker host when the workspace is bind-mounted. Prefer a native Linux
-filesystem for the workspace long term; optional named volumes over those paths
-are an explicit documented bridge (see [docs/dev-performance.md](docs/dev-performance.md)).
-Equal support for Windows and Linux Docker hosts.
-
-Full command map: [AGENTS.md](AGENTS.md). Architecture / consumer contract:
-[docs/architecture.md](docs/architecture.md).
+Full command map: [AGENTS.md](AGENTS.md). Architecture notes: [docs/architecture.md](docs/architecture.md).
 
 ### Daily XGIC CLI reference (inside the container)
 
@@ -275,8 +238,6 @@ The **application template** keeps a **minimal, app-focused** subset—see [payl
 │   └── scripts/                        # init-env, setup-payload, smoke tests
 ├── .github/workflows/                  # Lint, Test, Release Validation, Publish GHCR
 ├── docs/
-│   ├── architecture.md                 # Layers + Docker Compose–first consumer contract
-│   └── dev-performance.md              # Bind-mount FS / optional volume bridge
 ├── tests/
 ├── AGENTS.md                           # Agent-first command map and ownership rules
 ├── CONTRIBUTING.md
@@ -300,9 +261,9 @@ Point assistants at **[AGENTS.md](AGENTS.md)** and prefer **XGIC CLI** for envir
 
 | Change type | Land the PR in |
 |-------------|----------------|
-| Dockerfile, Docker Compose, GHCR, producer CI, consumer-contract docs | **This repository** |
+| Dockerfile, Compose, GHCR, producer CI | **This repository** |
 | `xgic` / `xgic payload` behavior | [cli](https://github.com/xgic/cli) / [dev-cli](https://github.com/xgic/dev-cli) / [payload-cms-cli](https://github.com/xgic/payload-cms-cli) |
-| App-only template (Docker Compose service image pin, app extensions) | [payload-cms](https://github.com/xgic/payload-cms) |
+| App-only template (`devcontainer.json` image pin, app extensions) | [payload-cms](https://github.com/xgic/payload-cms) |
 
 Public GitHub writes must follow the hub **public-safe** gate: [BASE-STANDARDS](https://github.com/xgic/ai/blob/main/docs/BASE-STANDARDS-FOR-ORCHESTRATED-REPOS.md).
 

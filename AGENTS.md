@@ -18,33 +18,6 @@ It does **not** own the CLI implementation. End-user apps start from https://git
 
 **Install source:** consumers install **from PyPI** with version pins (`uv pip install xgic-cli…`), not from live Git `main`. See [python-package-release.md](https://github.com/xgic/ai/blob/main/docs/python-package-release.md).
 
-## Docker Compose–first consumer contract
-
-Supported consumer Dev Container reopen is **Docker Compose** attached to the
-pinned GHCR image service—**not** a standalone `image:` in `devcontainer.json`.
-
-| Piece | Contract |
-|-------|----------|
-| Attach | `dockerComposeFile` + `service` (exemplar: this repo’s `.devcontainer/`) |
-| Image pin (apps) | `image: ghcr.io/xgic/payload-cms-dev:<semver>` on the Docker Compose primary service |
-| Stable project | Docker Compose `name:` + `XGIC_COMPOSE_*` + `composeProjectName` kept aligned |
-| Database | Same Docker Compose project as the IDE attach |
-
-**Anti-pattern:** image-only reopen → Docker’s default `adjective_noun` container
-names, DB outside the IDE project, CLI / `composeProjectName` mismatch. Rebuild
-once after switching to Docker Compose.
-
-Thin template implementation:
-[payload-cms#10](https://github.com/xgic/payload-cms/issues/10) /
-[PR #11](https://github.com/xgic/payload-cms/pull/11). Full write-up:
-[docs/architecture.md](docs/architecture.md#consumer-contract-docker-compose-first).
-Bind-mount FS / optional `node_modules`/`.next` volumes:
-[docs/dev-performance.md](docs/dev-performance.md).
-
-Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
-(env sync), [#49](https://github.com/xgic/payload-cms-dev/issues/49)
-(host-conditional Git DX).
-
 ## Session startup
 
 Inside the Dev Container (`xgic` is on PATH):
@@ -88,7 +61,6 @@ Defaults for this template (also set in the image):
 - Python 3.14+; Apache-2.0; root `CODEOWNERS` (`@xgic`).  
 - Prefer full `https://github.com/xgic/...` URLs.  
 - Do **not** reintroduce an in-tree CLI package or `xde` console script.  
-- Do **not** regress consumers to standalone `image:` reopen; keep Docker Compose–first.  
 - CLI changes belong in the modular repos above, not here.
 
 ## Local memory

@@ -39,10 +39,8 @@ Details: [TESTING.md](../TESTING.md).
 
 ## Docker and Docker Compose
 
-- Producer Docker Compose (consumer-contract exemplar): `.devcontainer/docker-compose.yml`
+- Template compose: `.devcontainer/docker-compose.yml`
 - Image build: `.devcontainer/Dockerfile`
-- Supported consumer reopen is **Docker Compose** (`dockerComposeFile` + service), not standalone `image:` — see [architecture.md](architecture.md#consumer-contract-docker-compose-first)
-- Bind-mount performance / optional `node_modules`/`.next` volumes: [dev-performance.md](dev-performance.md)
 - Product-agnostic Docker Compose control lives in **xgic/dev-cli** (`DockerComposeController`); open changes there if orchestration behavior must change.
 
 ## Working with AI assistants
