@@ -181,9 +181,12 @@ xgic payload dev                      # requires setup first
 **Layout:** this producer never scaffolds at the workspace root. Generated Payload apps live under **`app/`** (`projectDir` in `.devcontainer/create-payload-config.json`) and are **gitignored**. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
 
 **Git inside the container (host-conditional DX):** equal support for Windows and
-Linux Docker hosts. On attach, `postAttachCommand` runs
-`.devcontainer/scripts/configure-git-dx.sh`, which applies fixes **only when
-needed** (no unconditional `safe.directory *`, no private keys in the image):
+Linux Docker hosts. The Docker Compose primary service **command** runs
+`.devcontainer/scripts/configure-git-dx.sh --quiet` **once per container start**
+(not on every VS Code attach, and not via `devcontainer.json` lifecycle hooks).
+Fixes apply **only when needed** (no unconditional `safe.directory *`, no
+private keys in the image). Quiet mode logs only when a change is applied or a
+warning is warranted.
 
 | Concern | When it applies | What happens |
 |---------|-----------------|--------------|
@@ -192,11 +195,13 @@ needed** (no unconditional `safe.directory *`, no private keys in the image):
 
 **Optional host hint** (when FS detection is not enough, especially SSH): set
 `XGIC_DOCKER_HOST_OS=windows`, `linux`, or `macos` in `.devcontainer/.env` or
-your local Dev Container `remoteEnv`, then reopen / re-attach.
+your local Dev Container `remoteEnv`, then recreate the container (Compose
+command runs again on start).
 
 ```bash
-bash .devcontainer/scripts/configure-git-dx.sh --status   # detection only
-bash .devcontainer/scripts/configure-git-dx.sh            # apply if needed
+bash .devcontainer/scripts/configure-git-dx.sh --status    # detection only (verbose)
+bash .devcontainer/scripts/configure-git-dx.sh --verbose   # apply + status logs
+bash .devcontainer/scripts/configure-git-dx.sh --quiet     # Compose default
 ```
 
 Thin template adoption is tracked in

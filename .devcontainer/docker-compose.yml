@@ -10,7 +10,18 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
       target: dev
-    command: tail -f /dev/null
+    # Once per container start (not per VS Code attach): gated Git DX, then
+    # keep-alive. Script is quiet unless it applies a change or warns.
+    # Do not put this in devcontainer.json postAttach/postStart/postCreate.
+    command:
+      - /bin/bash
+      - -lc
+      - |
+        set -euo pipefail
+        if [ -f /workspace/.devcontainer/scripts/configure-git-dx.sh ]; then
+          bash /workspace/.devcontainer/scripts/configure-git-dx.sh --quiet
+        fi
+        exec tail -f /dev/null
     container_name: xgic-payload-cms-dev
     env_file: .env
     image: xgic-payload-cms-dev

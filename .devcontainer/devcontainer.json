@@ -10,14 +10,14 @@
   "workspaceFolder": "/workspace",
   "remoteUser": "node",
   // Lifecycle: prefer explicit XGIC CLI over host initializeCommand /
-  // automatic postStart project setup. First run inside the container:
+  // automatic postStart / postAttach / postCreate scripts. First run
+  // inside the container:
   //   xgic payload env --regenerate --yes   # if .devcontainer/.env is missing
   //   xgic payload setup
   //   xgic payload dev
-  // Host-conditional Git DX (gated; no-op on typical Linux bind mounts):
-  //   bash .devcontainer/scripts/configure-git-dx.sh
-  // Optional host hint: XGIC_DOCKER_HOST_OS=windows|linux|macos
-  "postAttachCommand": "bash .devcontainer/scripts/configure-git-dx.sh",
+  // Host-conditional Git DX runs once from Docker Compose primary service
+  // command (see docker-compose.yml), not from this file. Optional hint:
+  // XGIC_DOCKER_HOST_OS=windows|linux|macos
   "customizations": {
     "vscode": {
       "extensions": [

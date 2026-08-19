@@ -209,3 +209,39 @@ def test_configure_status_runs() -> None:
     )
     assert result.returncode == 0, result.stderr + result.stdout
     assert "needs_safe_directory=" in result.stdout
+
+
+def test_configure_quiet_is_silent_when_safe_directory_not_needed(
+    tmp_path: Path,
+) -> None:
+    ws = tmp_path / "workspace"
+    ws.mkdir()
+    mounts = tmp_path / "mounts"
+    mounts.write_text(
+        f"/dev/sda1 {ws.as_posix()} ext4 rw,relatime 0 0\n",
+        encoding="utf-8",
+    )
+    home = tmp_path / "home"
+    home.mkdir()
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "XGIC_DOCKER_HOST_OS": "linux",
+            "XGIC_WORKSPACE": str(ws),
+            "XGIC_PROC_MOUNTS": str(mounts),
+            "XGIC_GIT_DX_VERBOSE": "0",
+        }
+    )
+    result = subprocess.run(
+        ["bash", str(CONFIGURE), "--quiet"],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+        env=env,
+    )
+    assert result.returncode == 0, result.stderr + result.stdout
+    assert result.stdout.strip() == ""
+    assert "Skipping safe.directory" not in result.stdout
+    assert "needs_safe_directory=" not in result.stdout

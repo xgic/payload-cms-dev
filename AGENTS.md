@@ -57,14 +57,16 @@ Inside the Dev Container (`xgic` is on PATH):
 5. Daily work: `xgic payload dev` (requires setup first)  
 6. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
-Do **not** reintroduce host `initializeCommand` Bash hooks.
+Do **not** reintroduce host `initializeCommand` / `postAttachCommand` /
+`postStartCommand` / `postCreateCommand` Bash hooks for Git DX.
 
 ### Host-conditional Git DX
 
-`postAttachCommand` runs
-`.devcontainer/scripts/configure-git-dx.sh` (gated; no-op on typical Linux
-bind mounts). Detection prefers mount/FS signals (`9p` and similar) over a blunt
-“always Windows” path. Optional hint: `XGIC_DOCKER_HOST_OS=windows|linux|macos`.
+Docker Compose primary service `command` runs
+`.devcontainer/scripts/configure-git-dx.sh --quiet` **once per container
+start** (gated; silent no-op on typical Linux bind mounts). Detection prefers
+mount/FS signals (`9p` and similar) over a blunt “always Windows” path.
+Optional hint: `XGIC_DOCKER_HOST_OS=windows|linux|macos`.
 
 - **safe.directory:** path-specific `/workspace` only when needed—never `*`.
 - **SSH:** prefer HTTPS + VS Code credential helper; optional Docker Desktop

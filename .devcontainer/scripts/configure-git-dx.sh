@@ -3,6 +3,9 @@
 # - Git safe.directory only when FS / hint says it is needed
 # - Optional Docker Desktop SSH agent sock export when present
 # Does not bake private keys or set safe.directory '*'.
+#
+# Intended to run once per container start from Docker Compose
+# (primary service command), not from devcontainer.json lifecycle hooks.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,22 +29,31 @@ source "$HOST_FS_LIB"
 PREFIX="git-dx"
 DRY_RUN=0
 STATUS_ONLY=0
+# Quiet by default when invoked from Compose. Verbose for --status or
+# XGIC_GIT_DX_VERBOSE=1 / --verbose.
+QUIET=1
+if [ "${XGIC_GIT_DX_VERBOSE:-0}" = "1" ]; then
+  QUIET=0
+fi
 
 usage() {
   cat <<'EOF'
-Usage: configure-git-dx.sh [--status] [--dry-run] [--help]
+Usage: configure-git-dx.sh [--status] [--dry-run] [--verbose] [--quiet] [--help]
 
 Host-conditional Git DX (safe.directory + SSH agent hints).
 
-  --status   Print detection results; make no changes
-  --dry-run  Show actions without applying them
-  --help     Show this help
+  --status    Print detection results; make no changes (implies verbose)
+  --dry-run   Show actions without applying them
+  --verbose   Log detection status even when no changes are needed
+  --quiet     Only log when applying a change or warning (default)
+  --help      Show this help
 
 Env:
   XGIC_WORKSPACE          Workspace path (default: /workspace)
   XGIC_DOCKER_HOST_OS     Optional hint: windows|linux|macos
   XGIC_DD_SSH_AUTH_SOCK   Docker Desktop SSH sock path override
   XGIC_PROC_MOUNTS        Override /proc/mounts (tests)
+  XGIC_GIT_DX_VERBOSE=1   Same as --verbose
 EOF
 }
 
@@ -49,10 +61,19 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --status)
       STATUS_ONLY=1
+      QUIET=0
       shift
       ;;
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --verbose)
+      QUIET=0
+      shift
+      ;;
+    --quiet)
+      QUIET=1
       shift
       ;;
     -h | --help)
@@ -79,21 +100,27 @@ if xgic_needs_dd_ssh_agent_hint; then
   needs_dd_ssh=1
 fi
 
+vlog_info() {
+  if [ "$QUIET" -eq 0 ]; then
+    log_info "$PREFIX" "$1"
+  fi
+}
+
 print_status() {
-  log_info "$PREFIX" "workspace=${ws}"
-  log_info "$PREFIX" "fstype=${fstype:-unknown}"
-  log_info "$PREFIX" "XGIC_DOCKER_HOST_OS=${hint:-unset}"
-  log_info "$PREFIX" "needs_safe_directory=${needs_safe}"
-  log_info "$PREFIX" "needs_dd_ssh_hint=${needs_dd_ssh}"
+  vlog_info "workspace=${ws}"
+  vlog_info "fstype=${fstype:-unknown}"
+  vlog_info "XGIC_DOCKER_HOST_OS=${hint:-unset}"
+  vlog_info "needs_safe_directory=${needs_safe}"
+  vlog_info "needs_dd_ssh_hint=${needs_dd_ssh}"
   if xgic_dd_ssh_auth_sock_present; then
-    log_info "$PREFIX" "dd_ssh_sock=present ($(xgic_dd_ssh_auth_sock))"
+    vlog_info "dd_ssh_sock=present ($(xgic_dd_ssh_auth_sock))"
   else
-    log_info "$PREFIX" "dd_ssh_sock=absent"
+    vlog_info "dd_ssh_sock=absent"
   fi
   if [ -n "${SSH_AUTH_SOCK:-}" ]; then
-    log_info "$PREFIX" "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}"
+    vlog_info "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}"
   else
-    log_info "$PREFIX" "SSH_AUTH_SOCK=unset"
+    vlog_info "SSH_AUTH_SOCK=unset"
   fi
 }
 
@@ -162,7 +189,7 @@ EOF
 
 print_ssh_guidance() {
   if [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "${SSH_AUTH_SOCK}" ]; then
-    log_info "$PREFIX" "SSH agent socket already available"
+    vlog_info "SSH agent socket already available"
     return 0
   fi
   if xgic_dd_ssh_auth_sock_present; then
@@ -170,6 +197,7 @@ print_ssh_guidance() {
     return 0
   fi
   if [ "$needs_dd_ssh" -eq 1 ]; then
+    # Warnings stay visible even in quiet mode (Compose logs only).
     log_warn "$PREFIX" \
       "Docker Desktop SSH sock not mounted. Opt in with Compose fragment:"
     log_warn "$PREFIX" \
@@ -191,8 +219,7 @@ fi
 if [ "$needs_safe" -eq 1 ]; then
   configure_safe_directory
 else
-  log_info "$PREFIX" \
-    "Skipping safe.directory (not needed on this mount)"
+  vlog_info "Skipping safe.directory (not needed on this mount)"
 fi
 
 print_ssh_guidance
