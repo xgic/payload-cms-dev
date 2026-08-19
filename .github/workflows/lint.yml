@@ -56,7 +56,8 @@ jobs:
             --severity=warning \
             --external-sources \
             --enable=all \
-            .devcontainer/scripts/*.sh
+            .devcontainer/scripts/*.sh \
+            .devcontainer/scripts/lib/*.sh
           echo "::endgroup::"
         shell: bash
 
@@ -118,7 +119,8 @@ jobs:
             --severity=warning \
             --external-sources \
             --enable=all \
-            .devcontainer/scripts/*.sh
+            .devcontainer/scripts/*.sh \
+            .devcontainer/scripts/lib/*.sh
 
   # ============================================
   # Additional Linters (Industry standard)
@@ -147,7 +149,9 @@ jobs:
           chmod +x /usr/local/bin/shfmt
       - name: Check shell formatting (diff mode)
         run: |
-          shfmt -i 2 -ci -bn -d .devcontainer/scripts/*.sh
+          shfmt -i 2 -ci -bn -d \
+            .devcontainer/scripts/*.sh \
+            .devcontainer/scripts/lib/*.sh
         shell: bash
 
   # Optional but useful for YAML hygiene

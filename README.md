@@ -180,13 +180,32 @@ xgic payload dev                      # requires setup first
 
 **Layout:** this producer never scaffolds at the workspace root. Generated Payload apps live under **`app/`** (`projectDir` in `.devcontainer/create-payload-config.json`) and are **gitignored**. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
 
-**Git inside the container:** prefer HTTPS + VS Code credential helper. SSH host bind-mounts are not used (host `HOME` is often unset under Docker). A writable named volume is mounted at `~/.ssh` if you install keys manually.
+**Git inside the container (host-conditional DX):** equal support for Windows and
+Linux Docker hosts. On attach, `postAttachCommand` runs
+`.devcontainer/scripts/configure-git-dx.sh`, which applies fixes **only when
+needed** (no unconditional `safe.directory *`, no private keys in the image):
+
+| Concern | When it applies | What happens |
+|---------|-----------------|--------------|
+| `fatal: detected dubious ownership` | Workspace mount looks like a high-friction bind (e.g. `9p` on Docker Desktop), ownership mismatch, or `XGIC_DOCKER_HOST_OS=windows` | Adds `git config --global --add safe.directory /workspace` (idempotent, path-specific) |
+| SSH `Permission denied (publickey)` | Agent not reachable in the container | Prefer **HTTPS + VS Code credential helper**. Optional: Docker Desktop host-services sock via Compose fragment `.devcontainer/docker-compose.git-dx.yml`. Fallback: keys in the named `ssh-home` volume (never bind-mount host `HOME/.ssh`—host `HOME` is often unset under Docker) |
+
+**Optional host hint** (when FS detection is not enough, especially SSH): set
+`XGIC_DOCKER_HOST_OS=windows`, `linux`, or `macos` in `.devcontainer/.env` or
+your local Dev Container `remoteEnv`, then reopen / re-attach.
+
+```bash
+bash .devcontainer/scripts/configure-git-dx.sh --status   # detection only
+bash .devcontainer/scripts/configure-git-dx.sh            # apply if needed
+```
+
+Thin template adoption is tracked in
+[payload-cms#9](https://github.com/xgic/payload-cms/issues/9).
 
 **Bind-mount performance:** large `node_modules` / `.next` graphs can be slow on
 any Docker host when the workspace is bind-mounted. Prefer a native Linux
 filesystem for the workspace long term; optional named volumes over those paths
 are an explicit documented bridge (see [docs/dev-performance.md](docs/dev-performance.md)).
-Equal support for Windows and Linux Docker hosts.
 
 Full command map: [AGENTS.md](AGENTS.md). Architecture / consumer contract:
 [docs/architecture.md](docs/architecture.md).

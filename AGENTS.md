@@ -43,7 +43,8 @@ Bind-mount FS / optional `node_modules`/`.next` volumes:
 
 Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
 (env sync), [#49](https://github.com/xgic/payload-cms-dev/issues/49)
-(host-conditional Git DX).
+(host-conditional Git DX; template follow-up
+[payload-cms#9](https://github.com/xgic/payload-cms/issues/9)).
 
 ## Session startup
 
@@ -57,6 +58,19 @@ Inside the Dev Container (`xgic` is on PATH):
 6. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
 Do **not** reintroduce host `initializeCommand` Bash hooks.
+
+### Host-conditional Git DX
+
+`postAttachCommand` runs
+`.devcontainer/scripts/configure-git-dx.sh` (gated; no-op on typical Linux
+bind mounts). Detection prefers mount/FS signals (`9p` and similar) over a blunt
+“always Windows” path. Optional hint: `XGIC_DOCKER_HOST_OS=windows|linux|macos`.
+
+- **safe.directory:** path-specific `/workspace` only when needed—never `*`.
+- **SSH:** prefer HTTPS + VS Code credential helper; optional Docker Desktop
+  sock via `.devcontainer/docker-compose.git-dx.yml`; named `ssh-home` volume
+  for manual keys. Do not bake private keys into the image.
+- Status: `bash .devcontainer/scripts/configure-git-dx.sh --status`
 
 ## Command map (for agents)
 

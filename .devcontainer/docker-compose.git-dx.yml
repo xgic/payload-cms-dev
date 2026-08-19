@@ -1,0 +1,23 @@
+# Opt-in Docker Compose fragment: Docker Desktop host SSH agent.
+# Mounts the Desktop host-services socket into the primary service.
+# Use only when /run/host-services/ssh-auth.sock exists on the Docker
+# engine (Docker Desktop on Mac, and some Windows Desktop setups).
+# Do not enable on a plain Linux Docker Engine host — the path is absent
+# and the bind can fail or create a spurious directory.
+#
+# Enable (example):
+#   COMPOSE_FILE=.devcontainer/docker-compose.yml:.devcontainer/docker-compose.git-dx.yml
+# Or merge into your local override and reopen the Dev Container.
+#
+# Prefer HTTPS + VS Code Git credential helper when SSH is not required.
+# Manual keys may still use the named ssh-home volume on the base Compose file.
+# Template follow-up: https://github.com/xgic/payload-cms/issues/9
+
+services:
+  xgic-payload-cms-dev:
+    environment:
+      SSH_AUTH_SOCK: /run/host-services/ssh-auth.sock
+    volumes:
+      - type: bind
+        source: /run/host-services/ssh-auth.sock
+        target: /run/host-services/ssh-auth.sock

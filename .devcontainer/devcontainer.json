@@ -14,6 +14,10 @@
   //   xgic payload env --regenerate --yes   # if .devcontainer/.env is missing
   //   xgic payload setup
   //   xgic payload dev
+  // Host-conditional Git DX (gated; no-op on typical Linux bind mounts):
+  //   bash .devcontainer/scripts/configure-git-dx.sh
+  // Optional host hint: XGIC_DOCKER_HOST_OS=windows|linux|macos
+  "postAttachCommand": "bash .devcontainer/scripts/configure-git-dx.sh",
   "customizations": {
     "vscode": {
       "extensions": [
