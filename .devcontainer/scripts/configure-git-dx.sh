@@ -103,12 +103,8 @@ hint="$(xgic_docker_host_os_hint)"
 host_kind="${XGIC_DOCKER_HOST_KIND:-unknown}"
 fstype="$(xgic_workspace_fstype || true)"
 needs_safe=0
-needs_dd_ssh=0
 if xgic_needs_git_safe_directory; then
   needs_safe=1
-fi
-if xgic_needs_dd_ssh_agent_hint; then
-  needs_dd_ssh=1
 fi
 
 vlog_info() {
