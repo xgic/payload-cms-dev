@@ -84,7 +84,7 @@ Details: [dev-performance.md](dev-performance.md).
 |-------|------|
 | `.devcontainer/*` | Image, Docker Compose, Dev Container config (consumer-contract exemplar) |
 | `create-payload-config.json` (+ schema) | Producer config / IntelliSense |
-| Thin bash shims | Delegate to `xgic`; gated Git DX once per Compose start (chown `ssh-home`, `configure-git-dx.sh --quiet`; HTTPS prefer; not `devcontainer.json` hooks) |
+| Git DX | Host `prepare_host_git_compose.py` → `docker-compose.agent.yml`; Compose start chowns `ssh-home` + `configure-git-dx.sh --quiet` (HTTPS/SSH from host capabilities) |
 | Consumer `pyproject.toml` | PyPI pins for modular CLI + smoke tests |
 | Docs / CI | Producer quality gates + consumer-contract documentation |
 

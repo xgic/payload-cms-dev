@@ -180,39 +180,35 @@ xgic payload dev                      # requires setup first
 
 **Layout:** this producer never scaffolds at the workspace root. Generated Payload apps live under **`app/`** (`projectDir` in `.devcontainer/create-payload-config.json`) and are **gitignored**. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
 
-**Git inside the container (host-conditional DX):** equal support for Windows and
-Linux Docker hosts. On each **container start**, Compose (as root briefly)
-fixes `ssh-home` volume ownership, then runs
-`.devcontainer/scripts/configure-git-dx.sh --quiet` as `node` (not on every
-VS Code attach; not via `devcontainer.json` lifecycle hooks). Quiet mode logs
-only when a change is applied or a warning is warranted.
+**Git inside the container (fully automated, host-aware):** equal support for
+Windows and Linux Docker hosts. Portable pattern for **all** XGIC VS Code Dev
+Container projects:
 
-**Best practice for full Git access** (matches
-[VS Code: Sharing Git credentials](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials)):
+1. **Host detect (once per reopen):** VS Code `initializeCommand` runs
+   `prepare_host_git_compose.py`, which inspects Docker Desktop vs Engine and
+   SSH agent sockets, then writes `docker-compose.agent.yml` (agent bind mounts
+   **only** when the socket is real — never creates a fake directory mount).
+2. **Container start (once):** Compose chowns `ssh-home` to `node`, then runs
+   `configure-git-dx.sh --quiet` (not on every VS Code attach).
+3. **Auth selection:** HTTPS + host credential helper when no agent; SSH agent
+   when the host provides one. **No private keys copied.**
 
-1. **Preferred — HTTPS + host credential helper.** Clone/push over HTTPS (or keep
-   `git@github.com:` remotes and let the default
-   `url.https://github.com/.insteadOf git@github.com:` rewrite apply). VS Code
-   reuses the host credential helper — **no tokens or private keys are copied
-   into the container**.
-2. **SSH agent forwarding** when you must use SSH auth: keys stay on the host;
-   ensure `ssh-agent` is running and keys are `ssh-add`ed. Optional Docker
-   Desktop sock: `.devcontainer/docker-compose.git-dx.yml`.
-3. **Never** bind-mount host `~/.ssh` private keys into the image by default
-   (insecure and breaks when host `HOME` is unset under Docker).
+Matches [VS Code: Sharing Git credentials](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials).
 
 | Concern | When it applies | What happens |
 |---------|-----------------|--------------|
-| `fatal: detected dubious ownership` | Friction bind (e.g. `9p`), ownership mismatch, or `XGIC_DOCKER_HOST_OS=windows` | Path-specific `safe.directory /workspace` |
-| `Failed to add … known_hosts` / root-owned `~/.ssh` | Empty named volume initialized as `root:root` | Compose `chown node:node` + seed public GitHub host keys |
-| SSH `Permission denied (publickey)` | No agent / no keys in container | Default HTTPS `insteadOf` for `github.com`; or SSH agent forwarding |
+| `fatal: detected dubious ownership` | Friction bind (e.g. `9p`), ownership mismatch, or Windows host hint | Path-specific `safe.directory /workspace` |
+| `Failed to add … known_hosts` / root-owned `~/.ssh` | Empty named volume as `root:root` | Compose `chown node:node` + seed public GitHub host keys |
+| SSH `Permission denied (publickey)` | No agent socket on host/engine | Auto HTTPS `insteadOf` for `github.com` (VS Code host credentials) |
+| Docker Desktop SSH sock | Sock is a real socket | Auto-mounted via `docker-compose.agent.yml` |
+| Linux `SSH_AUTH_SOCK` | Host agent running | Auto-mounted to `/ssh-agent` |
 
-Opt out of HTTPS rewrite: `XGIC_GIT_PREFER_HTTPS=0`. Optional host OS hint:
-`XGIC_DOCKER_HOST_OS=windows|linux|macos`. Recreate the container after changes.
+Overrides: `XGIC_GIT_PREFER_HTTPS=0|1`, `XGIC_DOCKER_HOST_OS=…`. Recreate the
+container after changing host agent setup.
 
 ```bash
-bash .devcontainer/scripts/configure-git-dx.sh --status    # detection only (verbose)
-bash .devcontainer/scripts/configure-git-dx.sh --verbose   # apply + status logs
+python .devcontainer/scripts/prepare_host_git_compose.py   # host; writes agent overlay
+bash .devcontainer/scripts/configure-git-dx.sh --status    # in container
 bash .devcontainer/scripts/configure-git-dx.sh --quiet     # Compose default
 ```
 
