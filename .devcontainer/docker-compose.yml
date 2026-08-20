@@ -10,18 +10,24 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
       target: dev
-    # Once per container start (not per VS Code attach): gated Git DX, then
-    # keep-alive. Script is quiet unless it applies a change or warns.
-    # Do not put this in devcontainer.json postAttach/postStart/postCreate.
+    # Start as root only long enough to fix the ssh-home named volume ownership
+    # (Docker initializes empty named volumes as root:root). Then drop to node
+    # for Git DX + keep-alive. VS Code still attaches as remoteUser node.
+    # Do not put Git DX in devcontainer.json postAttach/postStart/postCreate.
+    user: "0:0"
     command:
       - /bin/bash
       - -lc
       - |
         set -euo pipefail
+        mkdir -p /home/node/.ssh
+        chown -R node:node /home/node/.ssh
+        chmod 700 /home/node/.ssh
         if [ -f /workspace/.devcontainer/scripts/configure-git-dx.sh ]; then
-          bash /workspace/.devcontainer/scripts/configure-git-dx.sh --quiet
+          runuser -u node -- bash \
+            /workspace/.devcontainer/scripts/configure-git-dx.sh --quiet
         fi
-        exec tail -f /dev/null
+        exec runuser -u node -- tail -f /dev/null
     container_name: xgic-payload-cms-dev
     env_file: .env
     image: xgic-payload-cms-dev
@@ -31,9 +37,10 @@ services:
       - "3000:3000"
     volumes:
       - ..:/workspace:delegated # Bind-mount source for live reload
-      # Do not bind-mount $HOME/.ssh — under Docker, host HOME is often unset
-      # and expands to /.ssh (not writable). Use a named volume + optional keys,
-      # or HTTPS + VS Code git credential helper instead.
+      # Named volume for ~/.ssh (known_hosts; optional manual keys). Do NOT
+      # bind-mount host $HOME/.ssh — under Docker, host HOME is often unset
+      # and expands to /.ssh. Prefer HTTPS + VS Code credential helper, or
+      # SSH agent forwarding (keys stay on the host).
       - ssh-home:/home/node/.ssh
       - /var/run/docker.sock:/var/run/docker.sock
       - vscode-srv-ext:/home/node/.vscode-server/extensions

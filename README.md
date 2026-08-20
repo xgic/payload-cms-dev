@@ -181,22 +181,34 @@ xgic payload dev                      # requires setup first
 **Layout:** this producer never scaffolds at the workspace root. Generated Payload apps live under **`app/`** (`projectDir` in `.devcontainer/create-payload-config.json`) and are **gitignored**. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
 
 **Git inside the container (host-conditional DX):** equal support for Windows and
-Linux Docker hosts. The Docker Compose primary service **command** runs
-`.devcontainer/scripts/configure-git-dx.sh --quiet` **once per container start**
-(not on every VS Code attach, and not via `devcontainer.json` lifecycle hooks).
-Fixes apply **only when needed** (no unconditional `safe.directory *`, no
-private keys in the image). Quiet mode logs only when a change is applied or a
-warning is warranted.
+Linux Docker hosts. On each **container start**, Compose (as root briefly)
+fixes `ssh-home` volume ownership, then runs
+`.devcontainer/scripts/configure-git-dx.sh --quiet` as `node` (not on every
+VS Code attach; not via `devcontainer.json` lifecycle hooks). Quiet mode logs
+only when a change is applied or a warning is warranted.
+
+**Best practice for full Git access** (matches
+[VS Code: Sharing Git credentials](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials)):
+
+1. **Preferred — HTTPS + host credential helper.** Clone/push over HTTPS (or keep
+   `git@github.com:` remotes and let the default
+   `url.https://github.com/.insteadOf git@github.com:` rewrite apply). VS Code
+   reuses the host credential helper — **no tokens or private keys are copied
+   into the container**.
+2. **SSH agent forwarding** when you must use SSH auth: keys stay on the host;
+   ensure `ssh-agent` is running and keys are `ssh-add`ed. Optional Docker
+   Desktop sock: `.devcontainer/docker-compose.git-dx.yml`.
+3. **Never** bind-mount host `~/.ssh` private keys into the image by default
+   (insecure and breaks when host `HOME` is unset under Docker).
 
 | Concern | When it applies | What happens |
 |---------|-----------------|--------------|
-| `fatal: detected dubious ownership` | Workspace mount looks like a high-friction bind (e.g. `9p` on Docker Desktop), ownership mismatch, or `XGIC_DOCKER_HOST_OS=windows` | Adds `git config --global --add safe.directory /workspace` (idempotent, path-specific) |
-| SSH `Permission denied (publickey)` | Agent not reachable in the container | Prefer **HTTPS + VS Code credential helper**. Optional: Docker Desktop host-services sock via Compose fragment `.devcontainer/docker-compose.git-dx.yml`. Fallback: keys in the named `ssh-home` volume (never bind-mount host `HOME/.ssh`—host `HOME` is often unset under Docker) |
+| `fatal: detected dubious ownership` | Friction bind (e.g. `9p`), ownership mismatch, or `XGIC_DOCKER_HOST_OS=windows` | Path-specific `safe.directory /workspace` |
+| `Failed to add … known_hosts` / root-owned `~/.ssh` | Empty named volume initialized as `root:root` | Compose `chown node:node` + seed public GitHub host keys |
+| SSH `Permission denied (publickey)` | No agent / no keys in container | Default HTTPS `insteadOf` for `github.com`; or SSH agent forwarding |
 
-**Optional host hint** (when FS detection is not enough, especially SSH): set
-`XGIC_DOCKER_HOST_OS=windows`, `linux`, or `macos` in `.devcontainer/.env` or
-your local Dev Container `remoteEnv`, then recreate the container (Compose
-command runs again on start).
+Opt out of HTTPS rewrite: `XGIC_GIT_PREFER_HTTPS=0`. Optional host OS hint:
+`XGIC_DOCKER_HOST_OS=windows|linux|macos`. Recreate the container after changes.
 
 ```bash
 bash .devcontainer/scripts/configure-git-dx.sh --status    # detection only (verbose)

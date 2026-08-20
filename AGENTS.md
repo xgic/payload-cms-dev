@@ -62,16 +62,25 @@ Do **not** reintroduce host `initializeCommand` / `postAttachCommand` /
 
 ### Host-conditional Git DX
 
-Docker Compose primary service `command` runs
+Docker Compose primary service starts briefly as root to `chown` the
+`ssh-home` volume to `node`, then `runuser` runs
 `.devcontainer/scripts/configure-git-dx.sh --quiet` **once per container
-start** (gated; silent no-op on typical Linux bind mounts). Detection prefers
-mount/FS signals (`9p` and similar) over a blunt “always Windows” path.
-Optional hint: `XGIC_DOCKER_HOST_OS=windows|linux|macos`.
+start** (gated; quiet when nothing to do). Detection prefers mount/FS signals
+(`9p` and similar) over a blunt “always Windows” path. Optional hint:
+`XGIC_DOCKER_HOST_OS=windows|linux|macos`.
+
+**Git auth (VS Code best practice):**
+
+1. **Preferred:** HTTPS + host credential helper (VS Code shares it
+   automatically). Default: `url.https://github.com/.insteadOf git@github.com:`
+   so existing `git@` remotes use HTTPS without copying secrets. Opt out with
+   `XGIC_GIT_PREFER_HTTPS=0`.
+2. **SSH:** agent forwarding only (keys stay on the host). Do **not** bind-mount
+   host private keys or copy them into the image. Optional Docker Desktop sock
+   fragment: `.devcontainer/docker-compose.git-dx.yml`.
+3. Seed public GitHub `known_hosts`; ensure `~/.ssh` is writable by `node`.
 
 - **safe.directory:** path-specific `/workspace` only when needed—never `*`.
-- **SSH:** prefer HTTPS + VS Code credential helper; optional Docker Desktop
-  sock via `.devcontainer/docker-compose.git-dx.yml`; named `ssh-home` volume
-  for manual keys. Do not bake private keys into the image.
 - Status: `bash .devcontainer/scripts/configure-git-dx.sh --status`
 
 ## Command map (for agents)

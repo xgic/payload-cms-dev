@@ -223,6 +223,21 @@ def test_configure_quiet_is_silent_when_safe_directory_not_needed(
     )
     home = tmp_path / "home"
     home.mkdir()
+    # Pre-seed so known_hosts / insteadOf are no-ops (quiet = no stdout).
+    ssh = home / ".ssh"
+    ssh.mkdir()
+    (ssh / "known_hosts").write_text(
+        "github.com ssh-ed25519 "
+        "AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n",
+        encoding="utf-8",
+    )
+    gitconfig = home / "gitconfig"
+    gitconfig.write_text(
+        "[url \"https://github.com/\"]\n"
+        "\tinsteadOf = git@github.com:\n"
+        "\tinsteadOf = ssh://git@github.com/\n",
+        encoding="utf-8",
+    )
     env = os.environ.copy()
     env.update(
         {
@@ -231,6 +246,9 @@ def test_configure_quiet_is_silent_when_safe_directory_not_needed(
             "XGIC_WORKSPACE": str(ws),
             "XGIC_PROC_MOUNTS": str(mounts),
             "XGIC_GIT_DX_VERBOSE": "0",
+            "XGIC_GIT_PREFER_HTTPS": "1",
+            "GIT_CONFIG_GLOBAL": str(gitconfig),
+            "GIT_CONFIG_NOSYSTEM": "1",
         }
     )
     result = subprocess.run(
@@ -245,3 +263,49 @@ def test_configure_quiet_is_silent_when_safe_directory_not_needed(
     assert result.stdout.strip() == ""
     assert "Skipping safe.directory" not in result.stdout
     assert "needs_safe_directory=" not in result.stdout
+
+
+def test_configure_seeds_known_hosts_and_https_insteadof(tmp_path: Path) -> None:
+    ws = tmp_path / "workspace"
+    ws.mkdir()
+    mounts = tmp_path / "mounts"
+    mounts.write_text(
+        f"/dev/sda1 {ws.as_posix()} ext4 rw,relatime 0 0\n",
+        encoding="utf-8",
+    )
+    home = tmp_path / "home"
+    home.mkdir()
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "XGIC_DOCKER_HOST_OS": "linux",
+            "XGIC_WORKSPACE": str(ws),
+            "XGIC_PROC_MOUNTS": str(mounts),
+            "XGIC_GIT_PREFER_HTTPS": "1",
+            "GIT_CONFIG_GLOBAL": str(home / "gitconfig"),
+            "GIT_CONFIG_NOSYSTEM": "1",
+        }
+    )
+    result = subprocess.run(
+        ["bash", str(CONFIGURE), "--quiet"],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+        env=env,
+    )
+    assert result.returncode == 0, result.stderr + result.stdout
+    kh = home / ".ssh" / "known_hosts"
+    assert kh.is_file()
+    assert "github.com ssh-ed25519" in kh.read_text(encoding="utf-8")
+    cfg = subprocess.run(
+        ["git", "config", "--global", "--get-regexp", r"^url\..*\.insteadof$"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert cfg.returncode == 0, cfg.stderr
+    assert "https://github.com/" in cfg.stdout
+    assert "git@github.com:" in cfg.stdout
