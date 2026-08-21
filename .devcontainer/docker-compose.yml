@@ -42,6 +42,10 @@ services:
       # and expands to /.ssh. Prefer HTTPS + VS Code credential helper, or
       # SSH agent forwarding (keys stay on the host).
       - ssh-home:/home/node/.ssh
+      # Named volumes for Payload app module graph (producer smoke uses app/).
+      # Explicit bridge for bind-mounted workspaces on Docker Desktop / high-latency FS.
+      - app-node-modules:/workspace/app/node_modules
+      - app-next:/workspace/app/.next
       - /var/run/docker.sock:/var/run/docker.sock
       - vscode-srv-ext:/home/node/.vscode-server/extensions
 
@@ -75,6 +79,10 @@ volumes:
     name: xgic-payload-cms-dev-vscode-srv-ext
   ssh-home:
     name: xgic-payload-cms-dev-ssh-home
+  app-node-modules:
+    name: xgic-payload-cms-dev-app-node-modules
+  app-next:
+    name: xgic-payload-cms-dev-app-next
 
 networks:
   app-network:
