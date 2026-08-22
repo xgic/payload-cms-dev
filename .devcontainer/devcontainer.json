@@ -2,29 +2,21 @@
   "name": "XGIC Payload CMS Dev Containers",
   // Producer exemplar: Docker Compose attach (not standalone image:).
   // Consumer contract: docs/architecture.md + AGENTS.md + README.
-  // initializeCommand detects Docker host Git capabilities and writes
-  // docker-compose.agent.yml (SSH agent mount only when safe).
-  "initializeCommand": "python .devcontainer/scripts/prepare_host_git_compose.py",
-  "dockerComposeFile": [
-    "./docker-compose.yml",
-    "./docker-compose.agent.yml"
-  ],
+  // No initializeCommand / postAttach / postStart / postCreate hooks.
+  // Git DX runs once from Docker Compose primary service command.
+  "dockerComposeFile": "./docker-compose.yml",
   "service": "xgic-payload-cms-dev",
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
   ],
   "workspaceFolder": "/workspace",
   "remoteUser": "node",
-  // Lifecycle: prefer explicit XGIC CLI over postStart / postAttach /
-  // postCreate scripts. First run inside the container:
-  //   xgic payload env --regenerate --yes   # if .devcontainer/.env is missing
-  //   xgic payload setup
+  // Lifecycle: prefer explicit XGIC CLI. First run inside the container:
+  //   xgic payload setup    # env + DB (dbAdapter) + scaffold under app/
   //   xgic payload dev
-  // Git DX is fully automated:
-  //   1) host initializeCommand → docker-compose.agent.yml
-  //   2) Compose start → chown ssh-home + configure-git-dx.sh --quiet
-  // Prefer HTTPS + host credential helper; SSH agent when host provides it.
-  // Never copy host private keys. Overrides: XGIC_GIT_PREFER_HTTPS, XGIC_DOCKER_HOST_OS
+  // Git DX (Compose start only): chown ssh-home + configure-git-dx.sh --quiet
+  // Prefer HTTPS + VS Code host credential helper. Never copy host private keys.
+  // Overrides: XGIC_GIT_PREFER_HTTPS, XGIC_DOCKER_HOST_OS
   "customizations": {
     "vscode": {
       "extensions": [

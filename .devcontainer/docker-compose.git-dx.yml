@@ -1,11 +1,20 @@
-# Deprecated manual fragment.
-# Host SSH agent mounting is automated by:
-#   .devcontainer/scripts/prepare_host_git_compose.py
-# which writes docker-compose.agent.yml (included from devcontainer.json).
+# Optional / advanced: Docker Desktop host SSH agent sock.
+# Not used by default reopen (devcontainer.json attaches only docker-compose.yml).
+# Prefer HTTPS + VS Code host credential helper for github.com.
 #
-# Do not add this file to COMPOSE_FILE manually — the prepare script detects
-# Docker Desktop vs Engine and only mounts a socket when it is a real socket.
+# Enable only when /run/host-services/ssh-auth.sock is a real socket on the
+# Docker engine (never on plain Linux Engine — missing path creates a directory).
+#
+# Example:
+#   COMPOSE_FILE=.devcontainer/docker-compose.yml:.devcontainer/docker-compose.git-dx.yml
 #
 # Template follow-up: https://github.com/xgic/payload-cms/issues/9
 
-services: {}
+services:
+  xgic-payload-cms-dev:
+    environment:
+      SSH_AUTH_SOCK: /run/host-services/ssh-auth.sock
+    volumes:
+      - type: bind
+        source: /run/host-services/ssh-auth.sock
+        target: /run/host-services/ssh-auth.sock

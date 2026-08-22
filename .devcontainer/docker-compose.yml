@@ -29,7 +29,9 @@ services:
         fi
         exec runuser -u node -- tail -f /dev/null
     container_name: xgic-payload-cms-dev
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     image: xgic-payload-cms-dev
     networks:
       - app-network
@@ -51,7 +53,9 @@ services:
 
   postgres:
     container_name: xgic-payload-cms-dev-postgres
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     image: postgres:18.4 # Latest stable as of May 2026
     networks:
       - app-network

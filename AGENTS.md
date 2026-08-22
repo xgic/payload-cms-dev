@@ -52,36 +52,30 @@ Inside the Dev Container (`xgic` is on PATH):
 
 1. `xgic --help`  
 2. `xgic check`  
-3. `xgic payload env --regenerate --yes` when `.devcontainer/.env` is missing  
-4. `xgic payload setup` — scaffolds under **`app/`** (gitignored; never commit)  
-5. Daily work: `xgic payload dev` (requires setup first)  
-6. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
+3. `xgic payload setup` — creates `.devcontainer/.env` if missing, starts DB for `dbAdapter` (default PostgreSQL), scaffolds under **`app/`** (gitignored; never commit)  
+4. Daily work: `xgic payload dev` (requires setup first)  
+5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
-Do **not** reintroduce `postAttachCommand` / `postStartCommand` /
-`postCreateCommand` hooks for Git DX. Host `initializeCommand` is reserved for
-**one-shot host capability detection** (`prepare_host_git_compose.py`).
+Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
+`postStartCommand` / `postCreateCommand` hooks for Git DX.
 
 ### Host-conditional Git DX (portable contract for all XGIC Dev Containers)
 
-Fully automated, host-aware:
+Compose-only (no `devcontainer.json` lifecycle hooks):
 
-1. **Host (VS Code `initializeCommand`):**
-   `python .devcontainer/scripts/prepare_host_git_compose.py`  
-   Detects Docker Desktop vs Engine and SSH agent sockets; writes
-   `docker-compose.agent.yml` (mounts agent **only** when the sock is real).
-2. **Compose start (once per container):** chown `ssh-home` → `node`, then
+1. **Compose start (once per container):** chown `ssh-home` → `node`, then
    `configure-git-dx.sh --quiet` as `node` (not on every VS Code attach).
-3. **In-container intelligence:** `safe.directory` from FS signals (`9p`, …);
-   seed public GitHub `known_hosts`; choose HTTPS prefer vs SSH agent from
-   `XGIC_GIT_AUTH_MODE` + live socket.
+2. **In-container intelligence:** `safe.directory` from FS signals (`9p`, …);
+   seed public GitHub `known_hosts`; default HTTPS prefer for `github.com`.
 
 **Git auth (VS Code best practice):**
 
-1. **HTTPS + host credential helper** when no agent socket (default on many
-   Windows Docker Desktop hosts).
-2. **SSH agent forwarding** when the prepare script detects a usable agent
-   (Linux `SSH_AUTH_SOCK` or Desktop host-services sock).
+1. **HTTPS + host credential helper** (default).
+2. **SSH agent** optional/advanced (VS Code forwarding or opt-in Compose fragment).
 3. **Never** copy host private keys into the image/volume by default.
+
+Default `dbAdapter` is `postgres`. For MongoDB (and later adapters), set
+`dbAdapter` in `.devcontainer/create-payload-config.json` **before** `xgic payload setup`.
 
 Overrides: `XGIC_GIT_PREFER_HTTPS=0|1`, `XGIC_DOCKER_HOST_OS=windows|linux|macos`.  
 Status: `bash .devcontainer/scripts/configure-git-dx.sh --status`
