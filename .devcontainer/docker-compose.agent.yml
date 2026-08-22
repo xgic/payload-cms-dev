@@ -1,0 +1,10 @@
+# Optional advanced overlay (not used by default reopen).
+# Default attach uses only docker-compose.yml (no initializeCommand).
+# Generate with: python .devcontainer/scripts/prepare_host_git_compose.py
+# Then: COMPOSE_FILE=docker-compose.yml:docker-compose.agent.yml
+services:
+  xgic-payload-cms-dev:
+    environment:
+      XGIC_DOCKER_HOST_OS: unknown
+      XGIC_DOCKER_HOST_KIND: unknown
+      XGIC_GIT_AUTH_MODE: https-prefer

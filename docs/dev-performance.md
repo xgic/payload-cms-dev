@@ -64,4 +64,5 @@ Run that from the Payload app root for the layout in use (`/` in the template;
 - Consumer contract (this repo): [#50](https://github.com/xgic/payload-cms-dev/issues/50)
 - Template Compose-first reopen: [payload-cms#10](https://github.com/xgic/payload-cms/issues/10) /
   [PR #11](https://github.com/xgic/payload-cms/pull/11)
-- Host-conditional Git DX: [#49](https://github.com/xgic/payload-cms-dev/issues/49)
+- Host-conditional Git DX (safe.directory / SSH agent): [#49](https://github.com/xgic/payload-cms-dev/issues/49),
+  template follow-up [payload-cms#9](https://github.com/xgic/payload-cms/issues/9)

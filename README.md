@@ -160,33 +160,60 @@ Use this repo when you are changing the **container definition**, Compose layout
 
 ### Getting started (producer workspace)
 
+Fewer steps than a manual Payload CMS bootstrap: reopen, configure once, run.
+
 ```bash
 git clone https://github.com/xgic/payload-cms-dev.git
 cd payload-cms-dev
 ```
 
-1. Open the folder in VS Code.  
-2. **Dev Containers: Reopen in Container** (first open may build locally; several minutes is normal).  
-3. Inside the container (explicit CLI — no host Bash lifecycle hooks):
+1. Open the folder in VS Code.
+2. **Dev Containers: Reopen in Container** (first open may build locally; several minutes is normal). Fresh clones do **not** need a local `.devcontainer/.env` before reopen.
+3. **Database adapter (optional):** default is **PostgreSQL** via `"dbAdapter": "postgres"` in `.devcontainer/create-payload-config.json`. For MongoDB (and later Payload-supported backends), set `dbAdapter` in that file **before** setup.
+4. Inside the container:
 
 ```bash
-xgic --version
-xgic check
-xgic payload env --regenerate --yes   # once: write .devcontainer/.env
-xgic payload setup                    # scaffolds under app/ (gitignored)
-xgic up --profile postgres            # DB only if not already up via setup
-xgic payload dev                      # requires setup first
+xgic payload setup    # creates .env if missing, starts DB for dbAdapter, scaffolds app/
+xgic payload dev      # daily run (after setup)
 ```
+
+`xgic payload setup` is the single configuration command (credentials, database service from `dbAdapter`, scaffold under `app/`). Do not require a separate regenerate or `xgic up --profile <db>` on the happy path.
 
 **Layout:** this producer never scaffolds at the workspace root. Generated Payload apps live under **`app/`** (`projectDir` in `.devcontainer/create-payload-config.json`) and are **gitignored**. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
 
-**Git inside the container:** prefer HTTPS + VS Code credential helper. SSH host bind-mounts are not used (host `HOME` is often unset under Docker). A writable named volume is mounted at `~/.ssh` if you install keys manually.
+**Git inside the container (Compose-only, no `devcontainer.json` hooks):** equal support for Windows and Linux Docker hosts.
+
+1. **Container start (once):** Compose chowns `ssh-home` to `node`, then runs `configure-git-dx.sh --quiet` (not on every VS Code attach; no `initializeCommand` / `postAttach`).
+2. **Default auth:** HTTPS + VS Code [host credential helper](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials) (`github.com` SSH remotes rewritten via `insteadOf`). **No private keys copied.**
+3. **SSH agent (advanced / optional):** use VS Code agent forwarding when available, or an opt-in Compose fragment — not part of first reopen.
+
+| Concern | When it applies | What happens |
+|---------|-----------------|--------------|
+| `fatal: detected dubious ownership` | Friction bind (e.g. `9p`), ownership mismatch, or Windows host hint | Path-specific `safe.directory /workspace` |
+| `Failed to add … known_hosts` / root-owned `~/.ssh` | Empty named volume as `root:root` | Compose `chown node:node` + seed public GitHub host keys |
+| SSH `Permission denied (publickey)` | No agent in the container | Default HTTPS `insteadOf` for `github.com` |
+
+Overrides: `XGIC_GIT_PREFER_HTTPS=0|1`, `XGIC_DOCKER_HOST_OS=…`. Recreate the container after changing those.
+
+```bash
+bash .devcontainer/scripts/configure-git-dx.sh --status    # in container
+bash .devcontainer/scripts/configure-git-dx.sh --quiet     # Compose default
+```
+
+**Line endings:** this repo normalizes text to LF (.gitattributes). On Windows, use git config core.autocrlf false in this clone so the bind-mounted working tree stays LF and matches the Linux Dev Container. After pulling the attributes change into an existing clone:
+
+`ash
+git config core.autocrlf false
+git reset --hard HEAD
+`
+
+Thin template adoption is tracked in
+[payload-cms#9](https://github.com/xgic/payload-cms/issues/9).
 
 **Bind-mount performance:** large `node_modules` / `.next` graphs can be slow on
 any Docker host when the workspace is bind-mounted. Prefer a native Linux
 filesystem for the workspace long term; optional named volumes over those paths
 are an explicit documented bridge (see [docs/dev-performance.md](docs/dev-performance.md)).
-Equal support for Windows and Linux Docker hosts.
 
 Full command map: [AGENTS.md](AGENTS.md). Architecture / consumer contract:
 [docs/architecture.md](docs/architecture.md).
@@ -207,16 +234,12 @@ This repository is the **image producer**. Day-to-day **application** work shoul
 
 #### `xgic payload setup` — explicit first-run / validation
 
-Setup is **explicit** (not automatic on Dev Container start). Run it after a fresh workspace, after `xgic payload reset --yes`, when validating `create-payload-config.json`, or in CI-style smoke. Day-to-day work prefers **`xgic payload dev`**, **`xgic check`**, and **`xgic up` / `down`**.
+Setup is **explicit** (not automatic on Dev Container start). It creates `.devcontainer/.env` when missing, starts the database service for `dbAdapter` (default PostgreSQL), and scaffolds under `app/`. Run after a fresh workspace, after `xgic payload reset --yes`, when validating `create-payload-config.json`, or in CI-style smoke.
 
 ```bash
 # First session (or after reset):
-xgic payload env --regenerate --yes   # if .devcontainer/.env is missing
 xgic payload setup
-xgic up --profile postgres
 xgic payload dev
-# ... contribute to image tooling or smoke the app path ...
-xgic down
 
 # Validation after intentional reset:
 xgic payload reset --dry-run

@@ -1,0 +1,24 @@
+# Normalize text to LF so Windows hosts and Linux Dev Containers share one
+# working tree on bind mounts (avoids false "modified" status inside the container).
+* text=auto eol=lf
+
+# Shell scripts must stay LF for ShellCheck / shfmt / Linux containers.
+*.sh text eol=lf
+.devcontainer/scripts/**/*.sh text eol=lf
+
+# Binary assets (do not corrupt with line-ending conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tgz binary
+*.whl binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

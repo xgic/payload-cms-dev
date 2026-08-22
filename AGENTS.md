@@ -43,7 +43,8 @@ Bind-mount FS / optional `node_modules`/`.next` volumes:
 
 Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
 (env sync), [#49](https://github.com/xgic/payload-cms-dev/issues/49)
-(host-conditional Git DX).
+(host-conditional Git DX; template follow-up
+[payload-cms#9](https://github.com/xgic/payload-cms/issues/9)).
 
 ## Session startup
 
@@ -51,12 +52,33 @@ Inside the Dev Container (`xgic` is on PATH):
 
 1. `xgic --help`  
 2. `xgic check`  
-3. `xgic payload env --regenerate --yes` when `.devcontainer/.env` is missing  
-4. `xgic payload setup` — scaffolds under **`app/`** (gitignored; never commit)  
-5. Daily work: `xgic payload dev` (requires setup first)  
-6. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
+3. `xgic payload setup` — creates `.devcontainer/.env` if missing, starts DB for `dbAdapter` (default PostgreSQL), scaffolds under **`app/`** (gitignored; never commit)  
+4. Daily work: `xgic payload dev` (requires setup first)  
+5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
-Do **not** reintroduce host `initializeCommand` Bash hooks.
+Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
+`postStartCommand` / `postCreateCommand` hooks for Git DX.
+
+### Host-conditional Git DX (portable contract for all XGIC Dev Containers)
+
+Compose-only (no `devcontainer.json` lifecycle hooks):
+
+1. **Compose start (once per container):** chown `ssh-home` → `node`, then
+   `configure-git-dx.sh --quiet` as `node` (not on every VS Code attach).
+2. **In-container intelligence:** `safe.directory` from FS signals (`9p`, …);
+   seed public GitHub `known_hosts`; default HTTPS prefer for `github.com`.
+
+**Git auth (VS Code best practice):**
+
+1. **HTTPS + host credential helper** (default).
+2. **SSH agent** optional/advanced (VS Code forwarding or opt-in Compose fragment).
+3. **Never** copy host private keys into the image/volume by default.
+
+Default `dbAdapter` is `postgres`. For MongoDB (and later adapters), set
+`dbAdapter` in `.devcontainer/create-payload-config.json` **before** `xgic payload setup`.
+
+Overrides: `XGIC_GIT_PREFER_HTTPS=0|1`, `XGIC_DOCKER_HOST_OS=windows|linux|macos`.  
+Status: `bash .devcontainer/scripts/configure-git-dx.sh --status`
 
 ## Command map (for agents)
 
