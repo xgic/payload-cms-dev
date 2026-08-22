@@ -200,6 +200,13 @@ bash .devcontainer/scripts/configure-git-dx.sh --status    # in container
 bash .devcontainer/scripts/configure-git-dx.sh --quiet     # Compose default
 ```
 
+**Line endings:** this repo normalizes text to LF (.gitattributes). On Windows, use git config core.autocrlf false in this clone so the bind-mounted working tree stays LF and matches the Linux Dev Container. After pulling the attributes change into an existing clone:
+
+`ash
+git config core.autocrlf false
+git reset --hard HEAD
+`
+
 Thin template adoption is tracked in
 [payload-cms#9](https://github.com/xgic/payload-cms/issues/9).
 
