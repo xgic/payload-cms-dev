@@ -10,22 +10,26 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
       target: dev
-    # Start as root only long enough to fix the ssh-home named volume ownership
-    # (Docker initializes empty named volumes as root:root). Then drop to node
-    # for Git DX + keep-alive. VS Code still attaches as remoteUser node.
-    # Do not put Git DX in devcontainer.json postAttach/postStart/postCreate.
+    # Start as root only long enough to fix ssh-home volume ownership
+    # (empty named volumes initialize as root:root). Git DX must never
+    # prevent keep-alive — VS Code attach requires a running container.
+    # Do not put Git DX in devcontainer.json lifecycle hooks.
     user: "0:0"
     command:
       - /bin/bash
       - -lc
       - |
-        set -euo pipefail
+        set -uo pipefail
         mkdir -p /home/node/.ssh
         chown -R node:node /home/node/.ssh
         chmod 700 /home/node/.ssh
         if [ -f /workspace/.devcontainer/scripts/configure-git-dx.sh ]; then
+          sed -i 's/\r$//' \
+            /workspace/.devcontainer/scripts/configure-git-dx.sh \
+            /workspace/.devcontainer/scripts/lib/*.sh 2>/dev/null || true
           runuser -u node -- bash \
-            /workspace/.devcontainer/scripts/configure-git-dx.sh --quiet
+            /workspace/.devcontainer/scripts/configure-git-dx.sh --quiet \
+            || echo "[git-dx] configure failed (non-fatal); continuing"
         fi
         exec runuser -u node -- tail -f /dev/null
     container_name: xgic-payload-cms-dev
@@ -44,10 +48,6 @@ services:
       # and expands to /.ssh. Prefer HTTPS + VS Code credential helper, or
       # SSH agent forwarding (keys stay on the host).
       - ssh-home:/home/node/.ssh
-      # Named volumes for Payload app module graph (producer smoke uses app/).
-      # Explicit bridge for bind-mounted workspaces on Docker Desktop / high-latency FS.
-      - app-node-modules:/workspace/app/node_modules
-      - app-next:/workspace/app/.next
       - /var/run/docker.sock:/var/run/docker.sock
       - vscode-srv-ext:/home/node/.vscode-server/extensions
 
@@ -83,10 +83,6 @@ volumes:
     name: xgic-payload-cms-dev-vscode-srv-ext
   ssh-home:
     name: xgic-payload-cms-dev-ssh-home
-  app-node-modules:
-    name: xgic-payload-cms-dev-app-node-modules
-  app-next:
-    name: xgic-payload-cms-dev-app-next
 
 networks:
   app-network:

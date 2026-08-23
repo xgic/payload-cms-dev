@@ -38,8 +38,8 @@ Thin template implementation:
 [payload-cms#10](https://github.com/xgic/payload-cms/issues/10) /
 [PR #11](https://github.com/xgic/payload-cms/pull/11). Full write-up:
 [docs/architecture.md](docs/architecture.md#consumer-contract-docker-compose-first).
-Bind-mount FS / optional `node_modules`/`.next` volumes:
-[docs/dev-performance.md](docs/dev-performance.md).
+Workspace filesystem: [docs/dev-performance.md](docs/dev-performance.md)
+(native Linux / WSL2; this producer does not overlay `app/node_modules`).
 
 Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
 (env sync), [#49](https://github.com/xgic/payload-cms-dev/issues/49)
@@ -52,8 +52,8 @@ Inside the Dev Container (`xgic` is on PATH):
 
 1. `xgic --help`  
 2. `xgic check`  
-3. `xgic payload setup` — creates `.devcontainer/.env` if missing, starts DB for `dbAdapter` (default PostgreSQL), scaffolds under **`app/`** (gitignored; never commit)  
-4. Daily work: `xgic payload dev` (requires setup first)  
+3. `xgic payload setup` — env + DB (`dbAdapter`, default PostgreSQL) + scaffold under **`app/`**, **or** `pnpx create-payload-app@latest app`  
+4. Daily work: `xgic payload dev` (requires an app under `app/`)  
 5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
 Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
@@ -64,7 +64,8 @@ Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
 Compose-only (no `devcontainer.json` lifecycle hooks):
 
 1. **Compose start (once per container):** chown `ssh-home` → `node`, then
-   `configure-git-dx.sh --quiet` as `node` (not on every VS Code attach).
+   `configure-git-dx.sh --quiet` as `node`. Failure is **non-fatal** (keep-alive
+   always continues). Not on every VS Code attach.
 2. **In-container intelligence:** `safe.directory` from FS signals (`9p`, …);
    seed public GitHub `known_hosts`; default HTTPS prefer for `github.com`.
 

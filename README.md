@@ -162,58 +162,39 @@ Use this repo when you are changing the **container definition**, Compose layout
 
 Fewer steps than a manual Payload CMS bootstrap: reopen, configure once, run.
 
+**Supported workspace location:** a **native Linux filesystem** (Linux Docker host, or **WSL2** on Windows). Clone and open the repo from that filesystem. NTFS bind mounts (`C:\…` into Docker Desktop) are **not** a supported producer path.
+
 ```bash
 git clone https://github.com/xgic/payload-cms-dev.git
 cd payload-cms-dev
 ```
 
-1. Open the folder in VS Code.
-2. **Dev Containers: Reopen in Container** (first open may build locally; several minutes is normal). Fresh clones do **not** need a local `.devcontainer/.env` before reopen.
-3. **Database adapter (optional):** default is **PostgreSQL** via `"dbAdapter": "postgres"` in `.devcontainer/create-payload-config.json`. For MongoDB (and later Payload-supported backends), set `dbAdapter` in that file **before** setup.
-4. Inside the container:
+1. Open the folder in VS Code (from WSL2 or Linux).
+2. **Dev Containers: Reopen in Container** (first open may build locally). No local `.devcontainer/.env` is required.
+3. **Database adapter (optional):** default is **PostgreSQL** (`"dbAdapter": "postgres"` in `.devcontainer/create-payload-config.json`). For MongoDB (and later Payload-supported backends), set `dbAdapter` **before** setup.
+4. Inside the container, either:
 
 ```bash
-xgic payload setup    # creates .env if missing, starts DB for dbAdapter, scaffolds app/
-xgic payload dev      # daily run (after setup)
+xgic payload setup    # env + DB for dbAdapter + scaffold under app/
+xgic payload dev
 ```
 
-`xgic payload setup` is the single configuration command (credentials, database service from `dbAdapter`, scaffold under `app/`). Do not require a separate regenerate or `xgic up --profile <db>` on the happy path.
-
-**Layout:** this producer never scaffolds at the workspace root. Generated Payload apps live under **`app/`** (`projectDir` in `.devcontainer/create-payload-config.json`) and are **gitignored**. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
-
-**Git inside the container (Compose-only, no `devcontainer.json` hooks):** equal support for Windows and Linux Docker hosts.
-
-1. **Container start (once):** Compose chowns `ssh-home` to `node`, then runs `configure-git-dx.sh --quiet` (not on every VS Code attach; no `initializeCommand` / `postAttach`).
-2. **Default auth:** HTTPS + VS Code [host credential helper](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials) (`github.com` SSH remotes rewritten via `insteadOf`). **No private keys copied.**
-3. **SSH agent (advanced / optional):** use VS Code agent forwarding when available, or an opt-in Compose fragment — not part of first reopen.
-
-| Concern | When it applies | What happens |
-|---------|-----------------|--------------|
-| `fatal: detected dubious ownership` | Friction bind (e.g. `9p`), ownership mismatch, or Windows host hint | Path-specific `safe.directory /workspace` |
-| `Failed to add … known_hosts` / root-owned `~/.ssh` | Empty named volume as `root:root` | Compose `chown node:node` + seed public GitHub host keys |
-| SSH `Permission denied (publickey)` | No agent in the container | Default HTTPS `insteadOf` for `github.com` |
-
-Overrides: `XGIC_GIT_PREFER_HTTPS=0|1`, `XGIC_DOCKER_HOST_OS=…`. Recreate the container after changing those.
+or use upstream immediately (Node/pnpm/pnpx are on PATH):
 
 ```bash
-bash .devcontainer/scripts/configure-git-dx.sh --status    # in container
-bash .devcontainer/scripts/configure-git-dx.sh --quiet     # Compose default
+pnpx create-payload-app@latest app
 ```
 
-**Line endings:** this repo normalizes text to LF (.gitattributes). On Windows, use git config core.autocrlf false in this clone so the bind-mounted working tree stays LF and matches the Linux Dev Container. After pulling the attributes change into an existing clone:
+`xgic payload setup` is the single XGIC configuration command. `xgic payload dev` is daily run after an app exists under `app/`.
 
-`ash
-git config core.autocrlf false
-git reset --hard HEAD
-`
+**Layout:** the producer never scaffolds at the workspace root (that would collide with the image/Dockerfile). Generated apps live under **`app/`** (`projectDir`) and are **gitignored**. `projectName` is npm identity, not the folder. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
 
-Thin template adoption is tracked in
-[payload-cms#9](https://github.com/xgic/payload-cms/issues/9).
+**Git inside the container (Compose-only, no `devcontainer.json` hooks):** HTTPS + VS Code [host credential helper](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials) by default. Git DX runs once at Compose start and **cannot** stop the keep-alive. SSH agent is optional/advanced.
 
-**Bind-mount performance:** large `node_modules` / `.next` graphs can be slow on
-any Docker host when the workspace is bind-mounted. Prefer a native Linux
-filesystem for the workspace long term; optional named volumes over those paths
-are an explicit documented bridge (see [docs/dev-performance.md](docs/dev-performance.md)).
+Thin template adoption: [payload-cms#9](https://github.com/xgic/payload-cms/issues/9).
+
+**Workspace performance:** keep the clone on a native Linux filesystem (WSL2 or
+Linux host). See [docs/dev-performance.md](docs/dev-performance.md).
 
 Full command map: [AGENTS.md](AGENTS.md). Architecture / consumer contract:
 [docs/architecture.md](docs/architecture.md).
