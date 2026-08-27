@@ -63,9 +63,10 @@ Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
 
 Compose-only (no `devcontainer.json` lifecycle hooks):
 
-1. **Compose start (once per container):** chown `ssh-home` → `node`, then
-   `configure-git-dx.sh --quiet` as `node`. Failure is **non-fatal** (keep-alive
-   always continues). Not on every VS Code attach.
+1. **Compose start (once per container):** chown `ssh-home` → `node`, align
+   the image `docker` group to the engine socket GID (hosts vary; do not
+   hard-code a GID), then `configure-git-dx.sh --quiet` as `node`. Failure is
+   **non-fatal** (keep-alive always continues). Not on every VS Code attach.
 2. **In-container intelligence:** `safe.directory` from FS signals (`9p`, …);
    seed public GitHub `known_hosts`; default HTTPS prefer for `github.com`.
 

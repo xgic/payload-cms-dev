@@ -23,6 +23,10 @@ services:
         mkdir -p /home/node/.ssh
         chown -R node:node /home/node/.ssh
         chmod 700 /home/node/.ssh
+        if [ -f /workspace/.devcontainer/scripts/align_docker_sock_gid.py ]; then
+          python3 /workspace/.devcontainer/scripts/align_docker_sock_gid.py \
+            || echo "[docker-sock] align failed (non-fatal); continuing"
+        fi
         if [ -f /workspace/.devcontainer/scripts/configure-git-dx.sh ]; then
           sed -i 's/\r$//' \
             /workspace/.devcontainer/scripts/configure-git-dx.sh \

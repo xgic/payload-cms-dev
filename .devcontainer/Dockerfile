@@ -104,6 +104,9 @@ $(lsb_release -cs)-pgdg main" \
 # -----------------------------------------------------------------------------
 FROM system-base AS user-setup
 
+# Build-time docker GID is a placeholder. Compose start aligns it to the
+# live engine socket GID (see align_docker_sock_gid.py) so Linux hosts
+# whose socket is not 994 still work with mode 660.
 RUN chsh -s /bin/bash ${APP_USER} \
     && groupadd -g 994 docker \
     && usermod -aG docker ${APP_USER} \
