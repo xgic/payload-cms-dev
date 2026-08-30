@@ -48,7 +48,8 @@ Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
 
 ## Session startup
 
-Inside the Dev Container (`xgic` is on PATH):
+Inside the Dev Container (`xgic` is on PATH, including login shells via
+`/etc/profile.d/xgic-cli.sh`):
 
 1. `xgic --help`  
 2. `xgic check`  

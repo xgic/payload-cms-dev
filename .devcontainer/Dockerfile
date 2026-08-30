@@ -143,6 +143,10 @@ RUN /usr/local/bin/python3 -m venv ${PYTHON_VENV} \
 
 # Make venv tools available globally in the container (takes precedence)
 ENV PATH="${PYTHON_VENV}/bin:${PATH}"
+# Login shells reset ENV PATH; keep xgic on PATH for `bash -l` / terminals.
+RUN printf '%s\n' 'export PATH="/opt/venv/bin:$PATH"' \
+      > /etc/profile.d/xgic-cli.sh \
+    && chmod 0644 /etc/profile.d/xgic-cli.sh
 
 # Default Docker Compose identity for this template (product-agnostic xgic CLI flags/env).
 ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
