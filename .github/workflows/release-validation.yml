@@ -94,31 +94,42 @@ jobs:
             bash -c 'chown -R node:node /workspace'
           "${compose[@]}" exec -T -u node xgic-payload-cms-dev \
             xgic payload setup
-          # GitHub Actions sets CI=true; Next.js then exits after compile.
-          # Unset CI for the server and run pytest on the runner against
-          # the published port.
-          "${compose[@]}" exec -T -d -u node -e CI= \
+          # GitHub Actions sets CI=true and GITHUB_ACTIONS=true. Next.js
+          # (ci-info) treats either as CI and can exit after the first
+          # compile. Unset both *inside* the container. compose exec -e CI=
+          # is not enough if GITHUB_ACTIONS leaks in.
+          # Run pytest on the runner against the published port.
+          "${compose[@]}" exec -T -d -u node \
             xgic-payload-cms-dev \
-            bash -c 'cd /workspace && xgic payload dev \
-              > /tmp/payload-dev.log 2>&1'
+            bash -lc 'unset CI GITHUB_ACTIONS GITHUB_ACTION GITHUB_WORKFLOW
+              cd /workspace
+              exec xgic payload dev > /tmp/payload-dev.log 2>&1'
+          # Cold Turbopack first GET is often ~30–60s. Require two 200s so
+          # Next.js did not leave watch mode after the first request.
           ok=0
-          for _ in $(seq 1 90); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' \
-              http://127.0.0.1:3000/ || true)
+          for _ in $(seq 1 8); do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 90 \
+              http://127.0.0.1:3000/) || code=000
             if [ "$code" = "200" ]; then
-              ok=1
-              break
+              sleep 2
+              code2=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 \
+                http://127.0.0.1:3000/) || code2=000
+              if [ "$code2" = "200" ]; then
+                ok=1
+                break
+              fi
             fi
-            sleep 2
+            sleep 5
           done
           if [ "$ok" != "1" ]; then
-            echo "payload dev did not become ready" >&2
+            echo "payload dev did not stay ready (need two HTTP 200s)" >&2
             "${compose[@]}" exec -T xgic-payload-cms-dev \
               tail -n 120 /tmp/payload-dev.log || true
             exit 1
           fi
           python3 -m pip install --user pytest
           export PATH="${HOME}/.local/bin:${PATH}"
+          export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -o cache_dir=/tmp/pytest-e2e-cache"
           if ! E2E_REQUIRE=1 PAYLOAD_BASE_URL=http://127.0.0.1:3000 \
             python3 -m pytest -q tests/e2e; then
             "${compose[@]}" exec -T xgic-payload-cms-dev \
