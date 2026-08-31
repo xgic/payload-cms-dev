@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.error
 import urllib.request
 from http.cookiejar import CookieJar
@@ -35,6 +36,26 @@ def url_reachable(url: str, timeout: float = 2.0) -> bool:
         return True
     except (urllib.error.URLError, TimeoutError, OSError):
         return False
+
+
+def wait_reachable(
+    url: str,
+    *,
+    attempts: int = 1,
+    timeout: float = 2.0,
+    pause: float = 1.0,
+) -> bool:
+    """Probe ``url`` until it responds or attempts are exhausted.
+
+    After a cold Turbopack first compile the next request can still be
+    slow; a single 2s probe is not enough when ``E2E_REQUIRE`` is set.
+    """
+    for i in range(max(1, attempts)):
+        if url_reachable(url, timeout=timeout):
+            return True
+        if i + 1 < attempts:
+            time.sleep(pause)
+    return False
 
 
 class PayloadSession:
@@ -116,11 +137,13 @@ class PayloadSession:
 @pytest.fixture(scope="session")
 def payload_session() -> PayloadSession:
     base = e2e_base_url()
-    if url_reachable(base):
-        return PayloadSession(base)
     if e2e_require():
+        if wait_reachable(base, attempts=8, timeout=15.0, pause=2.0):
+            return PayloadSession(base)
         pytest.fail(
             f"E2E_REQUIRE is set but {base} is not reachable. "
             "Start: xgic payload setup && xgic payload dev"
         )
+    if url_reachable(base):
+        return PayloadSession(base)
     pytest.skip(f"Payload CMS app not running at {base}")
