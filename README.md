@@ -29,7 +29,7 @@ Payload CMS rewards a **reproducible, opinionated environment**: pinned Node/pnp
 | Benefit | Outcome |
 |---------|---------|
 | **Separation of concerns** | Image and CI evolve here; applications start from a thin template |
-| **Reproducibility** | Semver tags (`0.3.0`) and multi-arch GHCR delivery |
+| **Reproducibility** | Semver tags (`0.3.3`) and multi-arch GHCR delivery |
 | **Speed** | App repos pull a pre-built image instead of rebuilding the world |
 | **AI-ready operations** | Modular **XGIC CLI** (`xgic`) is installed in the image and documented for agents |
 | **Open-source excellence** | Apache-2.0, human-reviewed PRs, public-safe docs, Dependabot, and required CI |
@@ -125,7 +125,7 @@ A ready workspace with Node, pnpm, database clients, modular `xgic` CLI, and pro
 docker pull ghcr.io/xgic/payload-cms-dev:latest
 
 # Reproducible release (recommended for app pins)
-docker pull ghcr.io/xgic/payload-cms-dev:0.3.0
+docker pull ghcr.io/xgic/payload-cms-dev:0.3.3
 ```
 
 Package: [ghcr.io/xgic/payload-cms-dev](https://github.com/users/xgic/packages/container/package/payload-cms-dev)  
