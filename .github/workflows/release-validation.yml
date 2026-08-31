@@ -83,6 +83,49 @@ jobs:
             exec -T xgic-payload-cms-dev \
             bash .devcontainer/scripts/devcontainer-tests.sh || true
 
+      - name: Producer e2e (setup, first admin, seed, pages)
+        env:
+          E2E_REQUIRE: "1"
+        run: |
+          set -euo pipefail
+          compose=(docker compose -f .devcontainer/docker-compose.yml)
+          # Actions bind-mount is not owned by image user `node` (uid 1000).
+          "${compose[@]}" exec -T xgic-payload-cms-dev \
+            bash -c 'chown -R node:node /workspace'
+          "${compose[@]}" exec -T -u node xgic-payload-cms-dev \
+            xgic payload setup
+          # GitHub Actions sets CI=true; Next.js then exits after compile.
+          # Unset CI for the server and run pytest on the runner against
+          # the published port.
+          "${compose[@]}" exec -T -d -u node -e CI= \
+            xgic-payload-cms-dev \
+            bash -c 'cd /workspace && xgic payload dev \
+              > /tmp/payload-dev.log 2>&1'
+          ok=0
+          for _ in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' \
+              http://127.0.0.1:3000/ || true)
+            if [ "$code" = "200" ]; then
+              ok=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ok" != "1" ]; then
+            echo "payload dev did not become ready" >&2
+            "${compose[@]}" exec -T xgic-payload-cms-dev \
+              tail -n 120 /tmp/payload-dev.log || true
+            exit 1
+          fi
+          python3 -m pip install --user pytest
+          export PATH="${HOME}/.local/bin:${PATH}"
+          if ! E2E_REQUIRE=1 PAYLOAD_BASE_URL=http://127.0.0.1:3000 \
+            python3 -m pytest -q tests/e2e; then
+            "${compose[@]}" exec -T xgic-payload-cms-dev \
+              tail -n 120 /tmp/payload-dev.log || true
+            exit 1
+          fi
+
       - name: Tear down compose stack
         if: always()
         run: |

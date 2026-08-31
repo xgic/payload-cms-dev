@@ -97,7 +97,7 @@ Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
 ### Image and runtime
 
 - **Multi-stage Dockerfile** optimized for layer caching (core → system → tools → dev)
-- **Node.js LTS Slim** + **pnpm 10** (aligned with modern Payload CMS workflows)
+- **Node.js LTS Slim** + **pnpm 10.34.5** (Corepack-pinned; do not float `pnpm@10`)
 - **Python 3.14** venv with modular **XGIC CLI** from PyPI (version-pinned)
 - **Docker Compose** project with optional **PostgreSQL 18** and **MongoDB** profiles
 - **Docker-in-Docker** / socket access patterns for container-aware workflows
@@ -187,6 +187,13 @@ pnpx create-payload-app@latest app
 
 `xgic payload setup` is the single XGIC configuration command. `xgic payload dev` is daily run after an app exists under `app/`.
 
+**First compile:** the first HTTP request after a clean setup is a **cold
+Turbopack** compile of the Payload CMS website template (App Router + admin +
+first schema pull). That is expected (tens of seconds). Later requests in the
+same session are much faster. The image ships the native Next.js SWC binary;
+this is not a missing-native-compiler fallback. Stay on **pnpm 10.x** until a
+dedicated eval of pnpm 11/12 (those majors change install-script allow-lists).
+
 **Layout:** the producer never scaffolds at the workspace root (that would collide with the image/Dockerfile). Generated apps live under **`app/`** (`projectDir`) and are **gitignored**. `projectName` is npm identity, not the folder. For real products, use the [payload-cms](https://github.com/xgic/payload-cms) template (app-root layout).
 
 **Git inside the container (Compose-only, no `devcontainer.json` hooks):** HTTPS + VS Code [host credential helper](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials) by default. Git DX runs once at Compose start and **cannot** stop the keep-alive. SSH agent is optional/advanced.
@@ -239,7 +246,7 @@ uv venv .venv
 uv pip install \
   "xgic-cli>=0.2.0,<0.3" \
   "xgic-dev-cli>=0.2.0,<0.3" \
-  "xgic-payload-cms-cli>=0.2.2,<0.3"
+  "xgic-payload-cms-cli>=0.2.4,<0.3"
 xgic --version
 xgic payload --help
 ```
