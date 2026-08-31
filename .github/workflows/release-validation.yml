@@ -89,6 +89,9 @@ jobs:
         run: |
           set -euo pipefail
           compose=(docker compose -f .devcontainer/docker-compose.yml)
+          # Actions bind-mount is not owned by image user `node` (uid 1000).
+          "${compose[@]}" exec -T xgic-payload-cms-dev \
+            bash -c 'chown -R node:node /workspace'
           "${compose[@]}" exec -T -u node xgic-payload-cms-dev \
             xgic payload setup
           "${compose[@]}" exec -T -d -u node xgic-payload-cms-dev \
