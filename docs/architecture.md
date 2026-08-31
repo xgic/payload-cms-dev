@@ -62,12 +62,11 @@ Do **not** reopen with only `"image": "ghcr.io/xgic/payload-cms-dev:…"` in
 If a workspace is still on that anti-pattern, run **Dev Containers: Rebuild
 Container** once after switching to Docker Compose.
 
-### Bind-mount performance
+### Workspace filesystem
 
-Bind-mounted workspaces can be slow for large Node module graphs on any Docker
-host. Prefer a native Linux filesystem for the workspace long term; optional
-named volumes over `node_modules` / `.next` are an explicit documented bridge.
-Details: [dev-performance.md](dev-performance.md).
+Keep the clone on a **native Linux filesystem** (Linux Docker host or WSL2).
+This producer does not overlay `app/node_modules` / `app/.next` with named
+volumes. Details: [dev-performance.md](dev-performance.md).
 
 ### Related issues
 
@@ -84,7 +83,7 @@ Details: [dev-performance.md](dev-performance.md).
 |-------|------|
 | `.devcontainer/*` | Image, Docker Compose, Dev Container config (consumer-contract exemplar) |
 | `create-payload-config.json` (+ schema) | Producer config / IntelliSense |
-| Thin bash shims | Delegate to `xgic` |
+| Git DX | Compose start chowns `ssh-home` + `configure-git-dx.sh --quiet` (HTTPS prefer by default; no `devcontainer.json` hooks) |
 | Consumer `pyproject.toml` | PyPI pins for modular CLI + smoke tests |
 | Docs / CI | Producer quality gates + consumer-contract documentation |
 

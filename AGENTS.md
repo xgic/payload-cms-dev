@@ -38,25 +38,50 @@ Thin template implementation:
 [payload-cms#10](https://github.com/xgic/payload-cms/issues/10) /
 [PR #11](https://github.com/xgic/payload-cms/pull/11). Full write-up:
 [docs/architecture.md](docs/architecture.md#consumer-contract-docker-compose-first).
-Bind-mount FS / optional `node_modules`/`.next` volumes:
-[docs/dev-performance.md](docs/dev-performance.md).
+Workspace filesystem: [docs/dev-performance.md](docs/dev-performance.md)
+(native Linux / WSL2; this producer does not overlay `app/node_modules`).
 
 Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
 (env sync), [#49](https://github.com/xgic/payload-cms-dev/issues/49)
-(host-conditional Git DX).
+(host-conditional Git DX; template follow-up
+[payload-cms#9](https://github.com/xgic/payload-cms/issues/9)).
 
 ## Session startup
 
-Inside the Dev Container (`xgic` is on PATH):
+Inside the Dev Container (`xgic` is on PATH, including login shells via
+`/etc/profile.d/xgic-cli.sh`):
 
 1. `xgic --help`  
 2. `xgic check`  
-3. `xgic payload env --regenerate --yes` when `.devcontainer/.env` is missing  
-4. `xgic payload setup` — scaffolds under **`app/`** (gitignored; never commit)  
-5. Daily work: `xgic payload dev` (requires setup first)  
-6. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
+3. `xgic payload setup` — env + DB (`dbAdapter`, default PostgreSQL) + scaffold under **`app/`**, **or** `pnpx create-payload-app@latest app`  
+4. Daily work: `xgic payload dev` (requires an app under `app/`)  
+5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
-Do **not** reintroduce host `initializeCommand` Bash hooks.
+Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
+`postStartCommand` / `postCreateCommand` hooks for Git DX.
+
+### Host-conditional Git DX (portable contract for all XGIC Dev Containers)
+
+Compose-only (no `devcontainer.json` lifecycle hooks):
+
+1. **Compose start (once per container):** chown `ssh-home` → `node`, align
+   the image `docker` group to the engine socket GID (hosts vary; do not
+   hard-code a GID), then `configure-git-dx.sh --quiet` as `node`. Failure is
+   **non-fatal** (keep-alive always continues). Not on every VS Code attach.
+2. **In-container intelligence:** `safe.directory` from FS signals (`9p`, …);
+   seed public GitHub `known_hosts`; default HTTPS prefer for `github.com`.
+
+**Git auth (VS Code best practice):**
+
+1. **HTTPS + host credential helper** (default).
+2. **SSH agent** optional/advanced (VS Code forwarding or opt-in Compose fragment).
+3. **Never** copy host private keys into the image/volume by default.
+
+Default `dbAdapter` is `postgres`. For MongoDB (and later adapters), set
+`dbAdapter` in `.devcontainer/create-payload-config.json` **before** `xgic payload setup`.
+
+Overrides: `XGIC_GIT_PREFER_HTTPS=0|1`, `XGIC_DOCKER_HOST_OS=windows|linux|macos`.  
+Status: `bash .devcontainer/scripts/configure-git-dx.sh --status`
 
 ## Command map (for agents)
 

@@ -104,6 +104,9 @@ $(lsb_release -cs)-pgdg main" \
 # -----------------------------------------------------------------------------
 FROM system-base AS user-setup
 
+# Build-time docker GID is a placeholder. Compose start aligns it to the
+# live engine socket GID (see align_docker_sock_gid.py) so Linux hosts
+# whose socket is not 994 still work with mode 660.
 RUN chsh -s /bin/bash ${APP_USER} \
     && groupadd -g 994 docker \
     && usermod -aG docker ${APP_USER} \
@@ -140,6 +143,10 @@ RUN /usr/local/bin/python3 -m venv ${PYTHON_VENV} \
 
 # Make venv tools available globally in the container (takes precedence)
 ENV PATH="${PYTHON_VENV}/bin:${PATH}"
+# Login shells reset ENV PATH; keep xgic on PATH for `bash -l` / terminals.
+RUN printf '%s\n' 'export PATH="/opt/venv/bin:$PATH"' \
+      > /etc/profile.d/xgic-cli.sh \
+    && chmod 0644 /etc/profile.d/xgic-cli.sh
 
 # Default Docker Compose identity for this template (product-agnostic xgic CLI flags/env).
 ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
