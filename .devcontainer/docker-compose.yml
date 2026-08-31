@@ -37,6 +37,8 @@ services:
         fi
         exec runuser -u node -- tail -f /dev/null
     container_name: xgic-payload-cms-dev
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
     env_file:
       - path: .env
         required: false

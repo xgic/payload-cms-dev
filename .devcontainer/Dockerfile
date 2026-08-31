@@ -122,8 +122,11 @@ RUN chsh -s /bin/bash ${APP_USER} \
 # -----------------------------------------------------------------------------
 FROM user-setup AS dev-tools
 
-# Enable pnpm via corepack
-RUN corepack enable && corepack use pnpm@10
+# Pin pnpm via Corepack (do not float `pnpm@10` — image builds would
+# pick a moving 10.x). Stay on 10.x until pnpm 11/12 + Payload CMS
+# template allowBuilds are verified together.
+RUN corepack enable \
+    && corepack prepare pnpm@10.34.5 --activate
 
 # Bring in clean Python installation (multi-stage copy for reproducibility
 # and to avoid PPA fragility). Source stage is slim-bookworm so glibc matches
@@ -151,7 +154,8 @@ RUN printf '%s\n' 'export PATH="/opt/venv/bin:$PATH"' \
 # Default Docker Compose identity for this template (product-agnostic xgic CLI flags/env).
 ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
     XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev \
-    XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev
+    XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev \
+    NEXT_TELEMETRY_DISABLED=1
 
 # Allow the app user (node) to install additional packages into the venv
 # when needed. Venv is created as root but the remoteUser is node.
