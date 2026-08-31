@@ -54,6 +54,11 @@ bypass-selection = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra -q --strict-markers"
+markers = [
+    "integration: require Docker, etc.",
+    "slow: slow running",
+    "e2e: live Payload CMS HTTP smoke",
+]
 
 [tool.ruff]
 line-length = 80

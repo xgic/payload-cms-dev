@@ -52,6 +52,27 @@ xgic payload dev
 
 Always prefer `--dry-run` before destructive `xgic payload reset --yes`.
 
+## Producer e2e (live app)
+
+HTTP smoke against a running `xgic payload dev` server (stdlib urllib; no
+generated `app/` sources committed):
+
+```bash
+# Terminal A (inside the Dev Container)
+xgic payload setup
+xgic payload dev
+
+# Terminal B
+E2E_REQUIRE=1 uv run pytest -q tests/e2e
+```
+
+Without `E2E_REQUIRE=1`, the suite **skips** when nothing is listening so
+unit CI stays green. CI Release Validation starts setup + `payload dev` and
+runs these tests with `E2E_REQUIRE=1`.
+
+Optional: `PAYLOAD_BASE_URL` (default `http://127.0.0.1:3000`), `E2E_EMAIL`,
+`E2E_PASSWORD` when the app is already initialized.
+
 ## Coverage expectations
 
 | Component | Target | Notes |

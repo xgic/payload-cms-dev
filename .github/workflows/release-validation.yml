@@ -83,6 +83,43 @@ jobs:
             exec -T xgic-payload-cms-dev \
             bash .devcontainer/scripts/devcontainer-tests.sh || true
 
+      - name: Producer e2e (setup, first admin, seed, pages)
+        env:
+          E2E_REQUIRE: "1"
+        run: |
+          set -euo pipefail
+          compose=(docker compose -f .devcontainer/docker-compose.yml)
+          "${compose[@]}" exec -T -u node xgic-payload-cms-dev \
+            xgic payload setup
+          "${compose[@]}" exec -T -d -u node xgic-payload-cms-dev \
+            bash -c 'cd /workspace && xgic payload dev \
+              > /tmp/payload-dev.log 2>&1'
+          ok=0
+          for _ in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' \
+              http://127.0.0.1:3000/ || true)
+            if [ "$code" = "200" ]; then
+              ok=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ok" != "1" ]; then
+            echo "payload dev did not become ready" >&2
+            "${compose[@]}" exec -T xgic-payload-cms-dev \
+              tail -n 80 /tmp/payload-dev.log || true
+            exit 1
+          fi
+          "${compose[@]}" exec -T -u node \
+            -e E2E_REQUIRE=1 \
+            -e PAYLOAD_BASE_URL=http://127.0.0.1:3000 \
+            xgic-payload-cms-dev bash -c '
+              set -euo pipefail
+              uv pip install --python /opt/venv/bin/python pytest
+              cd /workspace
+              /opt/venv/bin/pytest -q tests/e2e
+            '
+
       - name: Tear down compose stack
         if: always()
         run: |
