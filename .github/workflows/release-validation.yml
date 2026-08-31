@@ -94,9 +94,9 @@ jobs:
             bash -c 'chown -R node:node /workspace'
           "${compose[@]}" exec -T -u node xgic-payload-cms-dev \
             xgic payload setup
-          # GitHub Actions sets CI=true; Next.js then exits after compile
-          # (image CLI 0.2.2 does not unset CI). Keep the server in watch
-          # mode and run pytest on the runner against the published port.
+          # GitHub Actions sets CI=true; Next.js then exits after compile.
+          # Unset CI for the server and run pytest on the runner against
+          # the published port.
           "${compose[@]}" exec -T -d -u node -e CI= \
             xgic-payload-cms-dev \
             bash -c 'cd /workspace && xgic payload dev \
