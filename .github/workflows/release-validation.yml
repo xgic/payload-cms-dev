@@ -94,7 +94,11 @@ jobs:
             bash -c 'chown -R node:node /workspace'
           "${compose[@]}" exec -T -u node xgic-payload-cms-dev \
             xgic payload setup
-          "${compose[@]}" exec -T -d -u node xgic-payload-cms-dev \
+          # GitHub Actions sets CI=true; Next.js then exits after compile
+          # (image CLI 0.2.2 does not unset CI). Keep the server in watch
+          # mode and run pytest on the runner against the published port.
+          "${compose[@]}" exec -T -d -u node -e CI= \
+            xgic-payload-cms-dev \
             bash -c 'cd /workspace && xgic payload dev \
               > /tmp/payload-dev.log 2>&1'
           ok=0
@@ -110,18 +114,17 @@ jobs:
           if [ "$ok" != "1" ]; then
             echo "payload dev did not become ready" >&2
             "${compose[@]}" exec -T xgic-payload-cms-dev \
-              tail -n 80 /tmp/payload-dev.log || true
+              tail -n 120 /tmp/payload-dev.log || true
             exit 1
           fi
-          "${compose[@]}" exec -T -u node \
-            -e E2E_REQUIRE=1 \
-            -e PAYLOAD_BASE_URL=http://127.0.0.1:3000 \
-            xgic-payload-cms-dev bash -c '
-              set -euo pipefail
-              uv pip install --python /opt/venv/bin/python pytest
-              cd /workspace
-              /opt/venv/bin/pytest -q tests/e2e
-            '
+          python3 -m pip install --user pytest
+          export PATH="${HOME}/.local/bin:${PATH}"
+          if ! E2E_REQUIRE=1 PAYLOAD_BASE_URL=http://127.0.0.1:3000 \
+            python3 -m pytest -q tests/e2e; then
+            "${compose[@]}" exec -T xgic-payload-cms-dev \
+              tail -n 120 /tmp/payload-dev.log || true
+            exit 1
+          fi
 
       - name: Tear down compose stack
         if: always()
