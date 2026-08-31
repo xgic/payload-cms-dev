@@ -169,6 +169,19 @@ FROM dev-tools AS dev
 LABEL net.xgic.stage="Development"
 WORKDIR ${WORKSPACE}
 
+# Git DX + docker-sock GID align live outside /workspace so the consumer
+# bind-mount cannot hide them (VS Code Compose-first reopen).
+RUN mkdir -p /usr/local/lib/xgic/git-dx/lib
+COPY .devcontainer/scripts/configure-git-dx.sh \
+     .devcontainer/scripts/align_docker_sock_gid.py \
+     /usr/local/lib/xgic/git-dx/
+COPY .devcontainer/scripts/lib/ /usr/local/lib/xgic/git-dx/lib/
+COPY .devcontainer/scripts/xgic-devcontainer-entrypoint \
+     /usr/local/bin/xgic-devcontainer-entrypoint
+RUN chmod 0755 /usr/local/bin/xgic-devcontainer-entrypoint \
+        /usr/local/lib/xgic/git-dx/configure-git-dx.sh \
+        /usr/local/lib/xgic/git-dx/align_docker_sock_gid.py
+
 # Note: Test tooling (pytest etc.) is installed on-demand
 # from requirements-dev.txt (see TESTING.md).
 # See TESTING.md for details.
@@ -189,9 +202,12 @@ RUN uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
         -e . \
     && rm -rf /root/.cache/uv /root/.cache/pip
 
+ENTRYPOINT ["/usr/local/bin/xgic-devcontainer-entrypoint"]
 USER ${APP_USER}
 
-# Default command for dev container
+# Default keep-alive. Compose should set user: "0:0" so the entrypoint
+# can chown ssh-home and align the docker socket GID, then exec this CMD
+# (or a consumer command that ends in runuser -u node).
 CMD ["tail", "-f", "/dev/null"]
 
 # -----------------------------------------------------------------------------

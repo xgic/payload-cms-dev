@@ -29,7 +29,7 @@ Payload CMS rewards a **reproducible, opinionated environment**: pinned Node/pnp
 | Benefit | Outcome |
 |---------|---------|
 | **Separation of concerns** | Image and CI evolve here; applications start from a thin template |
-| **Reproducibility** | Semver tags (`0.3.3`) and multi-arch GHCR delivery |
+| **Reproducibility** | Semver tags (`0.3.4`) and multi-arch GHCR delivery |
 | **Speed** | App repos pull a pre-built image instead of rebuilding the world |
 | **AI-ready operations** | Modular **XGIC CLI** (`xgic`) is installed in the image and documented for agents |
 | **Open-source excellence** | Apache-2.0, human-reviewed PRs, public-safe docs, Dependabot, and required CI |
@@ -88,7 +88,9 @@ Dockerfile build for producer work). The thin template pins
 Full contract: [docs/architecture.md](docs/architecture.md#consumer-contract-docker-compose-first).  
 Bind-mount performance / optional named-volume bridge: [docs/dev-performance.md](docs/dev-performance.md).  
 Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26) (env sync),
-[#49](https://github.com/xgic/payload-cms-dev/issues/49) (host-conditional Git DX).
+[#49](https://github.com/xgic/payload-cms-dev/issues/49) /
+[#61](https://github.com/xgic/payload-cms-dev/issues/61)
+(host-conditional Git DX in the image).
 
 ---
 
@@ -101,6 +103,7 @@ Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
 - **Python 3.14** venv with modular **XGIC CLI** from PyPI (version-pinned)
 - **Docker Compose** project with optional **PostgreSQL 18** and **MongoDB** profiles
 - **Docker-in-Docker** / socket access patterns for container-aware workflows
+- **Host-conditional Git DX** in the image (`/usr/local/lib/xgic/git-dx/` + entrypoint); not vendored into app repos
 - Non-root `node` user and workspace-oriented layout
 - Multi-arch GHCR publish: **`linux/amd64`** and **`linux/arm64`**
 
@@ -125,7 +128,7 @@ A ready workspace with Node, pnpm, database clients, modular `xgic` CLI, and pro
 docker pull ghcr.io/xgic/payload-cms-dev:latest
 
 # Reproducible release (recommended for app pins)
-docker pull ghcr.io/xgic/payload-cms-dev:0.3.3
+docker pull ghcr.io/xgic/payload-cms-dev:0.3.4
 ```
 
 Package: [ghcr.io/xgic/payload-cms-dev](https://github.com/users/xgic/packages/container/package/payload-cms-dev)  

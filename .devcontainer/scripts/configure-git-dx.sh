@@ -6,8 +6,10 @@
 # - Optional Docker Desktop SSH agent sock export when present
 # Does NOT copy host private keys or set safe.directory '*'.
 #
-# Intended to run once per container start from Docker Compose
-# (primary service command), not from devcontainer.json lifecycle hooks.
+# Canonical runtime copy: /usr/local/lib/xgic/git-dx/ (image; not under
+# /workspace). Invoked by /usr/local/bin/xgic-devcontainer-entrypoint.
+# The workspace tree is the source for image builds and producer tests.
+# Not a devcontainer.json lifecycle hook.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

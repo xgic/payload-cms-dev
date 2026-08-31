@@ -57,7 +57,8 @@ jobs:
             --external-sources \
             --enable=all \
             .devcontainer/scripts/*.sh \
-            .devcontainer/scripts/lib/*.sh
+            .devcontainer/scripts/lib/*.sh \
+            .devcontainer/scripts/xgic-devcontainer-entrypoint
           echo "::endgroup::"
         shell: bash
 
@@ -73,7 +74,9 @@ jobs:
               --external-sources \
               --enable=all \
               --format=sarif \
-              .devcontainer/scripts/*.sh > shellcheck-results.sarif
+              .devcontainer/scripts/*.sh \
+              .devcontainer/scripts/xgic-devcontainer-entrypoint \
+              > shellcheck-results.sarif
             sc_rc=$?
             if [ -s shellcheck-results.sarif ] && python3 -c "import json; json.load(open('shellcheck-results.sarif'))" 2>/dev/null; then
               echo "generated=true" >> "$GITHUB_OUTPUT"
@@ -120,7 +123,8 @@ jobs:
             --external-sources \
             --enable=all \
             .devcontainer/scripts/*.sh \
-            .devcontainer/scripts/lib/*.sh
+            .devcontainer/scripts/lib/*.sh \
+            .devcontainer/scripts/xgic-devcontainer-entrypoint
 
   # ============================================
   # Additional Linters (Industry standard)
@@ -151,7 +155,8 @@ jobs:
         run: |
           shfmt -i 2 -ci -bn -d \
             .devcontainer/scripts/*.sh \
-            .devcontainer/scripts/lib/*.sh
+            .devcontainer/scripts/lib/*.sh \
+            .devcontainer/scripts/xgic-devcontainer-entrypoint
         shell: bash
 
   # Optional but useful for YAML hygiene

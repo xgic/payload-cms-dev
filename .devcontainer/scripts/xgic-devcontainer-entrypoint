@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Image-owned Dev Container start (Git DX + docker-sock GID), then exec CMD.
+#
+# Installed at /usr/local/bin/xgic-devcontainer-entrypoint — not under
+# /workspace — so the consumer bind-mount cannot hide it.
+#
+# Compose should set user: "0:0" so ssh-home chown and groupmod can run.
+# Setup failures are non-fatal; VS Code attach requires keep-alive.
+#
+# Not a devcontainer.json lifecycle hook.
+# Intentionally no `set -e`: setup is non-fatal; keep-alive must always exec.
+set -uo pipefail
+
+GIT_DX_HOME="${XGIC_GIT_DX_HOME:-/usr/local/lib/xgic/git-dx}"
+APP_USER="${APP_USER:-node}"
+
+log() { echo "[devcontainer-entrypoint] $*" >&2; }
+
+is_root() { [ "$(id -u)" -eq 0 ]; }
+
+app_home() {
+  local home
+  home="$(getent passwd "$APP_USER" 2>/dev/null | cut -d: -f6 || true)"
+  printf '%s\n' "${home:-/home/${APP_USER}}"
+}
+
+prepare_ssh_home() {
+  local home ssh
+  home="$(app_home)"
+  ssh="${home}/.ssh"
+  mkdir -p "$ssh" || return 0
+  if is_root; then
+    chown -R "${APP_USER}:${APP_USER}" "$ssh" || true
+    chmod 700 "$ssh" || true
+  fi
+}
+
+run_docker_sock_align() {
+  local py="${GIT_DX_HOME}/align_docker_sock_gid.py"
+  if [ ! -f "$py" ]; then
+    return 0
+  fi
+  if is_root; then
+    python3 "$py" || log "docker-sock align failed (non-fatal); continuing"
+  fi
+}
+
+run_git_dx() {
+  local sh="${GIT_DX_HOME}/configure-git-dx.sh"
+  if [ ! -f "$sh" ]; then
+    return 0
+  fi
+  if is_root; then
+    sed -i 's/\r$//' "$sh" "${GIT_DX_HOME}"/lib/*.sh 2>/dev/null || true
+    runuser -u "$APP_USER" -- bash "$sh" --quiet \
+      || log "git-dx configure failed (non-fatal); continuing"
+  else
+    bash "$sh" --quiet \
+      || log "git-dx configure failed (non-fatal); continuing"
+  fi
+}
+
+prepare_ssh_home
+run_docker_sock_align
+run_git_dx
+
+if [ "$#" -eq 0 ]; then
+  if is_root; then
+    exec runuser -u "$APP_USER" -- tail -f /dev/null
+  fi
+  exec tail -f /dev/null
+fi
+
+exec "$@"
