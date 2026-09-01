@@ -56,10 +56,17 @@ Inside the Dev Container (`xgic` is on PATH, including login shells via
 3. `xgic payload setup` — env + DB (`dbAdapter`, default PostgreSQL) + scaffold under **`app/`**, **or** `pnpx create-payload-app@latest app`  
 4. Daily work: `xgic payload dev` (requires an app under `app/`). First HTTP
    request is a cold Turbopack compile of the website template (tens of
-   seconds); later requests are much faster. Next.js 16.3 may log
-   `The destination stream closed early` when opening `/admin` (client-aborted
-   RSC stream; `GET /admin` still 200). The document is an RSC shell — a blank
-   browser tab with HTTP 200 is that abort, not a missing Postgres database.
+   seconds); later requests are much faster. Unauthenticated `/admin` on
+   Next.js 16 can be a **blank RSC shell** (HTTP 200, empty `<!--$--><!--/$-->`
+   body) even when the flight payload has the login UI — upstream
+   [payloadcms/payload#17545](https://github.com/payloadcms/payload/issues/17545).
+   Authenticated `/admin` (session cookie or development `admin.autoLogin`)
+   renders the dashboard. Public `/` is SSR and is unaffected. Do not vendor a
+   Next.js patch. `xgic payload setup` / `dev` create the first admin from
+   `adminEmail` and enable development autoLogin
+   ([payload-cms-cli#49](https://github.com/xgic/payload-cms-cli/issues/49)).
+   Next.js may also log `The destination stream closed early` (client-aborted
+   RSC; [vercel/next.js#96704](https://github.com/vercel/next.js/issues/96704)).
    Postgres `FATAL: database "payload" does not exist` is libpq defaulting to
    the user name when `PGDATABASE` is unset. Database name and user come from
    `.devcontainer/create-payload-config.json` (`dbName`, `dbUser`) — not the
