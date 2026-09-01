@@ -163,7 +163,10 @@ RUN printf '%s\n' 'export PATH="/opt/venv/bin:$PATH"' \
 ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
     XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev \
     XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev \
-    NEXT_TELEMETRY_DISABLED=1
+    NEXT_TELEMETRY_DISABLED=1 \
+    PGHOST=postgres \
+    PGUSER=payload \
+    PGDATABASE=payload_db
 
 # Allow the app user (node) to install additional packages into the venv
 # when needed. Venv is created as root but the remoteUser is node.

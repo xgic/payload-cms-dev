@@ -58,7 +58,10 @@ Inside the Dev Container (`xgic` is on PATH, including login shells via
    request is a cold Turbopack compile of the website template (tens of
    seconds); later requests are much faster. Next.js 16.3 may log
    `The destination stream closed early` when opening `/admin` (client-aborted
-   RSC stream; `GET /admin` still 200). Do not treat that as a failed reopen.  
+   RSC stream; `GET /admin` still 200). The document is an RSC shell — a blank
+   browser tab with HTTP 200 is that abort, not a missing Postgres database.
+   Postgres `FATAL: database "payload" does not exist` is libpq defaulting to
+   the user name; the app database is `payload_db` (`PGDATABASE` / `DATABASE_URL`).  
 5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
 Do **not** reintroduce `initializeCommand` / `postAttachCommand` /

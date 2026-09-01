@@ -45,6 +45,14 @@ def test_next_telemetry_disabled() -> None:
     assert "NEXT_TELEMETRY_DISABLED=1" in text
 
 
+def test_libpq_defaults_match_payload_db() -> None:
+    """libpq uses PGDATABASE, not POSTGRES_DB. Default to payload_db, not user name."""
+    text = DOCKERFILE.read_text(encoding="utf-8")
+    assert "PGHOST=postgres" in text
+    assert "PGUSER=payload" in text
+    assert "PGDATABASE=payload_db" in text
+
+
 def test_git_dx_installed_outside_workspace() -> None:
     text = DOCKERFILE.read_text(encoding="utf-8")
     assert "/usr/local/lib/xgic/git-dx/" in text
