@@ -22,7 +22,10 @@ LABEL net.xgic.description="XGIC Payload CMS Development Container"
 ENV APP_USER=node
 ENV APP_HOME_DIR=/home/${APP_USER}
 ENV APP_BIN_DIR=${APP_HOME_DIR}/.local/bin
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
+    COREPACK_DEFAULT_TO_LATEST=0 \
+    COREPACK_ENABLE_AUTO_PIN=0 \
+    COREPACK_HOME=/usr/local/share/corepack
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
@@ -122,11 +125,16 @@ RUN chsh -s /bin/bash ${APP_USER} \
 # -----------------------------------------------------------------------------
 FROM user-setup AS dev-tools
 
-# Pin pnpm via Corepack (do not float `pnpm@10` — image builds would
-# pick a moving 10.x). Stay on 10.x until pnpm 11/12 + Payload CMS
-# template allowBuilds are verified together.
-RUN corepack enable \
-    && corepack prepare pnpm@10.34.5 --activate
+# Pin pnpm via Corepack (do not float `pnpm@10` or `pnpm@11` — image
+# builds would pick a moving line). Stay on 10.x until pnpm 11/12 +
+# Payload CMS template allowBuilds are verified together.
+# COREPACK_DEFAULT_TO_LATEST=0 keeps `prepare` from being replaced by
+# the newest registry pnpm when package.json has no packageManager.
+# Shared COREPACK_HOME so the root-layer prepare is visible to `node`.
+RUN mkdir -p ${COREPACK_HOME} \
+    && corepack enable \
+    && corepack prepare pnpm@10.34.5 --activate \
+    && chown -R ${APP_USER}:${APP_USER} ${COREPACK_HOME}
 
 # Bring in clean Python installation (multi-stage copy for reproducibility
 # and to avoid PPA fragility). Source stage is slim-bookworm so glibc matches
@@ -169,6 +177,21 @@ FROM dev-tools AS dev
 LABEL net.xgic.stage="Development"
 WORKDIR ${WORKSPACE}
 
+# Git DX + docker-sock GID align live outside /workspace so the consumer
+# bind-mount cannot hide them (VS Code Compose-first reopen).
+RUN mkdir -p /usr/local/lib/xgic/git-dx/lib
+COPY .devcontainer/scripts/configure-git-dx.sh \
+     .devcontainer/scripts/align_docker_sock_gid.py \
+     .devcontainer/scripts/write_libpq_profile.py \
+     /usr/local/lib/xgic/git-dx/
+COPY .devcontainer/scripts/lib/ /usr/local/lib/xgic/git-dx/lib/
+COPY .devcontainer/scripts/xgic-devcontainer-entrypoint \
+     /usr/local/bin/xgic-devcontainer-entrypoint
+RUN chmod 0755 /usr/local/bin/xgic-devcontainer-entrypoint \
+        /usr/local/lib/xgic/git-dx/configure-git-dx.sh \
+        /usr/local/lib/xgic/git-dx/align_docker_sock_gid.py \
+        /usr/local/lib/xgic/git-dx/write_libpq_profile.py
+
 # Note: Test tooling (pytest etc.) is installed on-demand
 # from requirements-dev.txt (see TESTING.md).
 # See TESTING.md for details.
@@ -184,14 +207,17 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 RUN uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
         "xgic-cli>=0.2.0,<0.3" \
         "xgic-dev-cli>=0.2.0,<0.3" \
-        "xgic-payload-cms-cli>=0.2.4,<0.3" \
+        "xgic-payload-cms-cli>=0.2.5,<0.3" \
     && uv pip install --python ${PYTHON_VENV}/bin/python --no-cache \
         -e . \
     && rm -rf /root/.cache/uv /root/.cache/pip
 
+ENTRYPOINT ["/usr/local/bin/xgic-devcontainer-entrypoint"]
 USER ${APP_USER}
 
-# Default command for dev container
+# Default keep-alive. Compose should set user: "0:0" so the entrypoint
+# can chown ssh-home and align the docker socket GID, then exec this CMD
+# (or a consumer command that ends in runuser -u node).
 CMD ["tail", "-f", "/dev/null"]
 
 # -----------------------------------------------------------------------------

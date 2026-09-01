@@ -10,32 +10,18 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
       target: dev
-    # Start as root only long enough to fix ssh-home volume ownership
-    # (empty named volumes initialize as root:root). Git DX must never
-    # prevent keep-alive — VS Code attach requires a running container.
-    # Do not put Git DX in devcontainer.json lifecycle hooks.
+    # Root so the image entrypoint can chown ssh-home and align docker-sock
+    # GID. Git DX is in the image (/usr/local/lib/xgic/git-dx), not under
+    # the /workspace bind-mount. Do not put Git DX in devcontainer.json hooks.
     user: "0:0"
     command:
-      - /bin/bash
-      - -lc
-      - |
-        set -uo pipefail
-        mkdir -p /home/node/.ssh
-        chown -R node:node /home/node/.ssh
-        chmod 700 /home/node/.ssh
-        if [ -f /workspace/.devcontainer/scripts/align_docker_sock_gid.py ]; then
-          python3 /workspace/.devcontainer/scripts/align_docker_sock_gid.py \
-            || echo "[docker-sock] align failed (non-fatal); continuing"
-        fi
-        if [ -f /workspace/.devcontainer/scripts/configure-git-dx.sh ]; then
-          sed -i 's/\r$//' \
-            /workspace/.devcontainer/scripts/configure-git-dx.sh \
-            /workspace/.devcontainer/scripts/lib/*.sh 2>/dev/null || true
-          runuser -u node -- bash \
-            /workspace/.devcontainer/scripts/configure-git-dx.sh --quiet \
-            || echo "[git-dx] configure failed (non-fatal); continuing"
-        fi
-        exec runuser -u node -- tail -f /dev/null
+      - runuser
+      - -u
+      - node
+      - --
+      - tail
+      - -f
+      - /dev/null
     container_name: xgic-payload-cms-dev
     environment:
       NEXT_TELEMETRY_DISABLED: "1"

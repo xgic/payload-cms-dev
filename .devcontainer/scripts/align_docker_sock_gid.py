@@ -6,7 +6,7 @@ hard-code a docker GID (this producer uses 994 at build time) cannot talk to
 the API when the host GID differs. Match the live socket instead of assuming
 any particular number.
 
-Run as root from the Compose primary command (same prelude as Git DX).
+Run as root from the image entrypoint (same prelude as Git DX).
 Failure is non-fatal so keep-alive still starts.
 """
 

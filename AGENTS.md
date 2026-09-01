@@ -42,9 +42,9 @@ Workspace filesystem: [docs/dev-performance.md](docs/dev-performance.md)
 (native Linux / WSL2; this producer does not overlay `app/node_modules`).
 
 Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
-(env sync), [#49](https://github.com/xgic/payload-cms-dev/issues/49)
-(host-conditional Git DX; template follow-up
-[payload-cms#9](https://github.com/xgic/payload-cms/issues/9)).
+(env sync), [#49](https://github.com/xgic/payload-cms-dev/issues/49) /
+[#61](https://github.com/xgic/payload-cms-dev/issues/61)
+(host-conditional Git DX in the GHCR image entrypoint).
 
 ## Session startup
 
@@ -56,7 +56,21 @@ Inside the Dev Container (`xgic` is on PATH, including login shells via
 3. `xgic payload setup` — env + DB (`dbAdapter`, default PostgreSQL) + scaffold under **`app/`**, **or** `pnpx create-payload-app@latest app`  
 4. Daily work: `xgic payload dev` (requires an app under `app/`). First HTTP
    request is a cold Turbopack compile of the website template (tens of
-   seconds); later requests are much faster.  
+   seconds); later requests are much faster. Unauthenticated `/admin` on
+   Next.js 16 can be a **blank RSC shell** (HTTP 200, empty `<!--$--><!--/$-->`
+   body) even when the flight payload has the login UI — upstream
+   [payloadcms/payload#17545](https://github.com/payloadcms/payload/issues/17545).
+   Authenticated `/admin` (session cookie or development `admin.autoLogin`)
+   renders the dashboard. Public `/` is SSR and is unaffected. Do not vendor a
+   Next.js patch. `xgic payload setup` / `dev` create the first admin from
+   `adminEmail` and enable development autoLogin
+   ([payload-cms-cli#49](https://github.com/xgic/payload-cms-cli/issues/49)).
+   Next.js may also log `The destination stream closed early` (client-aborted
+   RSC; [vercel/next.js#96704](https://github.com/vercel/next.js/issues/96704)).
+   Postgres `FATAL: database "payload" does not exist` is libpq defaulting to
+   the user name when `PGDATABASE` is unset. Database name and user come from
+   `.devcontainer/create-payload-config.json` (`dbName`, `dbUser`) — not the
+   image. Schema/types live under `.devcontainer/config/`.  
 5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
 Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
@@ -64,14 +78,20 @@ Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
 
 ### Host-conditional Git DX (portable contract for all XGIC Dev Containers)
 
-Compose-only (no `devcontainer.json` lifecycle hooks):
+Image-owned (no `devcontainer.json` lifecycle hooks; not vendored into app
+repos). Scripts are installed at `/usr/local/lib/xgic/git-dx/` so the
+`/workspace` bind-mount cannot hide them. `/usr/local/bin/xgic-devcontainer-entrypoint`
+runs once per container start:
 
-1. **Compose start (once per container):** chown `ssh-home` → `node`, align
-   the image `docker` group to the engine socket GID (hosts vary; do not
-   hard-code a GID), then `configure-git-dx.sh --quiet` as `node`. Failure is
-   **non-fatal** (keep-alive always continues). Not on every VS Code attach.
-2. **In-container intelligence:** `safe.directory` from FS signals (`9p`, …);
-   seed public GitHub `known_hosts`; default HTTPS prefer for `github.com`.
+1. If root: chown `ssh-home` → `node`, align the image `docker` group to the
+   engine socket GID (hosts vary; do not hard-code a GID).
+2. `configure-git-dx.sh --quiet` as `node`. Failure is **non-fatal**
+   (keep-alive always continues).
+3. `exec` Compose `command` / image `CMD`.
+
+Consumers: pin the GHCR image, set Compose `user: "0:0"`, mount `ssh-home`,
+optional Desktop SSH overlay. Do **not** copy these scripts into the app
+tree.
 
 **Git auth (VS Code best practice):**
 
@@ -79,11 +99,12 @@ Compose-only (no `devcontainer.json` lifecycle hooks):
 2. **SSH agent** optional/advanced (VS Code forwarding or opt-in Compose fragment).
 3. **Never** copy host private keys into the image/volume by default.
 
-Default `dbAdapter` is `postgres`. For MongoDB (and later adapters), set
-`dbAdapter` in `.devcontainer/create-payload-config.json` **before** `xgic payload setup`.
+Default `dbAdapter` is `postgres`. Set `dbAdapter`, `dbName`, and `dbUser` in
+`.devcontainer/create-payload-config.json` **before** `xgic payload setup`.
+Do not hard-code the database name in the image or Compose.
 
 Overrides: `XGIC_GIT_PREFER_HTTPS=0|1`, `XGIC_DOCKER_HOST_OS=windows|linux|macos`.  
-Status: `bash .devcontainer/scripts/configure-git-dx.sh --status`
+Status: `bash /usr/local/lib/xgic/git-dx/configure-git-dx.sh --status`
 
 ## Command map (for agents)
 

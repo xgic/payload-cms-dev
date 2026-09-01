@@ -75,7 +75,7 @@ volumes. Details: [dev-performance.md](dev-performance.md).
 | Producer docs (this contract) | [#50](https://github.com/xgic/payload-cms-dev/issues/50) |
 | Template Compose-first reopen | [payload-cms#10](https://github.com/xgic/payload-cms/issues/10) / [PR #11](https://github.com/xgic/payload-cms/pull/11) |
 | CLI env / credential sync | [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26) |
-| Host-conditional Git DX | [#49](https://github.com/xgic/payload-cms-dev/issues/49) |
+| Host-conditional Git DX | [#49](https://github.com/xgic/payload-cms-dev/issues/49) / [#61](https://github.com/xgic/payload-cms-dev/issues/61) (image entrypoint) |
 
 ## What this repo owns
 
@@ -83,7 +83,7 @@ volumes. Details: [dev-performance.md](dev-performance.md).
 |-------|------|
 | `.devcontainer/*` | Image, Docker Compose, Dev Container config (consumer-contract exemplar) |
 | `create-payload-config.json` (+ schema) | Producer config / IntelliSense |
-| Git DX | Compose start chowns `ssh-home` + `configure-git-dx.sh --quiet` (HTTPS prefer by default; no `devcontainer.json` hooks) |
+| Git DX | Image entrypoint `/usr/local/bin/xgic-devcontainer-entrypoint` (scripts at `/usr/local/lib/xgic/git-dx/`, not under `/workspace`; HTTPS prefer; no `devcontainer.json` hooks) |
 | Consumer `pyproject.toml` | PyPI pins for modular CLI + smoke tests |
 | Docs / CI | Producer quality gates + consumer-contract documentation |
 
