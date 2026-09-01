@@ -22,7 +22,10 @@ LABEL net.xgic.description="XGIC Payload CMS Development Container"
 ENV APP_USER=node
 ENV APP_HOME_DIR=/home/${APP_USER}
 ENV APP_BIN_DIR=${APP_HOME_DIR}/.local/bin
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
+    COREPACK_DEFAULT_TO_LATEST=0 \
+    COREPACK_ENABLE_AUTO_PIN=0 \
+    COREPACK_HOME=/usr/local/share/corepack
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
@@ -122,11 +125,16 @@ RUN chsh -s /bin/bash ${APP_USER} \
 # -----------------------------------------------------------------------------
 FROM user-setup AS dev-tools
 
-# Pin pnpm via Corepack (do not float `pnpm@10` — image builds would
-# pick a moving 10.x). Stay on 10.x until pnpm 11/12 + Payload CMS
-# template allowBuilds are verified together.
-RUN corepack enable \
-    && corepack prepare pnpm@10.34.5 --activate
+# Pin pnpm via Corepack (do not float `pnpm@10` or `pnpm@11` — image
+# builds would pick a moving line). Stay on 10.x until pnpm 11/12 +
+# Payload CMS template allowBuilds are verified together.
+# COREPACK_DEFAULT_TO_LATEST=0 keeps `prepare` from being replaced by
+# the newest registry pnpm when package.json has no packageManager.
+# Shared COREPACK_HOME so the root-layer prepare is visible to `node`.
+RUN mkdir -p ${COREPACK_HOME} \
+    && corepack enable \
+    && corepack prepare pnpm@10.34.5 --activate \
+    && chown -R ${APP_USER}:${APP_USER} ${COREPACK_HOME}
 
 # Bring in clean Python installation (multi-stage copy for reproducibility
 # and to avoid PPA fragility). Source stage is slim-bookworm so glibc matches

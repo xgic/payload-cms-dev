@@ -99,7 +99,7 @@ Related: [payload-cms-cli#26](https://github.com/xgic/payload-cms-cli/issues/26)
 ### Image and runtime
 
 - **Multi-stage Dockerfile** optimized for layer caching (core → system → tools → dev)
-- **Node.js LTS Slim** + **pnpm 10.34.5** (Corepack-pinned; do not float `pnpm@10`)
+- **Node.js LTS Slim** + **pnpm 10.34.5** (Corepack-pinned with `COREPACK_DEFAULT_TO_LATEST=0`; do not float `pnpm@10` or `pnpm@11`)
 - **Python 3.14** venv with modular **XGIC CLI** from PyPI (version-pinned)
 - **Docker Compose** project with optional **PostgreSQL 18** and **MongoDB** profiles
 - **Docker-in-Docker** / socket access patterns for container-aware workflows

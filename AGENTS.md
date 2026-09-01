@@ -56,7 +56,9 @@ Inside the Dev Container (`xgic` is on PATH, including login shells via
 3. `xgic payload setup` — env + DB (`dbAdapter`, default PostgreSQL) + scaffold under **`app/`**, **or** `pnpx create-payload-app@latest app`  
 4. Daily work: `xgic payload dev` (requires an app under `app/`). First HTTP
    request is a cold Turbopack compile of the website template (tens of
-   seconds); later requests are much faster.  
+   seconds); later requests are much faster. Next.js 16.3 may log
+   `The destination stream closed early` when opening `/admin` (client-aborted
+   RSC stream; `GET /admin` still 200). Do not treat that as a failed reopen.  
 5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
 Do **not** reintroduce `initializeCommand` / `postAttachCommand` /

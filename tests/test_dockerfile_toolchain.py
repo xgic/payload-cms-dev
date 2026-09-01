@@ -35,6 +35,9 @@ def test_pnpm_is_pinned_via_corepack_prepare() -> None:
     text = DOCKERFILE.read_text(encoding="utf-8")
     assert "corepack prepare pnpm@10.34.5 --activate" in text
     assert "corepack use pnpm@10" not in text
+    assert "COREPACK_DEFAULT_TO_LATEST=0" in text
+    assert "COREPACK_ENABLE_AUTO_PIN=0" in text
+    assert "COREPACK_HOME=/usr/local/share/corepack" in text
 
 
 def test_next_telemetry_disabled() -> None:
