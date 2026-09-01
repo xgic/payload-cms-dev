@@ -336,7 +336,7 @@ App templates pin `ghcr.io/xgic/payload-cms-dev:<semver>` and **do not** rebuild
 - **First open:** Dev Containers: **Reopen in Container**  
 - **After Dockerfile / Compose / devcontainer.json changes:** **Rebuild Without Cache and Reopen in Container**  
 
-A no-cache producer rebuild runs `apt-get update`. If the builder clock is behind Debian, apt can report `Release file is not valid yet`. This image sets `Acquire::Check-Date "false"` for that; expired Release files still fail (`Check-Valid-Until` stays on).  
+A no-cache producer rebuild runs `apt-get update`. If the builder clock is behind Debian, apt can report `Release file is not valid yet`. The build allows up to 24 hours of future InRelease `Date` (`Acquire::Max-FutureTime`); that setting is not left in the published image. Expired Release files still fail. Larger clock skew is a host Docker/WSL time-sync issue (restart Docker Desktop), not an image pin.  
 
 ---
 

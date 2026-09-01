@@ -44,11 +44,14 @@ FROM core AS system-base
 # Install all system packages in one layer for better apt caching.
 # Builder clocks (Docker Desktop / WSL after sleep) can lag Debian
 # InRelease Date; apt then fails with "Release file is not valid yet".
-# Disable Date checks only. Keep Check-Valid-Until so expired indexes
-# still fail. Do not disable signature verification.
+# Allow up to 24h of future Date during this RUN only
+# (Acquire::Max-FutureTime). Do not set Check-Date false: apt treats
+# that as untrusted clock and also disables Check-Valid-Until. Remove
+# the snippet before the layer commits so GHCR does not ship it.
+# Do not disable signature verification.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    printf '%s\n' 'Acquire::Check-Date "false";' \
+    printf '%s\n' 'Acquire::Max-FutureTime "86400";' \
         > /etc/apt/apt.conf.d/99docker-clock-skew \
     && apt-get update --yes && \
     apt-get install --yes --no-install-recommends \
@@ -106,6 +109,7 @@ $(lsb_release -cs)-pgdg main" \
     && apt-get install -y --no-install-recommends mongodb-mongosh \
     && localedef -i en_US -c -f UTF-8 \
        -A /usr/share/locale/locale.alias en_US.UTF-8 \
+    && rm -f /etc/apt/apt.conf.d/99docker-clock-skew \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
