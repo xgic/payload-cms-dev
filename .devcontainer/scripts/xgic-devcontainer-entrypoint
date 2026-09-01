@@ -60,9 +60,21 @@ run_git_dx() {
   fi
 }
 
+write_libpq_profile() {
+  local py="${GIT_DX_HOME}/write_libpq_profile.py"
+  if [ ! -f "$py" ]; then
+    return 0
+  fi
+  if is_root; then
+    python3 "$py" \
+      || log "libpq profile from create-payload-config.json failed (non-fatal)"
+  fi
+}
+
 prepare_ssh_home
 run_docker_sock_align
 run_git_dx
+write_libpq_profile
 
 if [ "$#" -eq 0 ]; then
   if is_root; then

@@ -61,7 +61,9 @@ Inside the Dev Container (`xgic` is on PATH, including login shells via
    RSC stream; `GET /admin` still 200). The document is an RSC shell — a blank
    browser tab with HTTP 200 is that abort, not a missing Postgres database.
    Postgres `FATAL: database "payload" does not exist` is libpq defaulting to
-   the user name; the app database is `payload_db` (`PGDATABASE` / `DATABASE_URL`).  
+   the user name when `PGDATABASE` is unset. Database name and user come from
+   `.devcontainer/create-payload-config.json` (`dbName`, `dbUser`) — not the
+   image. Schema/types live under `.devcontainer/config/`.  
 5. Destructive reset: `xgic payload reset --dry-run` then `--yes`  
 
 Do **not** reintroduce `initializeCommand` / `postAttachCommand` /
@@ -90,8 +92,9 @@ tree.
 2. **SSH agent** optional/advanced (VS Code forwarding or opt-in Compose fragment).
 3. **Never** copy host private keys into the image/volume by default.
 
-Default `dbAdapter` is `postgres`. For MongoDB (and later adapters), set
-`dbAdapter` in `.devcontainer/create-payload-config.json` **before** `xgic payload setup`.
+Default `dbAdapter` is `postgres`. Set `dbAdapter`, `dbName`, and `dbUser` in
+`.devcontainer/create-payload-config.json` **before** `xgic payload setup`.
+Do not hard-code the database name in the image or Compose.
 
 Overrides: `XGIC_GIT_PREFER_HTTPS=0|1`, `XGIC_DOCKER_HOST_OS=windows|linux|macos`.  
 Status: `bash /usr/local/lib/xgic/git-dx/configure-git-dx.sh --status`

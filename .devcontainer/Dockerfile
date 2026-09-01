@@ -163,10 +163,7 @@ RUN printf '%s\n' 'export PATH="/opt/venv/bin:$PATH"' \
 ENV XGIC_COMPOSE_FILE=.devcontainer/docker-compose.yml \
     XGIC_COMPOSE_PROJECT=xgic-payload-cms-dev \
     XGIC_PRIMARY_SERVICE=xgic-payload-cms-dev \
-    NEXT_TELEMETRY_DISABLED=1 \
-    PGHOST=postgres \
-    PGUSER=payload \
-    PGDATABASE=payload_db
+    NEXT_TELEMETRY_DISABLED=1
 
 # Allow the app user (node) to install additional packages into the venv
 # when needed. Venv is created as root but the remoteUser is node.
@@ -185,13 +182,15 @@ WORKDIR ${WORKSPACE}
 RUN mkdir -p /usr/local/lib/xgic/git-dx/lib
 COPY .devcontainer/scripts/configure-git-dx.sh \
      .devcontainer/scripts/align_docker_sock_gid.py \
+     .devcontainer/scripts/write_libpq_profile.py \
      /usr/local/lib/xgic/git-dx/
 COPY .devcontainer/scripts/lib/ /usr/local/lib/xgic/git-dx/lib/
 COPY .devcontainer/scripts/xgic-devcontainer-entrypoint \
      /usr/local/bin/xgic-devcontainer-entrypoint
 RUN chmod 0755 /usr/local/bin/xgic-devcontainer-entrypoint \
         /usr/local/lib/xgic/git-dx/configure-git-dx.sh \
-        /usr/local/lib/xgic/git-dx/align_docker_sock_gid.py
+        /usr/local/lib/xgic/git-dx/align_docker_sock_gid.py \
+        /usr/local/lib/xgic/git-dx/write_libpq_profile.py
 
 # Note: Test tooling (pytest etc.) is installed on-demand
 # from requirements-dev.txt (see TESTING.md).

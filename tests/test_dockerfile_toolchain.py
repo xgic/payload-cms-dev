@@ -43,14 +43,12 @@ def test_pnpm_is_pinned_via_corepack_prepare() -> None:
 def test_next_telemetry_disabled() -> None:
     text = DOCKERFILE.read_text(encoding="utf-8")
     assert "NEXT_TELEMETRY_DISABLED=1" in text
+    assert "PGDATABASE=payload_db" not in text
 
 
-def test_libpq_defaults_match_payload_db() -> None:
-    """libpq uses PGDATABASE, not POSTGRES_DB. Default to payload_db, not user name."""
+def test_dockerfile_installs_libpq_profile_writer() -> None:
     text = DOCKERFILE.read_text(encoding="utf-8")
-    assert "PGHOST=postgres" in text
-    assert "PGUSER=payload" in text
-    assert "PGDATABASE=payload_db" in text
+    assert "write_libpq_profile.py" in text
 
 
 def test_git_dx_installed_outside_workspace() -> None:
