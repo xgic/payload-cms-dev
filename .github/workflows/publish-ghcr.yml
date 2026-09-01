@@ -82,6 +82,57 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Assert baked CLI satisfies Dockerfile pin
+        run: |
+          set -euo pipefail
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA:0:7}"
+          docker pull "${IMAGE}"
+          python3 - "${IMAGE}" <<'PY'
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          image = sys.argv[1]
+          text = Path(".devcontainer/Dockerfile").read_text(encoding="utf-8")
+          match = re.search(
+              r"xgic-payload-cms-cli>=(\d+\.\d+\.\d+),<(\d+\.\d+(?:\.\d+)?)",
+              text,
+          )
+          if match is None:
+              raise SystemExit("Dockerfile xgic-payload-cms-cli pin not found")
+          lo = tuple(int(p) for p in match.group(1).split("."))
+          hi = tuple(int(p) for p in match.group(2).split("."))
+          baked = subprocess.check_output(
+              [
+                  "docker",
+                  "run",
+                  "--rm",
+                  "--user",
+                  "0",
+                  "--entrypoint",
+                  "/opt/venv/bin/python",
+                  image,
+                  "-c",
+                  "from importlib.metadata import version; print(version('xgic-payload-cms-cli'))",
+              ],
+              text=True,
+          ).strip()
+          print(
+              f"baked xgic-payload-cms-cli={baked} "
+              f"pin=>={match.group(1)},<{match.group(2)}"
+          )
+          core = re.match(r"(\d+)\.(\d+)\.(\d+)", baked)
+          if core is None:
+              raise SystemExit(f"unparseable baked version: {baked}")
+          ver = tuple(int(p) for p in core.groups())
+          ver_mm = ver[: len(hi)]
+          if ver < lo or ver_mm >= hi:
+              raise SystemExit(
+                  f"{baked} does not satisfy >={match.group(1)},<{match.group(2)}"
+              )
+          PY
+
       - name: Summary
         run: |
           {
