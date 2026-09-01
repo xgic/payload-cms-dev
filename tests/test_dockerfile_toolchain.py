@@ -56,6 +56,17 @@ def test_pnpm_is_pinned_via_corepack_prepare() -> None:
     assert "COREPACK_HOME=/usr/local/share/corepack" in text
 
 
+def test_apt_tolerates_builder_clock_skew() -> None:
+    text = DOCKERFILE.read_text(encoding="utf-8")
+    assert 'Acquire::Check-Date "false"' in text
+    assert "99docker-clock-skew" in text
+    idx_conf = text.find('Acquire::Check-Date "false"')
+    idx_update = text.find("apt-get update")
+    assert idx_conf != -1 and idx_update != -1
+    assert idx_conf < idx_update
+    assert 'Acquire::Check-Valid-Until "false"' not in text
+
+
 def test_next_telemetry_disabled() -> None:
     text = DOCKERFILE.read_text(encoding="utf-8")
     assert "NEXT_TELEMETRY_DISABLED=1" in text

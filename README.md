@@ -29,7 +29,7 @@ Payload CMS rewards a **reproducible, opinionated environment**: pinned Node/pnp
 | Benefit | Outcome |
 |---------|---------|
 | **Separation of concerns** | Image and CI evolve here; applications start from a thin template |
-| **Reproducibility** | Semver tags (`0.3.5`) and multi-arch GHCR delivery |
+| **Reproducibility** | Semver tags (`0.3.6`) and multi-arch GHCR delivery |
 | **Speed** | App repos pull a pre-built image instead of rebuilding the world |
 | **AI-ready operations** | Modular **XGIC CLI** (`xgic`) is installed in the image and documented for agents |
 | **Open-source excellence** | Apache-2.0, human-reviewed PRs, public-safe docs, Dependabot, and required CI |
@@ -128,7 +128,7 @@ A ready workspace with Node, pnpm, database clients, modular `xgic` CLI, and pro
 docker pull ghcr.io/xgic/payload-cms-dev:latest
 
 # Reproducible release (recommended for app pins)
-docker pull ghcr.io/xgic/payload-cms-dev:0.3.5
+docker pull ghcr.io/xgic/payload-cms-dev:0.3.6
 ```
 
 Package: [ghcr.io/xgic/payload-cms-dev](https://github.com/users/xgic/packages/container/package/payload-cms-dev)  
@@ -331,8 +331,12 @@ Public GitHub writes must follow the hub **public-safe** gate: [BASE-STANDARDS](
 
 ### Rebuild the Dev Container (producer only)
 
+App templates pin `ghcr.io/xgic/payload-cms-dev:<semver>` and **do not** rebuild this Dockerfile.
+
 - **First open:** Dev Containers: **Reopen in Container**  
 - **After Dockerfile / Compose / devcontainer.json changes:** **Rebuild Without Cache and Reopen in Container**  
+
+A no-cache producer rebuild runs `apt-get update`. If the builder clock is behind Debian, apt can report `Release file is not valid yet`. This image sets `Acquire::Check-Date "false"` for that; expired Release files still fail (`Check-Valid-Until` stays on).  
 
 ---
 

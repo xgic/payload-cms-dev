@@ -41,10 +41,16 @@ ENV APP_ENV=dev
 # -----------------------------------------------------------------------------
 FROM core AS system-base
 
-# Install all system packages in one layer for better apt caching
+# Install all system packages in one layer for better apt caching.
+# Builder clocks (Docker Desktop / WSL after sleep) can lag Debian
+# InRelease Date; apt then fails with "Release file is not valid yet".
+# Disable Date checks only. Keep Check-Valid-Until so expired indexes
+# still fail. Do not disable signature verification.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update --yes && \
+    printf '%s\n' 'Acquire::Check-Date "false";' \
+        > /etc/apt/apt.conf.d/99docker-clock-skew \
+    && apt-get update --yes && \
     apt-get install --yes --no-install-recommends \
         build-essential \
         ca-certificates \
