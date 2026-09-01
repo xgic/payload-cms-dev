@@ -31,6 +31,14 @@ def _bash_available() -> bool:
     return probe.returncode == 0 and "ok" in probe.stdout
 
 
+def test_payload_cms_cli_pypi_pin() -> None:
+    dockerfile = DOCKERFILE.read_text(encoding="utf-8")
+    pyproject = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    pin = "xgic-payload-cms-cli>=0.2.5,<0.3"
+    assert pin in dockerfile
+    assert pin in pyproject
+
+
 def test_pnpm_is_pinned_via_corepack_prepare() -> None:
     text = DOCKERFILE.read_text(encoding="utf-8")
     assert "corepack prepare pnpm@10.34.5 --activate" in text
