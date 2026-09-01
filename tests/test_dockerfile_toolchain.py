@@ -34,9 +34,17 @@ def _bash_available() -> bool:
 def test_payload_cms_cli_pypi_pin() -> None:
     dockerfile = DOCKERFILE.read_text(encoding="utf-8")
     pyproject = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
-    pin = "xgic-payload-cms-cli>=0.2.5,<0.3"
+    pin = "xgic-payload-cms-cli>=0.2.6,<0.3"
     assert pin in dockerfile
     assert pin in pyproject
+
+
+def test_publish_ghcr_asserts_baked_cli_pin() -> None:
+    text = (
+        REPO_ROOT / ".github" / "workflows" / "publish-ghcr.yml"
+    ).read_text(encoding="utf-8")
+    assert "Assert baked CLI satisfies Dockerfile pin" in text
+    assert "xgic-payload-cms-cli" in text
 
 
 def test_pnpm_is_pinned_via_corepack_prepare() -> None:
