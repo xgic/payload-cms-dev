@@ -132,7 +132,7 @@ Defaults for this template (also set in the image):
 **Public GitHub writes:** Before `gh issue create|edit`, `gh pr create|edit`, or any public comment on this repository, complete the **mandatory public-safe draft gate** in https://github.com/xgic/ai/blob/main/docs/BASE-STANDARDS-FOR-ORCHESTRATED-REPOS.md (fictional placeholders only; never name private hosts, private projects, or private tracker IDs). Optional helper from the hub clone: `python scripts/public-safe-scan.py path/to/draft.md`.
 - Public-safe content only (no private hosts, private tracker IDs, internal paths).  
 - Human UI review before merge to `main`.  
-- Dedicated issue-number branches; Conventional Commits; **labels required**.  
+- Dedicated issue-number branches; Conventional Commits. **Labels (mandatory):** every issue and pull request gets exactly one type label in the create call: `bug`, `enhancement`, `documentation`, `standards`, or `chore`. Welcome Discussion posts use `welcome` and `documentation`. Do not put scoped GitLab labels on GitHub. https://github.com/xgic/ai/blob/main/docs/community-health.md#labels-required  
 - Python 3.14+; Apache-2.0; root `CODEOWNERS` (`@xgic`).  
 - Prefer full `https://github.com/xgic/...` URLs.  
 - Do **not** reintroduce an in-tree CLI package or `xde` console script.  
