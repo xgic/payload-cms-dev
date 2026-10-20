@@ -2,6 +2,8 @@
 
 Checklist for shipping the **Dev Container image producer**. This repository installs modular **XGIC CLI** packages from PyPI ([ADR-0005](https://github.com/xgic/ai/blob/main/docs/adr/0005-modular-xgic-cli-and-retirement-of-xde.md)) and publishes **`ghcr.io/xgic/payload-cms-dev`**. End-user template: [xgic/payload-cms](https://github.com/xgic/payload-cms).
 
+The release milestone is titled `X.Y.Z`, matching the published version. The Git tag stays `vX.Y.Z`. Set it on every issue and pull request included in the release. GitHub does not copy the issue milestone onto the pull request. The candidate and the final publish share it. Close the parent issue, then the milestone, after the final publish and its acceptance. [Work tracking](https://github.com/xgic/ai/blob/main/docs/work-tracking-and-checklists.md).
+
 ## Session & environment health (every time)
 
 Inside the Dev Container:
