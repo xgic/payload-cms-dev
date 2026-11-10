@@ -34,7 +34,7 @@ jobs:
       #    Pinned to release commit SHA for supply-chain security (best practice).
       #    Update the SHA periodically via Dependabot.
       - name: Run ShellCheck via reviewdog (warnings fail + PR annotations)
-        uses: reviewdog/action-shellcheck@0722bbdb0d47f04c1b53b8734d2422ac63a45ec6 # v1.32.1
+        uses: reviewdog/action-shellcheck@b4ffc0b2a69f857f82b74d1310cd3e62e932f9f7 # v1.35.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
